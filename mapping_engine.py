@@ -123,7 +123,40 @@ class ExpressionTranslator:
         # in Informatica; Spark uses CAST(x AS type). We rewrite CAST_T(expr...)
         # by taking the first top-level argument and casting it.
         s = cls._resolve_casts(s)
+        # Informatica TRUNC(date) with a single arg truncates to day. Spark's
+        # trunc() needs two args, so rewrite the single-arg form to DATE_TRUNC.
+        s = cls._resolve_single_arg_trunc(s)
         return s
+
+    @staticmethod
+    def _resolve_single_arg_trunc(s):
+        out = s
+        while "TRUNC(" in out:
+            start = out.find("TRUNC(")
+            open_paren = start + len("TRUNC")
+            depth = 0
+            i = open_paren
+            has_comma = False
+            while i < len(out):
+                if out[i] == "(":
+                    depth += 1
+                elif out[i] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                elif out[i] == "," and depth == 1:
+                    has_comma = True
+                i += 1
+            if i >= len(out):
+                break
+            arg = out[open_paren + 1:i]
+            if has_comma:
+                # already 2-arg; leave as a distinct token to avoid reprocessing
+                replacement = "DATETRUNC2(" + arg + ")"
+            else:
+                replacement = f"DATE_TRUNC('DAY', {arg})"
+            out = out[:start] + replacement + out[i + 1:]
+        return out.replace("DATETRUNC2(", "TRUNC(")
 
     @staticmethod
     def _resolve_casts(s):
@@ -250,13 +283,25 @@ class MappingModel:
 # The engine
 # ----------------------------------------------------------------------------
 class MappingEngine:
-    def __init__(self, spark, model, connections, runtime_vars=None):
+    def __init__(self, spark, model, connections, runtime_vars=None,
+                 session_overrides=None, session_attributes=None,
+                 transform_connections=None):
         self.spark = spark
         self.model = model
         self.conns = connections
         self.runtime_vars = runtime_vars or {}
         self.frames = {}   # instance_name -> DataFrame
         self.translator = ExpressionTranslator()
+        # session_overrides: {target_instance_name: {table, load_mode, connection,
+        # load{...}}} sourced from the workflow JSON. When present, these are
+        # authoritative for physical table name and write semantics, replacing
+        # the engine's own upstream-Update-Strategy heuristic.
+        self.session_overrides = session_overrides or {}
+        # session_attributes: {treat_source_rows_as, commit_interval, ...}
+        self.session_attributes = session_attributes or {}
+        # transform_connections: {transform_instance: connection_variable}
+        # e.g. per-lookup DB binding. Used so lookups read from the right DB.
+        self.transform_connections = transform_connections or {}
 
     # ---- helpers -----------------------------------------------------------
     def _F(self):
@@ -545,7 +590,7 @@ class MappingEngine:
         if not lk_table and not lk_sql:
             return df
 
-        lk_df = self._read_lookup(lk_table, lk_sql, attrs)
+        lk_df = self._read_lookup(lk_table, lk_sql, attrs, lookup_instance=name)
         if lk_df is None:
             return df
 
@@ -585,12 +630,22 @@ class MappingEngine:
             pass
         return out
 
-    def _read_lookup(self, table, sql_override, attrs):
-        """Read the lookup source (JDBC table or SQL override)."""
+    def _read_lookup(self, table, sql_override, attrs, lookup_instance=None):
+        """Read the lookup source, using the lookup's own connection when the
+        workflow declared one (transform_connections), else the default oracle."""
         try:
-            jc = self.conns.jdbc("oracle")
+            # Resolve the lookup's declared connection variable, if any.
+            conn_var = self.transform_connections.get(lookup_instance)
+            jc = None
+            if conn_var:
+                # connection var may key directly into connections.json, or the
+                # var name (with or without leading $) may be the key.
+                jc = (self.conns.get(conn_var)
+                      or self.conns.get(conn_var.lstrip("$"))
+                      or None)
             if not jc:
-                # try Hive/catalog table
+                jc = self.conns.jdbc("oracle")
+            if not jc:
                 return self.spark.table(table) if table else None
             dbtable = f"({sql_override}) t" if sql_override else table
             return (self.spark.read.format("jdbc")
@@ -863,7 +918,13 @@ class MappingEngine:
         return df
 
     def _op_target(self, name, inst):
-        """Write to the target: JDBC table or file, honoring __row_op if present."""
+        """Write to the target: JDBC table or file.
+
+        When a workflow session override exists for this target instance, it is
+        authoritative: it supplies the physical table name and the load mode
+        (append / upsert / update / delete / truncate_insert), overriding the
+        engine's own heuristics. Otherwise the engine falls back to the target
+        definition name and __row_op-based routing."""
         F = self._F()
         df = self._merged_input(name)
         if df is None:
@@ -873,6 +934,27 @@ class MappingEngine:
         tgt_name = inst.get("transformation_name")
         tgt_spec = self.model.targets.get(tgt_name, {})
         tgt_cols = [f["name"] for f in tgt_spec.get("fields", [])]
+
+        # workflow override is keyed by the INSTANCE name (e.g. *_INSERT / *_UPDATE)
+        override = self.session_overrides.get(name, {})
+        phys_table = override.get("table")          # e.g. DIM_MFG_DETAILS
+        load_mode = override.get("load_mode")        # e.g. upsert / append / ...
+
+        # Session-level 'Treat source rows as' sets the default DML intent for
+        # rows that carry no explicit Update Strategy row-op. Informatica applies
+        # this when the mapping has no Update Strategy transformation. We honor it
+        # by deriving a load_mode from it when the workflow gave us no per-target
+        # mode, so a session marked 'Update' actually updates rather than inserts.
+        tsra = (self.session_attributes.get("treat_source_rows_as") or "").lower()
+        if not load_mode and tsra:
+            load_mode = {
+                "insert": "append",
+                "update": "update",
+                "delete": "delete",
+                "data driven": None,   # honor per-row __row_op instead
+            }.get(tsra)
+            if load_mode:
+                print(f"    [session] treat source rows as '{tsra}' -> {load_mode}")
 
         # Capture sequence config (if a sequence generator fed this target)
         seq_cfg = None
@@ -892,43 +974,122 @@ class MappingEngine:
         conn = self.conns.get(tgt_name) or self.conns.get("target_default") or {}
         out_format = conn.get("format")
         db_type = (tgt_spec.get("database_type") or "").lower()
-
-        # Split by row-op if present
         has_row_op = "__row_op" in df.columns
 
+        # ---- file targets -------------------------------------------------
         if out_format in ("csv", "parquet", "json") or "flat file" in db_type:
-            path = conn.get("path", f"./output/{tgt_name}")
+            # for file targets the physical table name becomes the folder name
+            out_name = phys_table or tgt_name
+            path = conn.get("path", f"./output/{out_name}")
             writer = df.drop("__row_op") if has_row_op else df
-            (writer.write.mode(conn.get("mode", "overwrite"))
+            file_mode = "overwrite" if load_mode == "truncate_insert" else conn.get("mode", "overwrite")
+            (writer.write.mode(file_mode)
              .format(out_format or "csv")
              .option("header", "true")
              .save(path))
-            print(f"    [WRITE:file] {tgt_name} -> {path}")
+            tag = f" [{load_mode}]" if load_mode else ""
+            print(f"    [WRITE:file] {name} -> {path}{tag}")
             return df
 
-        # JDBC / Oracle target
+        # ---- JDBC / relational targets -----------------------------------
         jc = self.conns.jdbc("oracle")
-        owner = tgt_spec.get("owner_name") or jc.get("schema")
-        table = f"{owner}.{tgt_name}" if owner else tgt_name
+        owner = tgt_spec.get("owner_name") or (jc.get("schema") if jc else None)
+        base_table = phys_table or tgt_name          # workflow name wins
+        table = f"{owner}.{base_table}" if owner else base_table
 
         if not jc:
-            print(f"    [WARN] no JDBC connection; skipping physical write for {tgt_name}")
+            tag = f" [{load_mode}]" if load_mode else ""
+            print(f"    [WARN] no JDBC connection; would write {name} -> {table}{tag}")
             df.show(5, truncate=False)
             return df
 
-        if has_row_op:
+        # Dispatch on the workflow-declared load mode when present.
+        if load_mode:
+            self._write_with_load_mode(df, table, jc, tgt_spec, load_mode,
+                                       override.get("load", {}), has_row_op, name)
+        elif has_row_op:
             self._write_by_row_op(df, table, jc, tgt_spec)
         else:
             (df.write.format("jdbc")
-             .option("url", jc["url"])
-             .option("dbtable", table)
-             .option("user", jc["user"])
-             .option("password", jc["password"])
+             .option("url", jc["url"]).option("dbtable", table)
+             .option("user", jc["user"]).option("password", jc["password"])
              .option("driver", jc.get("driver", "oracle.jdbc.OracleDriver"))
-             .mode(conn.get("mode", "append"))
-             .save())
-            print(f"    [WRITE:jdbc] {tgt_name} -> {table} (append)")
+             .mode(conn.get("mode", "append")).save())
+            print(f"    [WRITE:jdbc] {name} -> {table} (append)")
         return df
+
+    def _write_with_load_mode(self, df, table, jc, tgt_spec, load_mode,
+                              load_flags, has_row_op, inst_name):
+        """Write honoring the workflow-declared load semantics.
+
+        append          -> insert all rows
+        truncate_insert -> overwrite (truncate then insert)
+        upsert          -> stage rows for MERGE (insert-or-update on keys)
+        update          -> stage rows for MERGE (update only, no insert)
+        delete          -> stage rows for DELETE by key
+
+        Row-level DD_ operations (from the mapping's Update Strategy) are combined
+        with the session gate: if __row_op is present we respect it, but the
+        session load flags bound what the writer is permitted to do."""
+        F = self._F()
+        drv = jc.get("driver", "oracle.jdbc.OracleDriver")
+        # Session 'Commit Interval' maps to the JDBC writer batch size.
+        batchsize = str(self.session_attributes.get("commit_interval")
+                        or jc.get("batchsize") or 10000)
+
+        def _write(frame, tbl, mode):
+            (frame.write.format("jdbc")
+             .option("url", jc["url"]).option("dbtable", tbl)
+             .option("user", jc["user"]).option("password", jc["password"])
+             .option("driver", drv).option("batchsize", batchsize)
+             .mode(mode).save())
+
+        clean = df.drop("__row_op") if has_row_op else df
+
+        if load_mode == "append":
+            _write(clean, table, "append")
+            print(f"    [WRITE:jdbc] {inst_name} -> {table} (append, {clean.count()} rows)")
+            return
+
+        if load_mode == "truncate_insert":
+            # overwrite with truncate so the table object/grants are preserved
+            (clean.write.format("jdbc")
+             .option("url", jc["url"]).option("dbtable", table)
+             .option("user", jc["user"]).option("password", jc["password"])
+             .option("driver", drv).option("truncate", "true")
+             .mode("overwrite").save())
+            print(f"    [WRITE:jdbc] {inst_name} -> {table} (truncate+insert, {clean.count()} rows)")
+            return
+
+        # upsert / update / delete need a MERGE or DELETE against Oracle, which
+        # Spark's JDBC writer cannot do directly. Stage the rows and emit the
+        # SQL the orchestrator (or a post-step) runs. This preserves correctness
+        # instead of silently appending.
+        keys = [f["name"] for f in tgt_spec.get("fields", [])
+                if (f.get("keytype") or "").upper().startswith("PRIMARY")]
+        stage_tbl = f"{table}_STG"
+        _write(clean, stage_tbl, "overwrite")
+
+        non_keys = [c for c in clean.columns if c not in keys]
+        if load_mode in ("upsert", "update") and keys:
+            on = " AND ".join([f"t.{k}=s.{k}" for k in keys])
+            setc = ", ".join([f"t.{c}=s.{c}" for c in non_keys])
+            insc = ", ".join(clean.columns)
+            insv = ", ".join([f"s.{c}" for c in clean.columns])
+            merge = (f"MERGE INTO {table} t USING {stage_tbl} s ON ({on}) "
+                     f"WHEN MATCHED THEN UPDATE SET {setc}")
+            if load_mode == "upsert":
+                merge += (f" WHEN NOT MATCHED THEN INSERT ({insc}) VALUES ({insv})")
+            print(f"    [STAGE→MERGE] {inst_name}: staged to {stage_tbl}; "
+                  f"run:\n        {merge}")
+        elif load_mode == "delete" and keys:
+            on = " AND ".join([f"t.{k}=s.{k}" for k in keys])
+            dele = f"DELETE FROM {table} t WHERE EXISTS (SELECT 1 FROM {stage_tbl} s WHERE {on})"
+            print(f"    [STAGE→DELETE] {inst_name}: staged to {stage_tbl}; "
+                  f"run:\n        {dele}")
+        else:
+            print(f"    [WARN] {inst_name}: load_mode={load_mode} but no primary "
+                  f"keys in target metadata; staged to {stage_tbl} only")
 
     def _materialize_sequence(self, df, seq_cfg, tgt_cols):
         """Generate a running surrogate key from the sequence config.
@@ -1042,6 +1203,8 @@ def main():
     ap.add_argument("--mapping", required=True, help="mapping JSON file")
     ap.add_argument("--connections", help="connections JSON file")
     ap.add_argument("--vars", help="runtime vars JSON (for $PM.. workflow variables)")
+    ap.add_argument("--workflow", help="workflow JSON file (for session target overrides)")
+    ap.add_argument("--session", help="session name within the workflow to apply")
     ap.add_argument("--dry-run", action="store_true",
                     help="parse + print DAG without a SparkSession")
     args = ap.parse_args()
@@ -1068,9 +1231,28 @@ def main():
         with open(args.vars) as f:
             runtime_vars = json.load(f)
 
+    # Optional: pull session target overrides from a workflow JSON
+    session_overrides = {}
+    session_attributes = {}
+    transform_connections = {}
+    if args.workflow and args.session:
+        with open(args.workflow) as f:
+            wf = json.load(f)
+        sess = wf.get("sessions", {}).get(args.session, {})
+        session_overrides = sess.get("targets", {})
+        session_attributes = sess.get("session_attributes", {})
+        transform_connections = sess.get("transform_connections", {})
+        # thread workflow assignment variables into runtime vars so mappings that
+        # reference them (e.g. $$CaptureRunTime) resolve rather than NULL out
+        for vn, vexpr in (wf.get("assignments") or {}).items():
+            runtime_vars.setdefault(vn, vexpr)
+
     spark = build_spark(model.name or "MappingEngine")
     spark.sparkContext.setLogLevel("WARN")
-    engine = MappingEngine(spark, model, connections, runtime_vars)
+    engine = MappingEngine(spark, model, connections, runtime_vars,
+                           session_overrides=session_overrides,
+                           session_attributes=session_attributes,
+                           transform_connections=transform_connections)
     engine.run()
     spark.stop()
 
