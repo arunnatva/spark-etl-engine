@@ -1198,63 +1198,42 @@ def build_spark(app_name):
             .getOrCreate())
 
 
-def main():
-    ap = argparse.ArgumentParser(description="Execute Informatica mapping JSON on Spark")
-    ap.add_argument("--mapping", required=True, help="mapping JSON file")
-    ap.add_argument("--connections", help="connections JSON file")
-    ap.add_argument("--vars", help="runtime vars JSON (for $PM.. workflow variables)")
-    ap.add_argument("--workflow", help="workflow JSON file (for session target overrides)")
-    ap.add_argument("--session", help="session name within the workflow to apply")
-    ap.add_argument("--dry-run", action="store_true",
-                    help="parse + print DAG without a SparkSession")
-    args = ap.parse_args()
+def _inspect(args):
+    """Debug helper: parse a mapping JSON and print its DAG. No Spark, no writes.
 
+    This is NOT the pipeline driver — run_workflow.py is. This exists only to
+    inspect a single mapping's parsed structure and execution order while
+    developing or debugging a converter's output.
+    """
     with open(args.mapping) as f:
         doc = json.load(f)
     model = MappingModel(doc)
+    print(f"Mapping: {model.name}")
+    print(f"Sources: {list(model.sources)}")
+    print(f"Targets: {list(model.targets)}")
+    print(f"\nTopological execution order ({len(model.order)} nodes):")
+    for n in model.order:
+        inst = model.instances.get(n, {})
+        ins = model.inputs_of(n)
+        print(f"  {n:34s} [{(inst.get('transformation_type') or ''):18s}] "
+              f"inputs={ins}")
 
-    if args.dry_run:
-        print(f"Mapping: {model.name}")
-        print(f"Sources: {list(model.sources)}")
-        print(f"Targets: {list(model.targets)}")
-        print("\nTopological execution order:")
-        for n in model.order:
-            inst = model.instances.get(n, {})
-            ins = model.inputs_of(n)
-            print(f"  {n:34s} [{inst.get('transformation_type'):18s}] "
-                  f"inputs={ins}")
-        return
 
-    connections = ConnectionRegistry(args.connections)
-    runtime_vars = {}
-    if args.vars:
-        with open(args.vars) as f:
-            runtime_vars = json.load(f)
+def main():
+    ap = argparse.ArgumentParser(
+        description="Mapping engine library. This is NOT the pipeline driver — "
+                    "use run_workflow.py to execute pipelines. This CLI only "
+                    "inspects a single mapping JSON's parsed DAG for debugging.")
+    ap.add_argument("--mapping", required=True, help="mapping JSON file to inspect")
+    ap.add_argument("--inspect", action="store_true",
+                    help="print the parsed DAG and execution order, then exit")
+    args = ap.parse_args()
 
-    # Optional: pull session target overrides from a workflow JSON
-    session_overrides = {}
-    session_attributes = {}
-    transform_connections = {}
-    if args.workflow and args.session:
-        with open(args.workflow) as f:
-            wf = json.load(f)
-        sess = wf.get("sessions", {}).get(args.session, {})
-        session_overrides = sess.get("targets", {})
-        session_attributes = sess.get("session_attributes", {})
-        transform_connections = sess.get("transform_connections", {})
-        # thread workflow assignment variables into runtime vars so mappings that
-        # reference them (e.g. $$CaptureRunTime) resolve rather than NULL out
-        for vn, vexpr in (wf.get("assignments") or {}).items():
-            runtime_vars.setdefault(vn, vexpr)
-
-    spark = build_spark(model.name or "MappingEngine")
-    spark.sparkContext.setLogLevel("WARN")
-    engine = MappingEngine(spark, model, connections, runtime_vars,
-                           session_overrides=session_overrides,
-                           session_attributes=session_attributes,
-                           transform_connections=transform_connections)
-    engine.run()
-    spark.stop()
+    if not args.inspect:
+        ap.error("mapping_engine.py does not execute pipelines directly. "
+                 "Run pipelines with run_workflow.py. To inspect a mapping's "
+                 "parsed DAG, pass --inspect.")
+    _inspect(args)
 
 
 if __name__ == "__main__":

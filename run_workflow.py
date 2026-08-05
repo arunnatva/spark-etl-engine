@@ -182,6 +182,10 @@ def run(args):
         mp = sess.get("mapping_name")
         mf = resolved.get(s)
 
+        # Single-session mode: run just the named session, skip the rest.
+        if args.only_session and s != args.only_session:
+            continue
+
         # Gate on predecessors if requested
         if args.honor_conditions:
             dep_status = [status.get(d) for d in preds.get(s, [])]
@@ -230,6 +234,8 @@ def main():
                     help="directory containing mapping JSON files")
     ap.add_argument("--connections", help="connections JSON file")
     ap.add_argument("--vars", help="runtime vars JSON file")
+    ap.add_argument("--only-session",
+                    help="run just this one session (skips the rest of the DAG)")
     ap.add_argument("--plan-only", action="store_true",
                     help="print the resolved execution plan and exit")
     ap.add_argument("--honor-conditions", action="store_true",
