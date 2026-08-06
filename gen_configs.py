@@ -17,6 +17,7 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 
 
@@ -111,21 +112,123 @@ def scaffold_vars(doc):
     return out, sorted(found)
 
 
+def _split_shared_and_per_mapping(mapping_doc):
+    """Split a mapping's connection scaffold into (shared, per_mapping).
+
+    Shared = physical infrastructure common across mappings (the 'oracle' block,
+    'target_default'). Per-mapping = source/target file paths and table specifics.
+    """
+    full = scaffold_connections(mapping_doc)
+    shared_keys = {"oracle", "target_default"}
+    shared = {k: v for k, v in full.items() if k in shared_keys}
+    per_mapping = {k: v for k, v in full.items() if k not in shared_keys}
+    return shared, per_mapping
+
+
+def generate_layered(workflow_path, mappings_dir, out_dir):
+    """From a workflow JSON + mappings dir, emit a layered config tree:
+        <out_dir>/connections.json                     (shared base)
+        <out_dir>/vars.json                            (shared base)
+        <out_dir>/configs/<mapping>.connections.json   (per-mapping overrides)
+        <out_dir>/configs/<mapping>.vars.json          (per-mapping, if any vars)
+    """
+    import glob
+    wf = json.load(open(workflow_path))
+    os.makedirs(os.path.join(out_dir, "configs"), exist_ok=True)
+
+    # index mapping JSONs by their mapping.name
+    mapping_files = {}
+    for fp in glob.glob(os.path.join(mappings_dir, "*.json")):
+        try:
+            d = json.load(open(fp))
+            nm = d.get("mapping", {}).get("name")
+            if nm:
+                mapping_files[nm] = (fp, d)
+        except Exception:
+            continue
+
+    shared_conn = {
+        "oracle": {
+            "url": "jdbc:oracle:thin:@//HOST:1521/SERVICE",
+            "user": PLACEHOLDER, "password": "${ORACLE_PWD}",
+            "driver": "oracle.jdbc.OracleDriver", "schema": PLACEHOLDER,
+            "fetchsize": 10000, "batchsize": 10000,
+        },
+        "target_default": {"format": "jdbc", "mode": "append"},
+    }
+    # connection variables referenced by the workflow become shared keys too
+    for cvar, ctype in (wf.get("connection_variables") or {}).items():
+        shared_conn.setdefault(cvar, {
+            "format": "jdbc" if ctype == "Relational" else PLACEHOLDER,
+            "url": PLACEHOLDER, "user": PLACEHOLDER, "password": "${PWD}",
+        })
+
+    shared_vars = {}
+    used_mappings = set()
+    for sname, sess in wf.get("sessions", {}).items():
+        mp = sess.get("mapping_name")
+        if mp:
+            used_mappings.add(mp)
+
+    per_written = 0
+    for mp in sorted(used_mappings):
+        entry = mapping_files.get(mp)
+        if not entry:
+            continue
+        _, mdoc = entry
+        _, per_conn = _split_shared_and_per_mapping(mdoc)
+        json.dump(per_conn,
+                  open(os.path.join(out_dir, "configs", f"{mp}.connections.json"), "w"),
+                  indent=2)
+        mvars, _ = scaffold_vars(mdoc)
+        if mvars:
+            for k in mvars:
+                shared_vars.setdefault(k, mvars[k])
+        per_written += 1
+
+    # workflow assignment variables are shared
+    for vn in (wf.get("assignments") or {}):
+        shared_vars.setdefault(vn, PLACEHOLDER)
+
+    json.dump(shared_conn, open(os.path.join(out_dir, "connections.json"), "w"), indent=2)
+    json.dump(shared_vars, open(os.path.join(out_dir, "vars.json"), "w"), indent=2)
+
+    print(f"Layered config generated under {out_dir}/")
+    print(f"  connections.json   (shared: oracle, target_default, "
+          f"{len(wf.get('connection_variables') or {})} connection vars)")
+    print(f"  vars.json          ({len(shared_vars)} variables)")
+    print(f"  configs/           ({per_written} per-mapping connection files)")
+    print(f"\nNext: replace every \"{PLACEHOLDER}\" with real values, and set "
+          f"source/target paths in the per-mapping files.")
+
+
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--mapping", required=True)
+    ap = argparse.ArgumentParser(
+        description="Scaffold connection/vars configs. Single-mapping mode emits "
+                    "one flat pair; workflow mode emits a layered shared+per-mapping tree.")
+    ap.add_argument("--mapping", help="single mapping JSON (flat mode)")
     ap.add_argument("--out-connections", default="connections.json")
     ap.add_argument("--out-vars", default="vars.json")
+    # workflow (layered) mode
+    ap.add_argument("--workflow", help="workflow JSON (layered mode)")
+    ap.add_argument("--mappings-dir", help="dir of mapping JSONs (layered mode)")
+    ap.add_argument("--out-dir", default=".", help="output dir for layered mode")
     args = ap.parse_args()
 
-    doc = json.load(open(args.mapping))
+    if args.workflow:
+        if not args.mappings_dir:
+            ap.error("--workflow requires --mappings-dir")
+        generate_layered(args.workflow, args.mappings_dir, args.out_dir)
+        return
 
+    if not args.mapping:
+        ap.error("provide --mapping (flat mode) or --workflow + --mappings-dir (layered)")
+
+    doc = json.load(open(args.mapping))
     conns = scaffold_connections(doc)
     json.dump(conns, open(args.out_connections, "w"), indent=2)
-
     vars_out, found = scaffold_vars(doc)
     json.dump(vars_out, open(args.out_vars, "w"), indent=2)
-
     print(f"Wrote {args.out_connections}:")
     print(f"  {len(doc.get('sources', []))} sources, "
           f"{len(doc.get('targets', []))} targets + shared 'oracle' block")

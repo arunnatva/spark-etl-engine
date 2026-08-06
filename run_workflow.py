@@ -105,6 +105,48 @@ class WorkflowPlan:
         return preds
 
 
+def _deep_merge(base, override):
+    """Recursively merge override into a copy of base (override wins)."""
+    out = dict(base)
+    for k, v in (override or {}).items():
+        if k in out and isinstance(out[k], dict) and isinstance(v, dict):
+            out[k] = _deep_merge(out[k], v)
+        else:
+            out[k] = v
+    return out
+
+
+def _load_json(path):
+    with open(path) as f:
+        return json.load(f)
+
+
+def load_layered_config(base_path, per_mapping_dir, mapping_name, kind):
+    """Build a config dict for one mapping by layering:
+        1. shared base file (base_path), applied to every mapping
+        2. optional per-mapping file  <per_mapping_dir>/<mapping_name>.<kind>.json
+           (or <mapping_name>.json inside a kind-named subdir)
+    Per-mapping values override the shared base. Either layer may be absent.
+
+    kind is 'connections' or 'vars' (used only to locate the per-mapping file).
+    """
+    merged = {}
+    if base_path and os.path.exists(base_path):
+        merged = _load_json(base_path)
+
+    if per_mapping_dir and mapping_name:
+        candidates = [
+            os.path.join(per_mapping_dir, f"{mapping_name}.{kind}.json"),
+            os.path.join(per_mapping_dir, kind, f"{mapping_name}.json"),
+            os.path.join(per_mapping_dir, f"{mapping_name}.json"),
+        ]
+        for c in candidates:
+            if os.path.exists(c):
+                merged = _deep_merge(merged, _load_json(c))
+                break
+    return merged
+
+
 def find_mapping_file(mappings_dir, mapping_name):
     """Locate the mapping JSON for a mapping name in the mappings dir."""
     candidates = [
@@ -163,15 +205,16 @@ def run(args):
         print("\n(plan-only: not executing)")
         return
 
-    connections = ConnectionRegistry(args.connections)
-    runtime_vars = {}
-    if args.vars:
-        with open(args.vars) as f:
-            runtime_vars = json.load(f)
-    # thread workflow-level assignment variables (e.g. $$CaptureRunTime) so any
-    # mapping referencing them resolves instead of producing NULLs
-    for vn, vexpr in (wf_doc.get("assignments") or {}).items():
-        runtime_vars.setdefault(vn, vexpr)
+    # Shared base configs (apply to every mapping). Per-mapping override files,
+    # if present in --config-dir, are layered on top inside the loop.
+    base_connections = {}
+    if args.connections and os.path.exists(args.connections):
+        base_connections = _load_json(args.connections)
+    base_vars = {}
+    if args.vars and os.path.exists(args.vars):
+        base_vars = _load_json(args.vars)
+    # workflow-level assignment variables (e.g. $$CaptureRunTime) apply to all
+    wf_assignments = wf_doc.get("assignments") or {}
 
     spark = build_spark(plan.name or "WorkflowRunner")
     spark.sparkContext.setLogLevel("WARN")
@@ -199,14 +242,26 @@ def run(args):
             status[s] = "skipped"
             continue
 
+        # Build this session's effective config: shared base + per-mapping override
+        conn_dict = _deep_merge(
+            base_connections,
+            load_layered_config(None, args.config_dir, mp, "connections")
+            if args.config_dir else {})
+        var_dict = _deep_merge(
+            base_vars,
+            load_layered_config(None, args.config_dir, mp, "vars")
+            if args.config_dir else {})
+        # workflow assignments fill in only where the mapping/base didn't set them
+        for vn, vexpr in wf_assignments.items():
+            var_dict.setdefault(vn, vexpr)
+
         print(f"\n{'='*60}\n[SESSION] {s}  (mapping {mp})\n{'='*60}")
         try:
-            with open(mf) as f:
-                doc = json.load(f)
+            doc = _load_json(mf)
             model = MappingModel(doc)
             overrides = sess.get("targets", {})
             engine = MappingEngine(
-                spark, model, connections, runtime_vars,
+                spark, model, ConnectionRegistry(conns=conn_dict), var_dict,
                 session_overrides=overrides,
                 session_attributes=sess.get("session_attributes", {}),
                 transform_connections=sess.get("transform_connections", {}),
@@ -232,8 +287,12 @@ def main():
     ap.add_argument("--workflow", required=True, help="workflow JSON file")
     ap.add_argument("--mappings-dir", required=True,
                     help="directory containing mapping JSON files")
-    ap.add_argument("--connections", help="connections JSON file")
-    ap.add_argument("--vars", help="runtime vars JSON file")
+    ap.add_argument("--connections", help="shared base connections JSON (applies to all mappings)")
+    ap.add_argument("--vars", help="shared base vars JSON (applies to all mappings)")
+    ap.add_argument("--config-dir",
+                    help="optional dir of per-mapping override files "
+                         "(<mapping>.connections.json / <mapping>.vars.json); "
+                         "these layer on top of the shared base")
     ap.add_argument("--only-session",
                     help="run just this one session (skips the rest of the DAG)")
     ap.add_argument("--plan-only", action="store_true",

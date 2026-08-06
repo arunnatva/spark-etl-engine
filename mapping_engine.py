@@ -198,11 +198,16 @@ class ExpressionTranslator:
 # Connection registry (kept separate from mapping logic)
 # ----------------------------------------------------------------------------
 class ConnectionRegistry:
-    def __init__(self, conn_file=None):
-        self.conns = {}
-        if conn_file:
+    def __init__(self, conn_file=None, conns=None):
+        # Accept either a path (single-file use) or an already-merged dict
+        # (the orchestrator merges a shared base with per-session overrides).
+        if conns is not None:
+            self.conns = conns
+        elif conn_file:
             with open(conn_file) as f:
                 self.conns = json.load(f)
+        else:
+            self.conns = {}
 
     def get(self, name, default=None):
         return self.conns.get(name, default)
