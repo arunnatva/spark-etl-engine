@@ -42,6 +42,18 @@ from collections import defaultdict, deque
 
 
 # ----------------------------------------------------------------------------
+# Logging Module
+# ----------------------------------------------------------------------------
+
+from datetime import datetime
+
+def log(msg):
+    print(
+        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}] {msg}", 
+        flush=True
+    )
+
+# ----------------------------------------------------------------------------
 # Informatica -> Spark expression translation (light-touch, extend as needed)
 # ----------------------------------------------------------------------------
 class ExpressionTranslator:
@@ -126,6 +138,7 @@ class ExpressionTranslator:
         # Informatica TRUNC(date) with a single arg truncates to day. Spark's
         # trunc() needs two args, so rewrite the single-arg form to DATE_TRUNC.
         s = cls._resolve_single_arg_trunc(s)
+        print(f"%%%%%%% Expression : {s}")
         return s
 
     @staticmethod
@@ -288,9 +301,19 @@ class MappingModel:
 # The engine
 # ----------------------------------------------------------------------------
 class MappingEngine:
-    def __init__(self, spark, model, connections, runtime_vars=None,
-                 session_overrides=None, session_attributes=None,
-                 transform_connections=None):
+
+    def __init__(
+            self,
+            spark,
+            model,
+            connections,
+            runtime_vars=None,
+            session_overrides=None,
+            session_attributes=None,
+            transform_connections=None,
+            workflow_sources=None,
+            workflow_targets=None):
+
         self.spark = spark
         self.model = model
         self.conns = connections
@@ -307,6 +330,8 @@ class MappingEngine:
         # transform_connections: {transform_instance: connection_variable}
         # e.g. per-lookup DB binding. Used so lookups read from the right DB.
         self.transform_connections = transform_connections or {}
+        self.workflow_sources = workflow_sources or {}
+        self.workflow_targets = workflow_targets or {}
 
     # ---- helpers -----------------------------------------------------------
     def _F(self):
@@ -401,7 +426,8 @@ class MappingEngine:
             inst = self._instance(name)
             ttype = inst.get("transformation_type", "")
             handler = self._dispatch(ttype)
-            print(f"[RUN] {name}  ({ttype})")
+            #print(f"[RUN] {name}  ({ttype}) {inst} handler is {handler}")
+            
             self.frames[name] = handler(name, inst)
         print("=== Mapping complete ===")
 
@@ -445,42 +471,52 @@ class MappingEngine:
             print(f"    [WARN] no source found upstream of {name}")
             return None
 
-        df = self._read_source(source_spec)
-
+        print("#### AFTER READING FROM SOURCE ")
         # Source Qualifier options
         tf = self._transform(inst)
         attrs = tf.get("table_attributes", {}) if tf else {}
         sql_override = (attrs.get("Sql Query") or "").strip()
+        df = self._read_source(source_spec, sql_override)
         src_filter = (attrs.get("Source Filter") or "").strip()
         select_distinct = (attrs.get("Select Distinct") or "NO").upper() == "YES"
-
+        table_name = name.removeprefix("SQ_")
+        print("#### modified table name ", table_name)
         if sql_override:
-            df.createOrReplaceTempView(f"{name}_src")
-            df = self.spark.sql(sql_override)
+            #df.createOrReplaceTempView(table_name)
+            #df = self.spark.sql(sql_override)
+            log(f"**** SQL OVERRIDE IS PROVIDED ****")
         if src_filter:
-            df = df.filter(src_filter)
+            #df = df.filter(src_filter)
+            log(f"src filter : {src_filter}")
         if select_distinct:
-            df = df.distinct()
+            #df = df.distinct()
+            log(f"select distinct : {select_distinct}")
 
         # Project to the SQ's OUTPUT ports (keeps only mapped columns downstream)
         return df
 
-    def _read_source(self, source_spec):
+    def _read_source(self, source_spec, sql_override):
         """Read a source definition based on its database_type."""
-        db_type = (source_spec.get("database_type") or "").lower()
+        #db_type = (source_spec.get("database_type") or "").lower()
         name = source_spec["name"]
+        print("*** printing name, : ", name)
         cols = [f["name"] for f in source_spec.get("fields", [])]
+        #log(f" *** cols *** : {cols} ")
+        #conn = self.conns.get(name) or self.conns.get(db_type) or {}
+        #reader_format = conn.get("format")
 
-        conn = self.conns.get(name) or self.conns.get(db_type) or {}
-        reader_format = conn.get("format")
+        workflow_src = self.workflow_sources.get(name, {})
+        log(f" workflow src : {workflow_src} ")
+        source_path = workflow_src.get("path")
+        log(f" *** source path *** {source_path} ")
+        source_type = workflow_src.get("type")
+        log(f" *** source type *** {source_type} ")
 
-        if "flat file" in db_type or reader_format in ("csv", "flatfile"):
-            path = conn.get("path", f"./data/{name}.csv")
-            df = (self.spark.read
-                  .option("header", conn.get("header", "true"))
-                  .option("sep", conn.get("sep", ","))
-                  .option("inferSchema", conn.get("inferSchema", "true"))
-                  .csv(path))
+        if source_type == "file" and source_path:
+            source_working_path = self._get_working_path(source_path)
+            log(f" *** SOURCE PATH FROM WORKFLOW : {source_path} ** temp src path ** : {source_working_path}")
+            df = self.spark.read.parquet(source_working_path)
+
             # align column names if header differs
             if len(df.columns) == len(cols) and conn.get("apply_names", True):
                 for old, new in zip(df.columns, cols):
@@ -488,23 +524,48 @@ class MappingEngine:
                         df = df.withColumnRenamed(old, new)
             return df
 
-        if "oracle" in db_type or reader_format == "jdbc":
-            jc = self.conns.jdbc("oracle")
-            owner = source_spec.get("owner_name") or jc.get("schema")
+        if source_type == "jdbc":
+            log(f"*** IN JDBC SECTION ***")
+            jc = self.conns.jdbc("src_oracle")
+            schema = jc.get("schema")
+            owner = source_spec.get("owner_name")
+            owner = jc.get("schema") or source_spec.get("owner_name")
+            log(f" **** schema : {schema}  owner : {owner} name : {name} ")
             table = f"{owner}.{name}" if owner else name
-            return (self.spark.read.format("jdbc")
+            if sql_override:
+                if owner:
+                    pattern = rf"(?<!\.)\b{name}\b"
+                    sql = re.sub(
+                        rf"(?<!\.)\b{name}\b",
+                        f"{owner}.{name}",
+                        sql_override,
+                        flags=re.IGNORECASE,
+                    )
+
+                    dbtable_stmt = f"""({sql_override}) SRC"""
+                else:
+                    dbtable_stmt = f"""({sql_override}) SRC"""
+            else:
+                dbtable_stmt = table
+
+            log(f"############ Table name or SQL Query : {dbtable_stmt} ")
+            print("###### url : ", jc["url"])
+            print("###### user : ", jc["user"])
+            
+            mydf = (self.spark.read.format("jdbc")
                     .option("url", jc["url"])
-                    .option("dbtable", table)
+                    .option("dbtable", dbtable_stmt)
                     .option("user", jc["user"])
                     .option("password", jc["password"])
+                    .option("fetchSize", "50000")
                     .option("driver", jc.get("driver", "oracle.jdbc.OracleDriver"))
                     .load())
+            mydf.show(1)
+            return mydf
 
-        if reader_format == "parquet":
-            return self.spark.read.parquet(conn["path"])
 
         # default: empty frame with the declared schema so the DAG still runs
-        print(f"    [WARN] unknown source db_type={db_type!r} for {name}; empty frame")
+        log(f"    [WARN] unknown source db_type={db_type!r} for {name}; empty frame")
         from pyspark.sql.types import StructType, StructField, StringType
         schema = StructType([StructField(c, StringType(), True) for c in cols])
         return self.spark.createDataFrame([], schema)
@@ -528,6 +589,7 @@ class MappingEngine:
         # order, so a variable can reference earlier variables.
         var_defs = {}  # var_name -> resolved spark expression string
         for f in fields:
+            #print(f"fields in expression : {f}")
             pt = (f.get("port_type") or "").upper()
             if "VARIABLE" not in pt:
                 continue
@@ -592,16 +654,19 @@ class MappingEngine:
         lk_cond = (attrs.get("Lookup condition") or "").strip()
         lk_sql = (attrs.get("Lookup Sql Override") or "").strip()
 
+        log(f"######## LOOKUP table : {lk_table} LOOKUP COND : {lk_cond} LOOKUP SQL : {lk_sql}")
         if not lk_table and not lk_sql:
             return df
 
         lk_df = self._read_lookup(lk_table, lk_sql, attrs, lookup_instance=name)
+        lk_df.show(1)
         if lk_df is None:
             return df
 
         # Parse "P1 = USYS_H1_LEVEL1 AND P2 = USYS_H1_LEVEL2 ..." into join keys.
         # Left side = lookup port, right side = incoming stream port.
         join_pairs = self._parse_lookup_condition(lk_cond)
+        log(f"***** join pairs :  {join_pairs} ")
         if not join_pairs:
             return df
 
@@ -611,7 +676,10 @@ class MappingEngine:
         conds = []
         for lk_col, st_col in join_pairs:
             if lk_col in lk_df.columns and st_col in df.columns:
-                conds.append(F.col(f"lk.{lk_col}") == F.col(f"st.{st_col}"))
+                if ( lk_col.upper().endswith("DATE") or st_col.upper().endswith("DATE") ):
+                    conds.append( self._normalize_join_col(F.col(f"lk.{lk_col}")) == self._normalize_join_col(F.col(f"st.{st_col}")) )
+                else:
+                    conds.append(F.col(f"lk.{lk_col}") == F.col(f"st.{st_col}"))
         if not conds:
             return df
         join_cond = conds[0]
@@ -620,16 +688,20 @@ class MappingEngine:
 
         policy = (attrs.get("Lookup policy on multiple match") or "").lower()
         joined = st_alias.join(lk_alias, join_cond, how="left")
+        print("######### join condition : ", join_cond)
+        st_alias.show(1)
+        lk_alias.show(1)
 
         # Bring lookup OUTPUT ports that aren't join keys into the stream.
         lk_out_cols = [f["name"] for f in tf.get("fields", [])
                        if "OUTPUT" in (f.get("port_type") or "").upper()]
         select_cols = [F.col(f"st.{c}") for c in df.columns]
+        print(f" ^^^^^^^^^^ LOOKUP OUT COLS : {lk_out_cols} SELECT COLS : {select_cols} ")
         for c in lk_out_cols:
             if c in lk_df.columns and c not in df.columns:
                 select_cols.append(F.col(f"lk.{c}"))
         out = joined.select(*select_cols)
-
+        out.show(1)
         if "use last value" in policy or "use first value" in policy:
             # de-dup already handled upstream in most cases; leave as-is for parity
             pass
@@ -652,6 +724,8 @@ class MappingEngine:
                 jc = self.conns.jdbc("oracle")
             if not jc:
                 return self.spark.table(table) if table else None
+            db_url = jc["url"]
+            log(f" *** LOOKUP TABLE DB URL *** : {db_url} ")
             dbtable = f"({sql_override}) t" if sql_override else table
             return (self.spark.read.format("jdbc")
                     .option("url", jc["url"])
@@ -930,21 +1004,28 @@ class MappingEngine:
         (append / upsert / update / delete / truncate_insert), overriding the
         engine's own heuristics. Otherwise the engine falls back to the target
         definition name and __row_op-based routing."""
+        log("**** Inside op_target ***")
+
         F = self._F()
         df = self._merged_input(name)
         if df is None:
             print(f"    [WARN] nothing to write for {name}")
             return None
 
+        part_ct = df.rdd.getNumPartitions()
         tgt_name = inst.get("transformation_name")
         tgt_spec = self.model.targets.get(tgt_name, {})
         tgt_cols = [f["name"] for f in tgt_spec.get("fields", [])]
+        log(f" **** tgt_name : {tgt_name} **** ")
 
         # workflow override is keyed by the INSTANCE name (e.g. *_INSERT / *_UPDATE)
         override = self.session_overrides.get(name, {})
         phys_table = override.get("table")          # e.g. DIM_MFG_DETAILS
         load_mode = override.get("load_mode")        # e.g. upsert / append / ...
 
+        print("***** override ", override)
+        print("***** load_mode ", load_mode)
+        
         # Session-level 'Treat source rows as' sets the default DML intent for
         # rows that carry no explicit Update Strategy row-op. Informatica applies
         # this when the mapping has no Update Strategy transformation. We honor it
@@ -971,41 +1052,89 @@ class MappingEngine:
 
         # Align to declared target columns (case-insensitive match)
         df = self._align_to_target(df, tgt_cols)
+        try:
+            log("*** Before enforce target lengths ***")
+            df = self._enforce_target_lengths(df, tgt_spec)
+            df.show(1,truncate=False)
+            log("*** After enforce target lengths ***")
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise
+
+        #df.select('urep_orderno',len('urep_orderno')).show()
 
         # Now generate the surrogate key into the target's key column(s)
         if seq_cfg is not None:
             df = self._materialize_sequence(df, seq_cfg, tgt_cols)
 
-        conn = self.conns.get(tgt_name) or self.conns.get("target_default") or {}
-        out_format = conn.get("format")
-        db_type = (tgt_spec.get("database_type") or "").lower()
+        print(f"**** TGT_NAME **** : {tgt_name}")
+
+        #conn = self.conns.get(tgt_name) or self.conns.get("target_default") or {}
+        #print(f" ***** CONN connection : {conn} ")
+        #print(f" ***** CONNECTIONS *** : {self.conns} ")
+        #out_format = conn.get("format")
+
+        workflow_tgt = self.workflow_targets.get(name, self.workflow_targets.get(tgt_name, {}))
+        target_path = workflow_tgt.get("path")
+        target_type = workflow_tgt.get("type")
+
+        conn = self.conns.get(tgt_name) or {}
+        out_format = conn.get("format") 
+
+
+        #db_type = (tgt_spec.get("database_type") or "").lower()
         has_row_op = "__row_op" in df.columns
 
         # ---- file targets -------------------------------------------------
-        if out_format in ("csv", "parquet", "json") or "flat file" in db_type:
+        log(f"*** in FILE TARGETS: {target_type} {target_path} ")
+        #if out_format in ("csv", "parquet", "json") or "flat file" in db_type:
+
+        is_file_target = ( target_type == "file" or target_path )
+        if is_file_target:
             # for file targets the physical table name becomes the folder name
-            out_name = phys_table or tgt_name
-            path = conn.get("path", f"./output/{out_name}")
+            path = target_path #out_name = phys_table or tgt_name
+            if not path:
+                raise Exception(f" No path defined for file target {tgt_name} ")
+
+            working_path = self._get_working_path(path)
+            print(f"*** PRINT THE PATH : {path} WORKING PATH : {working_path}")
             writer = df.drop("__row_op") if has_row_op else df
+            writer = writer.repartition(4)
+            print("**** NBR OF PARTITIONS : ", writer.rdd.getNumPartitions())
             file_mode = "overwrite" if load_mode == "truncate_insert" else conn.get("mode", "overwrite")
             (writer.write.mode(file_mode)
-             .format(out_format or "csv")
-             .option("header", "true")
-             .save(path))
+             .format("parquet")
+             .save(working_path))
+            log(f" *** workflow target metadata *** : {workflow_tgt} ")
+            log(f"*** target path from workflow : {target_path} ")
+            log(f"*** target type from workflow : {target_type} ")
+ 
             tag = f" [{load_mode}]" if load_mode else ""
-            print(f"    [WRITE:file] {name} -> {path}{tag}")
+            log(f"    [WRITE:file] {name} -> {working_path}{tag}")
+            # ---- ICEBERG targets----------------------------------------------
+            parts = path.rstrip("/").split("/")
+            iceberg_database = parts[-2]
+            iceberg_table = parts[-1]
+            iceberg_qualified_table = f"{iceberg_database}.{iceberg_table}"
+            log("**** Writing into iceberg table ***")
+            writer.writeTo(iceberg_qualified_table).overwritePartitions()
+            log(f"### [WRITE:iceberg] {iceberg_qualified_table} ") 
+            #
             return df
 
         # ---- JDBC / relational targets -----------------------------------
-        jc = self.conns.jdbc("oracle")
+        jc = self.conns.jdbc("tgt_oracle")
         owner = tgt_spec.get("owner_name") or (jc.get("schema") if jc else None)
         base_table = phys_table or tgt_name          # workflow name wins
         table = f"{owner}.{base_table}" if owner else base_table
 
+        print(f"****** target Oracle table name {table} ")
+
         if not jc:
             tag = f" [{load_mode}]" if load_mode else ""
             print(f"    [WARN] no JDBC connection; would write {name} -> {table}{tag}")
-            df.show(5, truncate=False)
+            df.show(1, truncate=False)
             return df
 
         # Dispatch on the workflow-declared load mode when present.
@@ -1036,6 +1165,8 @@ class MappingEngine:
         Row-level DD_ operations (from the mapping's Update Strategy) are combined
         with the session gate: if __row_op is present we respect it, but the
         session load flags bound what the writer is permitted to do."""
+        
+        print("***** in Write_with_load_mode function ***")
         F = self._F()
         drv = jc.get("driver", "oracle.jdbc.OracleDriver")
         # Session 'Commit Interval' maps to the JDBC writer batch size.
@@ -1052,11 +1183,17 @@ class MappingEngine:
         clean = df.drop("__row_op") if has_row_op else df
 
         if load_mode == "append":
+            print("**** load mode is append ")
             _write(clean, table, "append")
             print(f"    [WRITE:jdbc] {inst_name} -> {table} (append, {clean.count()} rows)")
             return
 
         if load_mode == "truncate_insert":
+            print("***** load mode is truncate_insert ****")
+            print("**** JDBC URL **** ", jc["url"])
+            print("**** JDBC USER **** ", jc["user"])
+            print("**** TARGET TABLE NAME *****", table)
+
             # overwrite with truncate so the table object/grants are preserved
             (clean.write.format("jdbc")
              .option("url", jc["url"]).option("dbtable", table)
@@ -1156,6 +1293,49 @@ class MappingEngine:
             selected.append(F.col("__row_op"))
         return df.select(*selected)
 
+
+    def _enforce_target_lengths(self, df, tgt_spec):
+        """ This module is to apply target spec column lengths on dataframes """
+        from pyspark.sql import functions as F
+
+        #log(f" *** TGT SPEC : {tgt_spec} ***")
+        #print(" DF COLUMNS : ", df.columns)
+
+        for field in tgt_spec.get("fields", []):
+
+            col_name = field.get("name")
+
+            if col_name not in df.columns:
+                log(f"*** COL NAME NOT IN DF.COLUMNS *** {col_name} ")
+                continue
+
+            datatype = str(field.get("datatype", "")).lower()
+
+            if (
+                "char" not in datatype
+                and "varchar" not in datatype
+                and datatype != "string"
+            ):
+                continue
+
+            precision = field.get("precision")
+
+            if not precision:
+                log(f" *** PRECISON DOES NOT EXIST *** {precision} ")
+                continue
+
+            log(f"***** column name: {col_name} datatype: {datatype} precision: {precision} ****")
+
+            precision = int(precision)
+
+            df = df.withColumn(
+                col_name,
+                F.expr(f"substr({col_name}, 1, {precision})")
+            )
+
+        return df
+
+
     def _write_by_row_op(self, df, table, jc, tgt_spec):
         """Branch writes by DD_ row-op. INSERT->append, UPDATE/DELETE->log.
 
@@ -1193,6 +1373,77 @@ class MappingEngine:
 
     def _op_passthrough(self, name, inst):
         return self._merged_input(name)
+
+
+
+    def _get_working_path(self, workflow_path):
+        """
+        Input:
+            s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg
+
+        Output:
+            s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_avail_stg
+        """
+
+        return workflow_path.replace(
+            "/str/",
+            "/str/eth_working_dir/",
+        )
+
+
+    def _normalize_join_col(self, col_expr):
+        F = self._F()
+
+        c = F.trim(col_expr.cast("string"))
+
+        return F.coalesce(
+
+            # yyyy-MM-dd HH:mm:ss.SSSSSS
+            F.to_date(
+                F.to_timestamp(
+                    c,
+                    "yyyy-MM-dd HH:mm:ss.SSSSSS"
+                )
+            ),
+
+            # yyyy-MM-dd HH:mm:ss.SSSSS
+            F.to_date(
+                F.to_timestamp(
+                    c,
+                    "yyyy-MM-dd HH:mm:ss.SSSSS"
+                )
+            ),
+
+            # yyyy-MM-dd HH:mm:ss
+            F.to_date(
+                F.to_timestamp(
+                    c,
+                    "yyyy-MM-dd HH:mm:ss"
+                )
+            ),
+
+            # yyyy-MM-dd
+            F.to_date(
+                c,
+                "yyyy-MM-dd"
+            ),
+
+            # MM/dd/yyyy
+            F.to_date(
+                c,
+                "MM/dd/yyyy"
+            ),
+
+            # yyyy/MM/dd
+            F.to_date(
+                c,
+                "yyyy/MM/dd"
+            )
+
+        )
+
+#### End of  MAPPING ENGINE Class definition
+
 
 
 def build_spark(app_name):

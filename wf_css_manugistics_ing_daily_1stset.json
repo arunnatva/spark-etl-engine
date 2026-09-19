@@ -1,0 +1,995 @@
+{
+  "workflow_name": "wf_css_manugistics_ing_daily_1stset",
+  "sessions": {
+    "s_css_manu_udtmnkitcapacity_stg": {
+      "session_name": "s_css_manu_udtmnkitcapacity_stg",
+      "mapping_name": "m_css_manu_udtmnkitcapacity_stg",
+      "targets": {
+        "css_manu_ing_udtmnkitcapacity_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "UDTM_NKIT_CAPACITY": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_UDTM_NKIT_CAPACITY": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_recship_stg": {
+      "session_name": "s_css_manu_recship_stg",
+      "mapping_name": "m_css_manu_recship_stg",
+      "targets": {
+        "css_manu_ing_recship_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "RECSHIP": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_RECSHIP": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_udtmdeployment_stg": {
+      "session_name": "s_css_manu_udtmdeployment_stg",
+      "mapping_name": "m_css_manu_udtmdeployment_stg",
+      "targets": {
+        "css_manu_ing_udtmdeployment_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "UDTM_DEPLOYMENT": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_UDTM_DEPLOYMENT": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_planarriv_stg": {
+      "session_name": "s_css_manu_planarriv_stg",
+      "mapping_name": "m_css_manu_planarriv_stg",
+      "targets": {
+        "css_manu_ing_planarriv_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "PLANARRIV": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_PLANARRIV": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_fcstdraft_stg": {
+      "session_name": "s_css_manu_fcstdraft_stg",
+      "mapping_name": "m_css_manu_fcstdraft_stg",
+      "targets": {
+        "css_manu_ing_fcstdraft_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "FCSTDRAFT": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_FCSTDRAFT": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_udtmdeployment_ddl": {
+      "session_name": "s_css_manu_udtmdeployment_ddl",
+      "mapping_name": "m_css_manu_udtmdeployment_ddl",
+      "targets": {
+        "ING_UDTM_DEPLOYMENT": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_udtm_deployment.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_udtmdeployment_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_udtmdeployment_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_vehicleload_ddl": {
+      "session_name": "s_css_manu_vehicleload_ddl",
+      "mapping_name": "m_css_manu_vehicleload_ddl",
+      "targets": {
+        "ING_VEHICLELOAD": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_vehicleload.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_vehicleload_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_vehicleload_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_vehicleloadline_stg": {
+      "session_name": "s_css_manu_vehicleloadline_stg",
+      "mapping_name": "m_css_manu_vehicleloadline_stg",
+      "targets": {
+        "css_manu_ing_vehicleloadline_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "VEHICLELOADLINE": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_VEHICLELOADLINE": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_vehicleload_stg": {
+      "session_name": "s_css_manu_vehicleload_stg",
+      "mapping_name": "m_css_manu_vehicleload_stg",
+      "targets": {
+        "css_manu_ing_vehicleload_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "VEHICLELOAD": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_VEHICLELOAD": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_fcstdraft_ddl": {
+      "session_name": "s_css_manu_fcstdraft_ddl",
+      "mapping_name": "m_css_manu_fcstdraft_ddl",
+      "targets": {
+        "ING_FCSTDRAFT": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_fcstdraft.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_fcstdraft_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_fcstdraft_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_vehicleloadline_ddl": {
+      "session_name": "s_css_manu_vehicleloadline_ddl",
+      "mapping_name": "m_css_manu_vehicleloadline_ddl",
+      "targets": {
+        "ING_VEHICLELOADLINE": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_vehicleloadline.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_vehicleloadline_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_vehicleloadline_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_udtmnkitcapacity_ddl": {
+      "session_name": "s_css_manu_udtmnkitcapacity_ddl",
+      "mapping_name": "m_css_manu_udtmnkitcapacity_ddl",
+      "targets": {
+        "ING_UDTM_NKIT_CAPACITY": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_udtm_nkit_capacity.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_udtmnkitcapacity_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_udtmnkitcapacity_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_planorder_stg": {
+      "session_name": "s_css_manu_planorder_stg",
+      "mapping_name": "m_css_manu_planorder_stg",
+      "targets": {
+        "css_manu_ing_planorder_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "PLANORDER": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_PLANORDER": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_fcst_ddl": {
+      "session_name": "s_css_manu_fcst_ddl",
+      "mapping_name": "m_css_manu_fcst_ddl",
+      "targets": {
+        "ING_FCST": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_fcst.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_fcst_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_fcst_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_planarriv_ddl": {
+      "session_name": "s_css_manu_planarriv_ddl",
+      "mapping_name": "m_css_manu_planarriv_ddl",
+      "targets": {
+        "ING_PLANARRIV": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_planarriv.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_planarriv_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_planarriv_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_fcst_stg": {
+      "session_name": "s_css_manu_fcst_stg",
+      "mapping_name": "m_css_manu_fcst_stg",
+      "targets": {
+        "css_manu_ing_fcst_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "FCST": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_FCST": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {
+        "DIM_DATE": "$DBConnection_ETH_REPORT_TGT_DB"
+      },
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_udtmschedrcpts_stg": {
+      "session_name": "s_css_manu_udtmschedrcpts_stg",
+      "mapping_name": "m_css_manu_udtmschedrcpts_stg",
+      "targets": {
+        "css_manu_ing_udtmschedrcpts_stg": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append"
+        }
+      },
+      "sources": {
+        "UDTM_SCHEDRCPTS": {
+          "subtype": "Relational Reader",
+          "connection": null
+        },
+        "SQ_UDTM_SCHEDRCPTS": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_udtmschedrcpts_ddl": {
+      "session_name": "s_css_manu_udtmschedrcpts_ddl",
+      "mapping_name": "m_css_manu_udtmschedrcpts_ddl",
+      "targets": {
+        "ING_UDTM_SCHEDRCPTS": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_udtm_schedrcpts.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_udtmschedrcpts_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_udtmschedrcpts_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_recship_ddl": {
+      "session_name": "s_css_manu_recship_ddl",
+      "mapping_name": "m_css_manu_recship_ddl",
+      "targets": {
+        "ING_RECSHIP": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_recship.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_recship_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_recship_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    },
+    "s_css_manu_planorder_ddl": {
+      "session_name": "s_css_manu_planorder_ddl",
+      "mapping_name": "m_css_manu_planorder_ddl",
+      "targets": {
+        "ING_PLANORDER": {
+          "table": null,
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": true,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "ing_planorder.bad",
+          "load_mode": "truncate_insert"
+        }
+      },
+      "sources": {
+        "css_manu_ing_planorder_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null
+        },
+        "SQ_css_manu_ing_planorder_stg": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO"
+      }
+    }
+  },
+  "tasks": {
+    "Start": "Start",
+    "s_css_manu_udtmschedrcpts_stg": "Session",
+    "s_css_manu_udtmschedrcpts_ddl": "Session",
+    "s_css_manu_udtmdeployment_ddl": "Session",
+    "s_css_manu_planarriv_stg": "Session",
+    "s_css_manu_udtmnkitcapacity_ddl": "Session",
+    "s_css_manu_fcstdraft_stg": "Session",
+    "s_css_manu_vehicleloadline_ddl": "Session",
+    "s_css_manu_fcst_stg": "Session",
+    "s_css_manu_planorder_ddl": "Session",
+    "s_css_manu_vehicleloadline_stg": "Session",
+    "s_css_manu_recship_ddl": "Session",
+    "s_css_manu_vehicleload_stg": "Session",
+    "CSS_Ingestion_Refresh_Success_Email": "Email",
+    "s_css_manu_planorder_stg": "Session",
+    "s_css_manu_vehicleload_ddl": "Session",
+    "s_css_manu_recship_stg": "Session",
+    "s_css_manu_fcst_ddl": "Session",
+    "s_css_manu_planarriv_ddl": "Session",
+    "s_css_manu_udtmdeployment_stg": "Session",
+    "s_css_manu_fcstdraft_ddl": "Session",
+    "s_css_manu_udtmnkitcapacity_stg": "Session",
+    "Decision_Daily": "Decision"
+  },
+  "links": [
+    {
+      "from": "Start",
+      "to": "s_css_manu_udtmschedrcpts_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_udtmschedrcpts_stg",
+      "to": "s_css_manu_udtmschedrcpts_ddl",
+      "condition": "$s_css_manu_udtmschedrcpts_stg.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_udtmdeployment_stg",
+      "to": "s_css_manu_udtmdeployment_ddl",
+      "condition": "$s_css_manu_udtmdeployment_stg.Status=succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_planarriv_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_udtmnkitcapacity_stg",
+      "to": "s_css_manu_udtmnkitcapacity_ddl",
+      "condition": "$s_css_manu_udtmnkitcapacity_stg.Status=Succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_fcstdraft_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_vehicleloadline_stg",
+      "to": "s_css_manu_vehicleloadline_ddl",
+      "condition": "$s_css_manu_vehicleloadline_stg.Status=succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_fcst_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_planorder_stg",
+      "to": "s_css_manu_planorder_ddl",
+      "condition": "$s_css_manu_planorder_stg.Status=Succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_vehicleloadline_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_recship_stg",
+      "to": "s_css_manu_recship_ddl",
+      "condition": "$s_css_manu_recship_stg.Status=succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_vehicleload_stg",
+      "condition": ""
+    },
+    {
+      "from": "Decision_Daily",
+      "to": "CSS_Ingestion_Refresh_Success_Email",
+      "condition": "$s_css_manu_fcstdraft_ddl.Status=Succeeded AND\r\n$s_css_manu_planarriv_ddl.Status=Succeeded AND\r\n$s_css_manu_recship_ddl.Status=Succeeded AND\r\n$s_css_manu_udtmdeployment_ddl.Status=Succeeded AND\r\n$s_css_manu_udtmschedrcpts_ddl.Status=Succeeded AND\r\n$s_css_manu_vehicleload_ddl.Status=Succeeded AND\r\n$s_css_manu_vehicleloadline_ddl.Status=Succeeded AND \r\n$s_css_manu_planorder_ddl.Status=Succeeded AND \r\n$s_css_manu_udtmnkitcapacity_ddl.Status=Succeeded AND \r\n$s_css_manu_fcst_ddl.Status=Succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_planorder_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_vehicleload_stg",
+      "to": "s_css_manu_vehicleload_ddl",
+      "condition": "$s_css_manu_vehicleload_stg.Status=succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_recship_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_fcst_stg",
+      "to": "s_css_manu_fcst_ddl",
+      "condition": "$s_css_manu_fcst_stg.Status=Succeeded"
+    },
+    {
+      "from": "s_css_manu_planarriv_stg",
+      "to": "s_css_manu_planarriv_ddl",
+      "condition": "$s_css_manu_planarriv_stg.Status=succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_udtmdeployment_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_fcstdraft_stg",
+      "to": "s_css_manu_fcstdraft_ddl",
+      "condition": "$s_css_manu_fcstdraft_stg.Status=succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "s_css_manu_udtmnkitcapacity_stg",
+      "condition": ""
+    },
+    {
+      "from": "s_css_manu_fcstdraft_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_fcstdraft_ddl.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_planarriv_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_planarriv_ddl.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_recship_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_recship_ddl.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_vehicleloadline_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_vehicleloadline_ddl.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_udtmdeployment_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_udtmdeployment_ddl.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_udtmschedrcpts_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_udtmschedrcpts_ddl.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_vehicleload_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_vehicleload_ddl.Status=succeeded"
+    },
+    {
+      "from": "s_css_manu_planorder_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_planorder_ddl.Status=Succeeded"
+    },
+    {
+      "from": "s_css_manu_udtmnkitcapacity_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_udtmnkitcapacity_ddl.Status=Succeeded"
+    },
+    {
+      "from": "s_css_manu_fcst_ddl",
+      "to": "Decision_Daily",
+      "condition": "$s_css_manu_fcst_ddl.Status=Succeeded"
+    }
+  ],
+  "assignments": {},
+  "connection_variables": {
+    "$DBConnection_Manu_src_DB": "Relational",
+    "$AppConnection_EDL_STG": "Application",
+    "$DBConnection_ETH_REPORT_TGT_DB": "Relational"
+  }
+}

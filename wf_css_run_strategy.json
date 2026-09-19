@@ -1,0 +1,1670 @@
+{
+  "workflow_name": "wf_CSS_RUN_STRATEGY",
+  "sessions": {
+    "s_m_CSS_RS_NKIT_TO_STG": {
+      "session_name": "s_m_CSS_RS_NKIT_TO_STG",
+      "mapping_name": "m_CSS_RS_NKIT_TO_STG",
+      "sources": {
+        "CALDATA": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_CALDATA": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "SQTRANS": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "RES": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQTRANS1": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "CAL": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQTRANS2": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "SKUPLANNINGPARAM": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_LEADTIME": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "SKU": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_RES_ITEM": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        }
+      },
+      "targets": {
+        "TG_CSS_NKIT_WORKING_DAYS": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg",
+          "hive_table": "tg_css_nkit_workingdays_stg"
+        },
+        "TG_CSS_CAL_AVAIL_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg",
+          "hive_table": "tg_css_cal_avail_stg"
+        },
+        "TG_CSS_RES_AVAIL_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg",
+          "hive_table": "tg_css_res_avail_stg"
+        },
+        "TG_CSS_RES_PREVIOUS_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_previous_stg",
+          "hive_table": "tg_css_res_previous_stg"
+        },
+        "TG_CSS_MFG_LEADTIME": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg",
+          "hive_table": "tg_css_mfg_leadtime_stg"
+        },
+        "TG_CSS_RES_ITEM_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg",
+          "hive_table": "tg_css_res_item_stg"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_m_CSS_DIM_STG_TO_WRK": {
+      "session_name": "s_m_CSS_DIM_STG_TO_WRK",
+      "mapping_name": "m_CSS_DIM_STG_TO_WRK",
+      "sources": {
+        "SQ_SRC_ITEM_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg"
+        },
+        "SRC_RES2_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SRC_ITEM_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_RES2_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg"
+        },
+        "SQ_SRC_LOC_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg"
+        },
+        "SRC_LOC_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_SKU_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg"
+        },
+        "SRC_SKU_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SRC_UPRM_OPTIONS_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_UPRM_OPTIONS_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg"
+        }
+      },
+      "targets": {
+        "TG_SKU_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk",
+          "hive_table": "tg_sku_wrk"
+        },
+        "TG_RES_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk",
+          "hive_table": "tg_res_wrk"
+        },
+        "TG_ITEM_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk",
+          "hive_table": "tg_item_wrk"
+        },
+        "TG_LOC_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk",
+          "hive_table": "tg_loc_wrk"
+        },
+        "TG_UPRM_OPTIONS_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk",
+          "hive_table": "tg_uprm_options_wrk"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_m_CSS_CORE_TO_ORACLE": {
+      "session_name": "s_m_CSS_CORE_TO_ORACLE",
+      "mapping_name": "m_CSS_CORE_TO_ORACLE",
+      "sources": {
+        "SRC_MFG_DETAILS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_MFG_DETAILS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_CORE",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_mfg_details_core"
+        },
+        "SRC_SKU_ITEM_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_SKU_ITEM_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_CORE",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_sku_item_loc_core"
+        },
+        "SRC_P_LEVELS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_P_LEVELS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_CORE",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevels_core"
+        },
+        "SRC_CSS_UPRM_OPTIONS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_UPRM_OPTIONS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_CORE",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevel_targets_core"
+        }
+      },
+      "targets": {
+        "TG_MFG_DETAILS_REPORT_INSERT": {
+          "table": "DIM_MFG_DETAILS",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_mfg_details_report.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        },
+        "TG_PLEVELS_REPORT_INSERT": {
+          "table": "DIM_PLEVELS",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_plevels_report.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        },
+        "TG_CSS_DIM_SKU_ITEM_LOC_INSERT": {
+          "table": "DIM_SKU_ITEM_LOC",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_css_dim_sku_item_loc1.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        },
+        "TG_PLEVEL_TARGETS": {
+          "table": "DIM_PLEVEL_TARGETS",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_plevel_targets1.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        },
+        "TG_CSS_DIM_SKU_ITEM_LOC_UPDATE": {
+          "table": "DIM_SKU_ITEM_LOC",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_css_dim_sku_item_loc_update1.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        },
+        "TG_CSS_DIM_MFG_DETAILS_UPDATE": {
+          "table": "DIM_MFG_DETAILS",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_css_dim_mfg_details_update1.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        },
+        "TG_CSS_DIM_PLEVEL_TARGETS_UPDATE": {
+          "table": "DIM_PLEVEL_TARGETS",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_css_dim_plevel_targets_update1.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        },
+        "TG_CSS_DIM_PLEVELS_UPDATE": {
+          "table": "DIM_PLEVELS",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": true,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_css_dim_plevels_update1.bad",
+          "load_mode": "upsert",
+          "type": "jdbc"
+        }
+      },
+      "transform_connections": {
+        "LKP_Plevels": "$DBConnection_ETH_REPORT_TGT_DB",
+        "LKP_MFG_DEAILS": "$DBConnection_ETH_REPORT_TGT_DB",
+        "lkup_plevel_targets": "$DBConnection_ETH_REPORT_TGT_DB",
+        "lkup_sku_item_loc_new": "$DBConnection_ETH_REPORT_TGT_DB"
+      },
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Update",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_CSS_RS_STG_TO_WRK": {
+      "session_name": "s_CSS_RS_STG_TO_WRK",
+      "mapping_name": "m_CSS_RS_STG_TO_WRK",
+      "sources": {
+        "SRC_CSS_CALDATA_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_CALDATA_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg"
+        },
+        "SRC_CSS_PLANARRIV_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_PLANARRIV_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg"
+        },
+        "SRC_CSS_PLANORDER_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_PLANORDER_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg"
+        },
+        "SRC_CSS_CAL_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_CAL_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg"
+        },
+        "SRC_CSS_RS_UDTM_SKUPROJSTATIC_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RS_UDTM_SKUPROJSTATIC_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg"
+        },
+        "SRC_CSS_NKIT_WORKING_DAYS_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_NKIT_WORKING_DAYS_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg"
+        },
+        "SRC_CSS_RES_AVAIL_STG2": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RES_AVAIL_STG2": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg"
+        },
+        "SRC_CSS_CAL_AVAIL_STG2": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_CAL_AVAIL_STG2": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg"
+        },
+        "SRC_CSS_MFG_LEADTIME_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_MFG_LEADTIME_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg"
+        },
+        "SRC_CSS_RES_ITEM_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RES_ITEM_STG": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_STG",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg"
+        }
+      },
+      "targets": {
+        "TG_CSS_PLANARRIV_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_planarriv_wrk",
+          "hive_table": "tg_css_planarriv_wrk"
+        },
+        "TG_CSS_CALDATA_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_caldata_wrk",
+          "hive_table": "tg_css_caldata_wrk"
+        },
+        "TG_CSS_PLANORDER_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_planorder_wrk",
+          "hive_table": "tg_css_planorder_wrk"
+        },
+        "TG_CSS_CAL_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_wrk",
+          "hive_table": "tg_css_cal_wrk"
+        },
+        "TG_CSS_RS_UDTM_SKUPROJSTATIC_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_rs_udtm_skuproj_wrk",
+          "hive_table": "tg_css_rs_udtm_skuproj_wrk"
+        },
+        "TG_CSS_CAL_AVAIL_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_cal_avail_wrk",
+          "hive_table": "tg_css_cal_avail_wrk"
+        },
+        "TG_CSS_NKIT_WORKING_DAYS_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_nkit_workingdays_wrk",
+          "hive_table": "tg_css_nkit_workingdays_wrk"
+        },
+        "TG_CSS_RES_AVAIL_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_avail_wrk",
+          "hive_table": "tg_css_res_avail_wrk"
+        },
+        "TG_CSS_MFG_LEADTIME_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_mfg_leadtime_wrk",
+          "hive_table": "tg_css_mfg_leadtime_wrk"
+        },
+        "TG_SRC_CSS_RES_ITEM_WRK": {
+          "table": null,
+          "connection": "$AppConnection_EDL_WRK",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_item_wrk",
+          "hive_table": "tg_css_res_item_stg"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_m_CSS_DIM_ORACLE_TO_STG": {
+      "session_name": "s_m_CSS_DIM_ORACLE_TO_STG",
+      "mapping_name": "m_CSS_DIM_ORACLE_TO_STG",
+      "sources": {
+        "SQ_RES": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "RES": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_LOC": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "SQ_SKU": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "SKU": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "LOC": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "ITEM": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_ITEM": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        },
+        "UPRM_OPTIONS": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_UPRM_OPTIONS": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_Manu_src_DB",
+          "type": "null"
+        }
+      },
+      "targets": {
+        "TG_RES_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg",
+          "hive_table": "tg_res_stg"
+        },
+        "TG_LOC_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg",
+          "hive_table": "tg_loc_stg"
+        },
+        "TG_SKU_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg",
+          "hive_table": "tg_sku_stg"
+        },
+        "TG_ITEM_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg",
+          "hive_table": "tg_item_stg"
+        },
+        "TG_UPRM_OPTIONS_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg",
+          "hive_table": "tg_uprm_options_stg"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_m_RS_FACT_CORE_TO_ORACLE": {
+      "session_name": "s_m_RS_FACT_CORE_TO_ORACLE",
+      "mapping_name": "m_CSS_RS_FACT_CORE_TO_ORACLE",
+      "sources": {
+        "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_CORE",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_rs_mfg_details_skuproj_core"
+        },
+        "SRC_CSS_NKIT_CAPACITY_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_NKIT_CAPACITY_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_CORE",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_css_nkit_capacity_core"
+        }
+      },
+      "targets": {
+        "TG_FACT_SKU_CAPACITIES_A_ORACLE": {
+          "table": "FACT_SKU_CAPACITIES_A",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": true,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": true,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_fact_sku_capacities_a_oracle1.bad",
+          "load_mode": "append",
+          "type": "jdbc"
+        },
+        "TG_FACT_SKU_CAPACITIES_LOC_A": {
+          "table": "FACT_SKU_CAPACITIES",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "load": {
+            "insert": true,
+            "update_as_update": true,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": true,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": "tg_fact_sku_capacities_loc_a1.bad",
+          "load_mode": "append",
+          "type": "jdbc"
+        }
+      },
+      "transform_connections": {
+        "lkup_mfg_details": "$DBConnection_ETH_REPORT_TGT_DB",
+        "lkup_item_loc": "$DBConnection_ETH_REPORT_TGT_DB",
+        "lkup_plevels": "$DBConnection_ETH_REPORT_TGT_DB",
+        "lkup_rs_dim_date": "$DBConnection_ETH_REPORT_TGT_DB"
+      },
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_m_CSS_DIM_WRK_TO_CORE": {
+      "session_name": "s_m_CSS_DIM_WRK_TO_CORE",
+      "mapping_name": "m_CSS_DIM_WRK_TO_CORE",
+      "sources": {
+        "SQ_SRC_ITEM_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk"
+        },
+        "SRC_ITEM_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_RES_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk"
+        },
+        "SRC_RES_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SRC_SKU_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_LOC_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk"
+        },
+        "SRC_LOC_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_SKU_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk"
+        },
+        "SRC_UPRM_OPTIONS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_UPRM_OPTIONS_CORE": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk"
+        }
+      },
+      "targets": {
+        "TG_P_LEVELS_CORE": {
+          "table": null,
+          "connection": "$AppConnection_EDL_CORE",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevels_core",
+          "hive_table": "tg_plevels_core"
+        },
+        "TG_SKU_ITEM_CORE": {
+          "table": null,
+          "connection": "$AppConnection_EDL_CORE",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_sku_item_loc_core",
+          "hive_table": "tg_sku_item_loc_core"
+        },
+        "TG_MFG_DETAILS_CORE": {
+          "table": null,
+          "connection": "$AppConnection_EDL_CORE",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_mfg_details_core",
+          "hive_table": "tg_mfg_details_core"
+        },
+        "TG_CSS_UPRM_OPTIONS_CORE": {
+          "table": null,
+          "connection": "$AppConnection_EDL_CORE",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_uprm_options_core",
+          "hive_table": "tg_uprm_options_core"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_m_CSS_RS_ORACLE_TO_STG": {
+      "session_name": "s_m_CSS_RS_ORACLE_TO_STG",
+      "mapping_name": "m_CSS_RS_ORACLE_TO_STG",
+      "sources": {
+        "SRC_CSS_RS_ORACLE_CALDATA": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RS_ORACLE_CALDATA": {
+          "subtype": "Relational Reader",
+          "connection": "Manugistics_CSS_Ora",
+          "type": "null"
+        },
+        "SRC_CSS_RS_ORACLE_PLANORDER": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RS_ORACLE_PLANORDER": {
+          "subtype": "Relational Reader",
+          "connection": "Manugistics_CSS_Ora",
+          "type": "null"
+        },
+        "SRC_CSS_RS_ORCALE_PLANARRIV": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RS_ORCALE_PLANARRIV": {
+          "subtype": "Relational Reader",
+          "connection": "Manugistics_CSS_Ora",
+          "type": "null"
+        },
+        "SRC_CSS_RS_ORACLE_CAL": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RS_ORACLE_CAL": {
+          "subtype": "Relational Reader",
+          "connection": "Manugistics_CSS_Ora",
+          "type": "null"
+        },
+        "SRC_CSS_RS_ORACLE_UDTM_SKUPROJ": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RS_ORACLE_UDTM_SKUPROJ": {
+          "subtype": "Relational Reader",
+          "connection": "Manugistics_CSS_Ora",
+          "type": "null"
+        }
+      },
+      "targets": {
+        "TG_CSS_CALDATA_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg",
+          "hive_table": "tg_css_caldata_stg"
+        },
+        "TG_CSS_PLANARRIV_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg",
+          "hive_table": "tg_css_planarriv_stg"
+        },
+        "TG_CSS_PLANORDER_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg",
+          "hive_table": "tg_css_planorder_stg"
+        },
+        "TG_CSS_CAL_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg",
+          "hive_table": "tg_css_cal_stg"
+        },
+        "TG_CSS_RS_UDTM_SKUPROJ_STG": {
+          "table": null,
+          "connection": "$AppConnection_EDL_STG",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg",
+          "hive_table": "tg_css_rs_udtm_skuproj_stg"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    },
+    "s_CSS_RS_WRK_TO_CORE": {
+      "session_name": "s_CSS_RS_WRK_TO_CORE",
+      "mapping_name": "m_CSS_RS_WRK_TO_CORE",
+      "sources": {
+        "SRC_CSS_RS_UDTM_SKUPROJSTATIC_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_RS_UDTM_SKUPROJSTATIC_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_rs_udtm_skuproj_wrk"
+        },
+        "SRC_RS_SKU_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_RS_SKU_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk"
+        },
+        "SRC_RS_ITEM_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_RS_ITEM_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk"
+        },
+        "SRC_RS_LOC_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_RS_LOC_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk"
+        },
+        "SRC_RS_RES_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_RS_RES_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk"
+        },
+        "SRC_CSS_RES_AVAIL_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SRC_CSS_CAL_AVAIL_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SRC_CSS_NKIT_WORKING_DAYS_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_CAL_AVAIL_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_cal_avail_wrk"
+        },
+        "SQ_SRC_CSS_NKIT_WORKING_DAYS_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_nkit_workingdays_wrk"
+        },
+        "SQ_SRC_CSS_RES_AVAIL_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_avail_wrk"
+        },
+        "SRC_CSS_MFG_LEADTIME_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": null,
+          "type": "null"
+        },
+        "SQ_SRC_CSS_MFG_LEADTIME_WRK": {
+          "subtype": "HDFS Flat File Reader",
+          "connection": "$AppConnection_EDL_WRK",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_mfg_leadtime_wrk"
+        },
+        "SQ_DIM_DATE": {
+          "subtype": "Relational Reader",
+          "connection": "$DBConnection_ETH_REPORT_TGT_DB",
+          "type": "null"
+        },
+        "DIM_DATE": {
+          "subtype": "Relational Reader",
+          "connection": null,
+          "type": "null"
+        }
+      },
+      "targets": {
+        "TG_RS_MFG_DETAILS_SKUPROJSTATIC_CORE": {
+          "table": null,
+          "connection": "$AppConnection_EDL_CORE",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_rs_mfg_details_skuproj_core",
+          "hive_table": "tg_rs_mfg_details_skuproj_core"
+        },
+        "TG_CSS_NKIT_CAPACITY_CORE": {
+          "table": null,
+          "connection": "$AppConnection_EDL_CORE",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_css_nkit_capacity_core",
+          "hive_table": "tg_css_nkit_capacity_core"
+        },
+        "TG_CSS_TEMP_LEAD_TIME": {
+          "table": null,
+          "connection": "$AppConnection_EDL_CORE",
+          "load": {
+            "insert": false,
+            "update_as_update": false,
+            "update_as_insert": false,
+            "update_else_insert": false,
+            "delete": false,
+            "truncate": false,
+            "target_load_type": "Normal"
+          },
+          "reject_file": null,
+          "load_mode": "append",
+          "type": "file",
+          "path": "s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_css_temp_lead_time_core",
+          "hive_table": "tg_css_temp_lead_time_core"
+        }
+      },
+      "transform_connections": {},
+      "session_attributes": {
+        "test_load": "NO",
+        "treat_source_rows_as": "Insert",
+        "commit_type": "Target",
+        "commit_interval": "10000",
+        "commit_on_eof": "YES",
+        "rollback_on_error": "NO",
+        "high_precision": "NO"
+      }
+    }
+  },
+  "tasks": {
+    "s_m_CSS_DIM_ORACLE_TO_STG": "Session",
+    "CORETOORACLERunTime": "Assignment",
+    "Start": "Start",
+    "s_m_CSS_RS_ORACLE_TO_STG": "Session",
+    "WRKTOCORERunTime": "Assignment",
+    "s_m_CSS_DIM_STG_TO_WRK": "Session",
+    "s_m_RS_FACT_CORE_TO_ORACLE": "Session",
+    "s_m_CSS_RS_NKIT_TO_STG": "Session",
+    "s_CSS_RS_STG_TO_WRK": "Session",
+    "NkitRuntime": "Assignment",
+    "s_CSS_RS_WRK_TO_CORE": "Session",
+    "s_m_CSS_DIM_WRK_TO_CORE": "Session",
+    "OracleToStageRunTime": "Assignment",
+    "STGTOWRKRunTime": "Assignment",
+    "s_m_CSS_CORE_TO_ORACLE": "Session"
+  },
+  "links": [
+    {
+      "from": "CORETOORACLERunTime",
+      "to": "s_m_CSS_DIM_ORACLE_TO_STG",
+      "condition": "$CORETOORACLERunTime.Status= succeeded"
+    },
+    {
+      "from": "s_CSS_RS_WRK_TO_CORE",
+      "to": "CORETOORACLERunTime",
+      "condition": "$s_CSS_RS_WRK_TO_CORE.Status = succeeded"
+    },
+    {
+      "from": "OracleToStageRunTime",
+      "to": "s_m_CSS_RS_ORACLE_TO_STG",
+      "condition": "$OracleToStageRunTime.Status = succeeded"
+    },
+    {
+      "from": "s_CSS_RS_STG_TO_WRK",
+      "to": "WRKTOCORERunTime",
+      "condition": "$s_CSS_RS_STG_TO_WRK.Status = succeeded"
+    },
+    {
+      "from": "s_m_CSS_DIM_ORACLE_TO_STG",
+      "to": "s_m_CSS_DIM_STG_TO_WRK",
+      "condition": "$s_m_CSS_DIM_ORACLE_TO_STG.Status = succeeded"
+    },
+    {
+      "from": "s_m_CSS_CORE_TO_ORACLE",
+      "to": "s_m_RS_FACT_CORE_TO_ORACLE",
+      "condition": "$s_m_CSS_CORE_TO_ORACLE.Status = succeeded"
+    },
+    {
+      "from": "NkitRuntime",
+      "to": "s_m_CSS_RS_NKIT_TO_STG",
+      "condition": ""
+    },
+    {
+      "from": "STGTOWRKRunTime",
+      "to": "s_CSS_RS_STG_TO_WRK",
+      "condition": "$STGTOWRKRunTime.Status = succeeded"
+    },
+    {
+      "from": "Start",
+      "to": "NkitRuntime",
+      "condition": ""
+    },
+    {
+      "from": "WRKTOCORERunTime",
+      "to": "s_CSS_RS_WRK_TO_CORE",
+      "condition": "$WRKTOCORERunTime.Status = succeeded"
+    },
+    {
+      "from": "s_m_CSS_DIM_STG_TO_WRK",
+      "to": "s_m_CSS_DIM_WRK_TO_CORE",
+      "condition": "$s_m_CSS_DIM_STG_TO_WRK.Status = succeeded"
+    },
+    {
+      "from": "s_m_CSS_RS_NKIT_TO_STG",
+      "to": "OracleToStageRunTime",
+      "condition": "$s_m_CSS_RS_NKIT_TO_STG.Status = succeeded"
+    },
+    {
+      "from": "s_m_CSS_RS_ORACLE_TO_STG",
+      "to": "STGTOWRKRunTime",
+      "condition": "$s_m_CSS_RS_ORACLE_TO_STG.Status = succeeded"
+    },
+    {
+      "from": "s_m_CSS_DIM_WRK_TO_CORE",
+      "to": "s_m_CSS_CORE_TO_ORACLE",
+      "condition": "$s_m_CSS_DIM_WRK_TO_CORE.Status = succeeded"
+    }
+  ],
+  "assignments": {
+    "$$CaptureRunTime": "TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')"
+  },
+  "connection_variables": {
+    "$DBConnection_Manu_src_DB": "Relational",
+    "$AppConnection_EDL_STG": "Application",
+    "$AppConnection_EDL_WRK": "Application",
+    "$AppConnection_EDL_CORE": "Application",
+    "$DBConnection_ETH_REPORT_TGT_DB": "Relational"
+  }
+}

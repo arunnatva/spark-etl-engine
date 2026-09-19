@@ -30,7 +30,7 @@ import os
 from collections import defaultdict, deque
 
 from mapping_engine import (
-    MappingModel, MappingEngine, ConnectionRegistry, build_spark,
+    MappingModel, MappingEngine, ConnectionRegistry, build_spark, log
 )
 
 
@@ -117,6 +117,7 @@ def _deep_merge(base, override):
 
 
 def _load_json(path):
+    #log("json file is : " + path)
     with open(path) as f:
         return json.load(f)
 
@@ -130,6 +131,12 @@ def load_layered_config(base_path, per_mapping_dir, mapping_name, kind):
 
     kind is 'connections' or 'vars' (used only to locate the per-mapping file).
     """
+
+    log(f"*** base path :  {base_path} ")
+    log(f"*** per mapping dir :  {per_mapping_dir} ")
+    log(f"*** mapping name : {mapping_name} ")
+    log(f"*** kind : {kind} ")
+
     merged = {}
     if base_path and os.path.exists(base_path):
         merged = _load_json(base_path)
@@ -141,6 +148,7 @@ def load_layered_config(base_path, per_mapping_dir, mapping_name, kind):
             os.path.join(per_mapping_dir, f"{mapping_name}.json"),
         ]
         for c in candidates:
+            log(f"***** merged paths for configs : {c} ")
             if os.path.exists(c):
                 merged = _deep_merge(merged, _load_json(c))
                 break
@@ -176,15 +184,15 @@ def run(args):
         wf_doc = json.load(f)
     plan = WorkflowPlan(wf_doc)
 
-    print(f"=== Workflow: {plan.name} ===")
-    print(f"Sessions ({len(plan.order)}) in execution order:")
+    log(f"=== Workflow: {plan.name} ===")
+    log(f"Sessions ({len(plan.order)}) in execution order:")
     preds = plan.predecessors()
     for i, s in enumerate(plan.order, 1):
         sess = plan.sessions.get(s, {})
         mp = sess.get("mapping_name", "?")
         dep = preds.get(s, [])
         dep_s = f"  after: {', '.join(dep)}" if dep else "  (no deps)"
-        print(f"  {i}. {s:36s} -> {mp}{dep_s}")
+        log(f"  {i}. {s:36s} -> {mp}{dep_s}")
 
     # Resolve mapping files up front so plan-only can report gaps
     resolved = {}
@@ -197,12 +205,13 @@ def run(args):
             missing.append((s, mp))
 
     if missing:
-        print("\n[!] Missing mapping JSONs for:")
+        log("\n[!] Missing mapping JSONs for:")
         for s, mp in missing:
-            print(f"    session {s} -> mapping {mp}")
+            log(f"    session {s} -> mapping {mp}")
 
     if args.plan_only:
-        print("\n(plan-only: not executing)")
+        log("\n(plan-only: not executing)")
+
         return
 
     # Shared base configs (apply to every mapping). Per-mapping override files,
@@ -221,6 +230,7 @@ def run(args):
 
     status = {}   # session -> 'succeeded' | 'failed' | 'skipped'
     for s in plan.order:
+        print("####### looping through sessions ")
         sess = plan.sessions.get(s, {})
         mp = sess.get("mapping_name")
         mf = resolved.get(s)
@@ -233,53 +243,74 @@ def run(args):
         if args.honor_conditions:
             dep_status = [status.get(d) for d in preds.get(s, [])]
             if any(st in ("failed", "skipped") for st in dep_status):
-                print(f"\n[SKIP] {s} (upstream not succeeded)")
+                log(f"\n[SKIP] {s} (upstream not succeeded)")
                 status[s] = "skipped"
                 continue
 
         if mf is None:
-            print(f"\n[SKIP] {s}: no mapping JSON for {mp}")
+            log(f"\n[SKIP] {s}: no mapping JSON for {mp}")
             status[s] = "skipped"
             continue
 
         # Build this session's effective config: shared base + per-mapping override
-        conn_dict = _deep_merge(
-            base_connections,
-            load_layered_config(None, args.config_dir, mp, "connections")
-            if args.config_dir else {})
-        var_dict = _deep_merge(
-            base_vars,
-            load_layered_config(None, args.config_dir, mp, "vars")
-            if args.config_dir else {})
+        conn_dict = base_connections
+        var_dict = base_vars
+
+        #conn_dict = _deep_merge(
+        #    base_connections,
+        #    load_layered_config(None, args.config_dir, mp, "connections")
+        #    if args.config_dir else {})
+
+        #for key, value in conn_dict.items():
+        #    log(f"*** CONNECTIONS *** {key}: {value}")
+
+        #var_dict = _deep_merge(
+        #    base_vars,
+        #    load_layered_config(None, args.config_dir, mp, "vars")
+        #    if args.config_dir else {})
+        #for key, value in var_dict.items():
+        #    print(f"{key}: {value}")
+
         # workflow assignments fill in only where the mapping/base didn't set them
         for vn, vexpr in wf_assignments.items():
             var_dict.setdefault(vn, vexpr)
 
-        print(f"\n{'='*60}\n[SESSION] {s}  (mapping {mp})\n{'='*60}")
+        log(f"\n{'='*60}\n[SESSION] {s}  (mapping {mp})\n{'='*60}")
         try:
             doc = _load_json(mf)
             model = MappingModel(doc)
             overrides = sess.get("targets", {})
+
             engine = MappingEngine(
-                spark, model, ConnectionRegistry(conns=conn_dict), var_dict,
+                spark,
+                model,
+                ConnectionRegistry(conns=conn_dict),
+                var_dict,
                 session_overrides=overrides,
-                session_attributes=sess.get("session_attributes", {}),
-                transform_connections=sess.get("transform_connections", {}),
+                session_attributes=
+                    sess.get("session_attributes", {}),
+                transform_connections=
+                    sess.get("transform_connections", {}),
+                workflow_sources=
+                    sess.get("sources", {}),
+                workflow_targets=
+                    sess.get("targets", {})
             )
+
             engine.run()
             status[s] = "succeeded"
         except Exception as e:
-            print(f"[ERROR] session {s} failed: {e}")
+            log(f"[ERROR] session {s} failed: {e}")
             status[s] = "failed"
             if not args.continue_on_error and args.honor_conditions:
-                print("Stopping workflow (use --continue-on-error to proceed).")
+                log("Stopping workflow (use --continue-on-error to proceed).")
                 break
 
     spark.stop()
 
-    print(f"\n=== Workflow {plan.name} summary ===")
+    log(f"\n=== Workflow {plan.name} summary ===")
     for s in plan.order:
-        print(f"  {status.get(s, 'not-run'):10s}  {s}")
+        log(f"  {status.get(s, 'not-run'):10s}  {s}")
 
 
 def main():

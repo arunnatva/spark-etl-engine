@@ -187,19 +187,67 @@ def parse_workflow(xml_path):
         targets = parse_target_load(s)
         for tinst, tspec in targets.items():
             tspec["load_mode"] = derive_load_mode(tspec.get("load"))
+
+
+        inputs = parse_session_input_files(s)
+        outputs = parse_session_output_files(s)
+
+        sources = parse_source_connections(s)
+        sources = enrich_sources_with_paths(sources, inputs)
+
+        targets = enrich_targets_with_paths(targets, outputs)
+
         sessions[sname] = {
             "session_name": sname,
             "mapping_name": attr(s, "MAPPINGNAME"),
+
+            "sources": sources,
             "targets": targets,
-            "sources": parse_source_connections(s),
-            "transform_connections": parse_transform_connections(s),
-            "session_attributes": parse_session_attributes(s),
+            "transform_connections": parse_transform_connections(s), 
+            "session_attributes": parse_session_attributes(s)
         }
+
+
+
+    # task instances (nodes in the workflow DAG)
+    #task_types = {}
+    #for ti in root.findall(".//TASKINSTANCE"):
+    #    task_types[attr(ti, "NAME")] = attr(ti, "TASKTYPE")
+
 
     # task instances (nodes in the workflow DAG)
     task_types = {}
+
     for ti in root.findall(".//TASKINSTANCE"):
-        task_types[attr(ti, "NAME")] = attr(ti, "TASKTYPE")
+
+        ti_name = attr(ti, "NAME")
+        ti_type = attr(ti, "TASKTYPE")
+
+        task_types[ti_name] = ti_type
+
+        # Informatica reusable sessions:
+        #
+        # TASKINSTANCE.NAME     = workflow node name
+        # TASKINSTANCE.TASKNAME = actual SESSION.NAME
+        #
+        # Example:
+        #   NAME     = s_CSS_STG_TO_WRK
+        #   TASKNAME = s_m_CSS_STG_TO_WRK
+        #
+        # run_workflow.py uses TASKINSTANCE names from the DAG,
+        # so duplicate the session metadata under the workflow task name.
+        if ti_type == "Session":
+
+            session_name = attr(ti, "TASKNAME")
+
+            if (
+                session_name
+                and session_name in sessions
+                and ti_name not in sessions
+            ):
+                sessions[ti_name] = dict(sessions[session_name])
+                sessions[ti_name]["session_name"] = ti_name
+
 
     # workflow links (edges) with conditions
     links = []
@@ -225,6 +273,201 @@ def parse_workflow(xml_path):
         "assignments": parse_assignments(root),
         "connection_variables": conn_vars,
     }
+
+
+
+def normalize_file_path(path):
+    """
+    Convert Informatica file paths to runtime S3 paths.
+
+    Example:
+        /prod/edl/consumer/vfeth/str/vflh_wrk/tg_res_wrk/tg_res_wrk.txt
+
+    becomes:
+
+        s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk
+    """
+
+    if not path:
+        return path
+
+    path = path.strip()
+
+    # Replace Informatica HDFS root with S3 root
+    if path.startswith("/prod/edl/"):
+        path = path.replace(
+            "/prod/edl/",
+            "s3a://edl-cdp-dev/",
+            1
+        )
+
+    path = path.rstrip("/")
+
+    # Remove filename if it looks like a .txt file
+    if path.endswith(".txt"):
+        path = path[:path.rfind("/")]
+
+    return path
+
+
+def parse_session_input_files(session_elem):
+    """
+    Extract input file metadata from HDFS readers.
+    """
+
+    inputs = []
+
+    for se in session_elem.findall(".//SESSIONEXTENSION"):
+
+        if attr(se, "TYPE") != "READER":
+            continue
+
+        file_path = None
+
+        for a in se.findall("ATTRIBUTE"):
+
+            if attr(a, "NAME") == "File Path":
+                file_path = normalize_file_path(
+                    attr(a, "VALUE")
+                )
+
+        if not file_path:
+            continue
+
+        conn = None
+
+        for cr in se.findall("CONNECTIONREFERENCE"):
+            conn = (
+                attr(cr, "VARIABLE")
+                or attr(cr, "CONNECTIONNAME")
+            )
+
+        inputs.append({
+            "instance": attr(se, "SINSTANCENAME"),
+            "path": file_path,
+            "connection": conn,
+            "subtype": attr(se, "SUBTYPE"),
+            "type": "file"
+        })
+
+    return inputs
+
+
+
+def parse_session_output_files(session_elem):
+    """
+    Extract output file metadata from HDFS writers.
+    """
+
+    outputs = []
+
+    for se in session_elem.findall(".//SESSIONEXTENSION"):
+
+        if attr(se, "TYPE") != "WRITER":
+            continue
+
+        output_path = None
+        hive_table = None
+
+        for a in se.findall("ATTRIBUTE"):
+
+            name = attr(a, "NAME")
+
+            if name == "Output File Path":
+                output_path = normalize_file_path(
+                    attr(a, "VALUE")
+                )
+
+            elif name == "Hive Table Name":
+                hive_table = attr(a, "VALUE")
+
+        if not output_path:
+            continue
+
+        conn = None
+
+        for cr in se.findall("CONNECTIONREFERENCE"):
+            conn = (
+                attr(cr, "VARIABLE")
+                or attr(cr, "CONNECTIONNAME")
+            )
+
+        outputs.append({
+            "instance": attr(se, "SINSTANCENAME"),
+            "path": output_path,
+            "hive_table": hive_table,
+            "connection": conn,
+            "subtype": attr(se, "SUBTYPE"),
+            "type": "file"
+        })
+
+    return outputs
+
+
+
+
+def enrich_sources_with_paths(sources, inputs):
+    """
+    Merge file source path information into source metadata.
+    """
+
+    input_map = {
+        x["instance"]: x
+        for x in inputs
+    }
+    print(f"*** input_map : {input_map}")
+    for src_name, src_meta in sources.items():
+        print(f"*** src_name : {src_name}")
+        print(f"*** src_meta : {src_meta}")
+        subtype = (src_meta.get("subtype") or "").lower()
+        print(f"*** subtype : {subtype} ")
+
+        if src_name in input_map:
+            inp = input_map[src_name]
+            if ("hdfs" in subtype or "flat file" in subtype):
+                src_meta["type"] = "file"
+                src_meta["path"] = inp.get("path")
+            if ("relational" in subtype):
+                print(f"setting JDBC as type ")
+                src_meta["type"] = "jdbc" 
+
+            if inp.get("subtype"):
+                src_meta["subtype"] = inp["subtype"]
+
+        else:
+            print(f"*** DEFAULTING TO NULL ***")
+            src_meta.setdefault("type", "null")
+
+    return sources
+
+
+def enrich_targets_with_paths(targets, outputs):
+    """
+    Merge file target path information into target metadata.
+    """
+
+    output_map = {
+        x["instance"]: x
+        for x in outputs
+    }
+
+    for tgt_name, tgt_meta in targets.items():
+
+        if tgt_name in output_map:
+
+            out = output_map[tgt_name]
+
+            tgt_meta["type"] = "file"
+            tgt_meta["path"] = out.get("path")
+
+            if out.get("hive_table"):
+                tgt_meta["hive_table"] = out["hive_table"]
+
+        else:
+            tgt_meta.setdefault("type", "jdbc")
+
+    return targets
+
 
 
 def main():
