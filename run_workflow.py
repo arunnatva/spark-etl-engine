@@ -43,11 +43,41 @@ class WorkflowPlan:
         self.sessions = wf_doc.get("sessions", {})
         self.tasks = wf_doc.get("tasks", {})
         self.links = wf_doc.get("links", [])
-        self.session_names = set(
-            n for n, t in self.tasks.items() if t == "Session"
-        )
-        # some sessions may not be registered as tasks; include keys too
-        self.session_names |= set(self.sessions.keys())
+
+        # The execution order lives in the links (FROMTASK->TOTASK), never in
+        # element/dict order. The converter aliases reusable sessions, so the
+        # `sessions` dict can hold BOTH a TASKINSTANCE name and the underlying
+        # SESSION name for the same session (e.g. 's_CSS_STG_TO_WRK' and
+        # 's_m_CSS_STG_TO_WRK'). Only one of those appears in the links; the
+        # other is an orphan with no edges. If we include orphans in the graph
+        # they get in-degree 0 and sort to the front alphabetically, corrupting
+        # the order. So the graph nodes are ONLY the sessions the links actually
+        # reference (plus, as a fallback, all session keys when a workflow has
+        # no links at all — a single-session workflow).
+        link_nodes = set()
+        for l in self.links:
+            if l.get("from"):
+                link_nodes.add(l["from"])
+            if l.get("to"):
+                link_nodes.add(l["to"])
+
+        task_sessions = {n for n, t in self.tasks.items() if t == "Session"}
+        # sessions that are real graph participants: they are session tasks AND
+        # referenced by a link.
+        linked_sessions = (task_sessions | set(self.sessions.keys())) & link_nodes
+
+        if linked_sessions:
+            self.session_names = linked_sessions
+            # record orphan session keys we deliberately excluded, for logging
+            self.orphan_sessions = (
+                set(self.sessions.keys()) - self.session_names
+            ) & (set(self.sessions.keys()) - link_nodes)
+        else:
+            # no links reference any session (e.g. a lone single-session
+            # workflow): fall back to whatever session keys exist.
+            self.session_names = task_sessions | set(self.sessions.keys())
+            self.orphan_sessions = set()
+
         self.adj = self._collapse_to_sessions()
         self.order = self._topo_sort()
 
@@ -186,6 +216,10 @@ def run(args):
 
     log(f"=== Workflow: {plan.name} ===")
     log(f"Sessions ({len(plan.order)}) in execution order:")
+    if getattr(plan, "orphan_sessions", None):
+        log(f"  (excluded {len(plan.orphan_sessions)} orphan session "
+            f"duplicate(s) not referenced by any workflow link: "
+            f"{', '.join(sorted(plan.orphan_sessions))})")
     preds = plan.predecessors()
     for i, s in enumerate(plan.order, 1):
         sess = plan.sessions.get(s, {})
