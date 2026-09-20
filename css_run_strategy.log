@@ -1,0 +1,1504 @@
+####### looping through sessions
+[2026-09-20 01:13:09.703]
+============================================================
+[SESSION] s_m_CSS_RS_NKIT_TO_STG  (mapping m_CSS_RS_NKIT_TO_STG)
+============================================================
+=== Executing mapping: m_CSS_RS_NKIT_TO_STG ===
+Execution order (23 nodes):
+    CAL                                [Source Definition]
+    CALDATA                            [Source Definition]
+    RES                                [Source Definition]
+    SKU                                [Source Definition]
+    SKUPLANNINGPARAM                   [Source Definition]
+    SQTRANS                            [Source Qualifier]
+    SQTRANS1                           [Source Qualifier]
+    SQTRANS2                           [Source Qualifier]
+    SQ_CALDATA                         [Source Qualifier]
+    SQ_RES_ITEM                        [Source Qualifier]
+    SQ_LEADTIME                        [Source Qualifier]
+    EXPTRANS1                          [Expression]
+    EXPTRANS2                          [Expression]
+    EXPTRANS3                          [Expression]
+    EXPTRANS                           [Expression]
+    exp_res_item                       [Expression]
+    exp_LeadTime                       [Expression]
+    TG_CSS_RES_AVAIL_STG               [Target Definition]
+    TG_CSS_CAL_AVAIL_STG               [Target Definition]
+    TG_CSS_RES_PREVIOUS_STG            [Target Definition]
+    TG_CSS_NKIT_WORKING_DAYS           [Target Definition]
+    TG_CSS_RES_ITEM_STG                [Target Definition]
+    TG_CSS_MFG_LEADTIME                [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:13:09.705]  workflow src [SQTRANS] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:13:09.705]  *** source path *** None
+[2026-09-20 01:13:09.705]  *** source type *** jdbc
+[2026-09-20 01:13:09.705] *** IN JDBC SECTION ***
+[2026-09-20 01:13:09.705]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : CALDATA
+[2026-09-20 01:13:09.705] ############ Table name or SQL Query : (select DATEVAL, MONTHNUM, YEARNUM, CALNAME, NEWEFF, AVAIL, RES, AVAIL2, NextDateVal
+    from (
+        select y.dateval,
+        to_char(y.dateval, 'MM') as MonthNum ,
+        to_char(y.dateval, 'YYYY') as YearNum,
+        x2.Neweff, x2.res, x2.avail, x2.calDataCal as calname,
+        avail2, NextDateVal
+        from (
+            select x.dateval,
+            case when mod(rownum, 7) <= (7 -2) and mod(rownum, 7)  <> 0 then 1 else 0 end as PatternDay ,
+            rownum as rownumber--,
+            from (
+                select TRUNC(SYSDATE, 'MM')  + rownum - 1 as dateval
+                FROM DUAL d
+                CONNECT BY ROWNUM < 730
+            ) x
+        ) y
+        left join (
+            select r.res, r.loc, r.cal as resCal, c.master,
+            cd.cal as calDataCal, (TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(cd.EFF/1440)) AS NEWEFF, cd.avail,
+            (
+                select avail as avail2
+                from caldata cd2
+                where cd2.CAL = cd.cal
+                and cd2.eff = (select min(eff) from caldata cd3 where cd3.cal = cd.cal and cd3.eff > cd.eff)
+            ) avail2,
+            (
+                select (TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(EFF/1440)) as dateval2
+                from caldata cd2
+                where cd2.CAL = cd.cal
+                and cd2.eff = (select min(eff) from caldata cd3 where cd3.cal = cd.cal and cd3.eff > cd.eff)
+            ) NextDateVal
+            from res r
+            inner join cal c on r.cal = c.cal
+            inner join caldata cd on c.cal = cd.cal
+            --where (TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(cd.EFF/1440)) >= TRUNC(sysdate, 'MONTH')
+        ) x2 on 1=1
+        order by y.rownumber
+    ) WorkingDays
+    where WorkingDays.dateval >= TRUNC(sysdate, 'MONTH')) SRC
+[2026-09-20 01:13:11.823] **** SQL OVERRIDE applied at source read for SQTRANS ****
+[2026-09-20 01:13:11.823]  workflow src [SQTRANS1] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:13:11.823]  *** source path *** None
+[2026-09-20 01:13:11.823]  *** source type *** jdbc
+[2026-09-20 01:13:11.823] *** IN JDBC SECTION ***
+[2026-09-20 01:13:11.823]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : CALDATA
+[2026-09-20 01:13:11.823] ############ Table name or SQL Query : (select res, rescal,
+max ( case when CalType = 'STAFF' THEN AVAIL END) StaffCap,
+max ( case when CalType = 'STAFF' THEN caplinehour END) StaffCap_CapLineHour,
+max ( case when CalType = 'INST' THEN AVAIL END) InstCap,
+max ( case when CalType = 'LE' THEN AVAIL END) LeCap,
+max ( case when CalType = 'BP' THEN AVAIL END) BpCap
+from (
+    SELECT maxcal.res, maxcal.rescal as rescal, cd.cal,
+    cd.AVAIL,
+    case when cd.urep_caplinehour is null then 0 else cd.urep_caplinehour end as caplinehour,
+    case
+        when cal like '%_STAF' then 'STAFF'
+        when cal like '%_INST' then 'INST'
+        when cal like '%_BP' then 'BP'
+        when cal like '%_LE' then 'LE'
+        else 'NA' END as CalType
+    from
+    (
+        select res, r.cal as rescal, c.cal as caldataCal, max(EFF) as maxeff
+        FROM SCPOMGR.CALDATA c, res r
+        where (c.cal = r.cal || '_BP'
+        or c.cal = r.cal || '_STAF'
+        or c.cal = r.cal || '_LE'
+        OR c.cal = r.cal || '_INST')
+        group by res, r.cal, c.cal
+    ) maxCal
+    inner join caldata cd on maxcal.caldataCal = cd.cal and maxcal.maxeff = cd.eff
+)x
+group by res, rescal) SRC
+[2026-09-20 01:13:12.270] **** SQL OVERRIDE applied at source read for SQTRANS1 ****
+[2026-09-20 01:13:12.270]  workflow src [SQTRANS2] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:13:12.270]  *** source path *** None
+[2026-09-20 01:13:12.270]  *** source type *** jdbc
+[2026-09-20 01:13:12.270] *** IN JDBC SECTION ***
+[2026-09-20 01:13:12.270]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : CALDATA
+[2026-09-20 01:13:12.270] ############ Table name or SQL Query : (SELECT x.res, x.rescal, x.avail, (TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(x.maxEff/1440)) as maxEFF FROM (
+        select r.res, r.loc, r.cal as resCal, c.master,
+            cd.cal as calDataCal, max(eff) as maxEff, cd.avail
+            from res r
+            inner join cal c on r.cal = c.cal
+            inner join caldata cd on c.cal = cd.cal
+            where (TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(cd.EFF/1440)) < TRUNC(sysdate, 'MONTH')
+            and cd.avail <> 0
+            group by r.res, r.loc, r.cal, c.master, cd.cal, cd.avail) x) SRC
+[2026-09-20 01:13:12.495] **** SQL OVERRIDE applied at source read for SQTRANS2 ****
+[2026-09-20 01:13:12.496]  workflow src [SQ_CALDATA] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:13:12.496]  *** source path *** None
+[2026-09-20 01:13:12.496]  *** source type *** jdbc
+[2026-09-20 01:13:12.496] *** IN JDBC SECTION ***
+[2026-09-20 01:13:12.496]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : RES
+[2026-09-20 01:13:12.496] ############ Table name or SQL Query : (select DATEVAL, MONTHNUM, YEARNUM, PATTERNDAY, resCal, res, loc,
+((min(UpdatedActiveDay)) * (case when dateval < startofweek then 0 else 1 end)) as NonPatternDay
+from (
+    select DATEVAL, FinancialMonth as MonthNum, FinancialYear as YearNum, PATTERNDAY, resCal, NEWEFF, OPT, res,
+        case when (dateval = neweff and opt = 1) then 0 else 1 end as activeDay,
+        DaysClosed, case when DaysClosed > 0 then 0 else 1 end as UpdatedActiveDay,
+        trunc(sysdate, 'IW') as StartOfWeek, loc
+    from (
+        select dateval, patternday,
+        case when FiMo Is Null then MonthNum
+            else FiMo end as FinancialMonth,
+        case when FiMo = 1 and monthnum = 12 then yearnum + 1
+                   when FiMo = 12 and monthnum = 1 then yearnum - 1
+            else yearnum end as FinancialYear,
+        x2.resCal, x2.Master_CalData,
+        x2.Neweff, x2.opt, x2.repeat, x2.res, x2.loc,
+        case when dateval >= neweff then (reopeneddate - dateval) else 0 end as DaysClosed
+        from (
+            select calendardate as dateval, patternday,
+            mod(sum(DateType) OVER (
+              ORDER BY CalendarDate
+              ROWS BETWEEN UNBOUNDED preceding AND CURRENT ROW
+            ) + to_number(to_char(NEXT_DAY(TRUNC(sysdate, 'MM'),'Mon') -21, 'MM')) -1 ,12) +1 as FiMo,
+            MonthNum ,
+            YearNum
+            from (
+             select x.CalendarDate,
+                case when mod(rownum, 7) <= (7 -2) and mod(rownum, 7)  <> 0 then 1 else 0 end as PatternDay-- ,
+                ,to_number(to_char(x.calendardate, 'MM')) as MonthNum ,
+                to_number(to_char(x.calendardate, 'YYYY')) as YearNum--,
+                , (
+                    select
+                    CASE WHEN DESCR = 'Y_N_N' THEN 1
+                        WHEN DESCR = 'Y_Y_N' THEN 1
+                        WHEN DESCR = 'Y_Y_Y' THEN 1
+                        ELSE 0 END
+                    from
+                    (
+                        select *
+                        from caldata cd2
+                        where cal = 'REP_CSS_CONTROLTOWER'
+                    ) x
+                        where TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(x.EFF/1440) = x.calendardate
+                ) DateType
+                from (
+                    select trunc(next_day(TRUNC(sysdate, 'MM'),'Mon') - 21,'IW')  + rownum - 1 as CalendarDate
+                    FROM DUAL d
+                  CONNECT BY ROWNUM < 730
+                ) x
+            ) CalendarData
+        ) z
+        left join (
+                    select r.res, r.loc, r.cal as resCal, c.master,
+                    cd.cal as Master_CalData, (TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(EFF/1440)) AS NEWEFF, OPT, REPEAT, TO_NUMBER(Repeat) / 1440 as PatternLength,
+                    case when opt = 1 then
+                    (
+                            select TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(cd2.EFF/1440) as ReopenedDate
+                            from caldata cd2
+                            where cd2.cal = cd.cal
+                            and cd2.eff = (select min(eff) from caldata cd3 where cd3.cal = cd.cal and cd3.eff > cd.eff)
+                        )  Else NULL end as ReopenedDate
+                    from res r
+                    inner join cal c on r.cal = c.cal
+                    inner join caldata cd on c.master = cd.cal
+                    where opt <> 6 --and (TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(EFF/1440)) >= TRUNC(sysdate - 60, 'MM')
+                ) x2 on 1=1
+    )WorkingDays
+    where WorkingDays.dateval >= (select max(TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(cd2.EFF/1440))
+                                    from caldata cd2
+                                    where cal = 'REP_CSS_CONTROLTOWER'
+                                    and TO_DATE('01-JAN-1970', 'DD-MON-YYYY')+(cd2.EFF/1440) < TRUNC(sysdate, 'MM'))
+)wResult
+group by DATEVAL, MONTHNUM, YEARNUM, PATTERNDAY, resCal, startofweek, res, loc
+order by dateval) SRC
+[2026-09-20 01:13:12.903] **** SQL OVERRIDE applied at source read for SQ_CALDATA ****
+[2026-09-20 01:13:12.903]  workflow src [SQ_RES_ITEM] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:13:12.903]  *** source path *** None
+[2026-09-20 01:13:12.903]  *** source type *** jdbc
+[2026-09-20 01:13:12.903] *** IN JDBC SECTION ***
+[2026-09-20 01:13:12.903]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : RES
+[2026-09-20 01:13:12.903] ############ Table name or SQL Query : (select r.res, s.loc, r.cal, i.item
+from skuplanningparam sp
+inner join sku s on sp.item = s.item and sp.loc = s.loc
+inner join item i on s.item = i.item and i.usys_h1_level5 <> 'P5_ASP'
+inner join res r on r.res = s.urep_mfgclscode) SRC
+[2026-09-20 01:13:13.124] **** SQL OVERRIDE applied at source read for SQ_RES_ITEM ****
+[2026-09-20 01:13:13.124]  workflow src [SQ_LEADTIME] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:13:13.124]  *** source path *** None
+[2026-09-20 01:13:13.124]  *** source type *** jdbc
+[2026-09-20 01:13:13.124] *** IN JDBC SECTION ***
+[2026-09-20 01:13:13.124]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : RES
+[2026-09-20 01:13:13.124] ############ Table name or SQL Query : (select maxlead.res,  i2.item, maxlead.loc, maxlead.maxLeadTime as mfgleadtime, ((maxlead.MaxLeadTime)/1440) + TRUNC(sysdate, 'iw') as LeadTime_EndDate
+from (
+    select
+    r.res,
+    x1.loc,
+    max(mfgleadtime) as maxLeadTime
+    from
+    (
+        select s.item, s.loc, s.mfgleadtime
+        from skuplanningparam s
+        where s.mfgleadtime > 0
+    ) x1
+    inner join item i on x1.item = i.item and i.usys_h1_level5 <> 'P5_ASP'
+    inner join sku s on x1.item = s.item and x1.loc = s.loc
+    inner join res r on r.res = s.urep_mfgclscode
+    group by r.res, x1.loc
+) maxLead
+inner join sku s2 on maxlead.loc = s2.loc
+inner join item i2 on s2.item = i2.item and i2.usys_h1_level5 <> 'P5_ASP') SRC
+[2026-09-20 01:13:13.523] **** SQL OVERRIDE applied at source read for SQ_LEADTIME ****
+[2026-09-20 01:13:13.567] **** Inside op_target ***
+[2026-09-20 01:13:14.347]  **** tgt_name : TG_CSS_RES_AVAIL_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg', 'hive_table': 'tg_css_res_avail_stg'}
+***** load_mode  append
+[2026-09-20 01:13:14.450] *** Before enforce target lengths ***
++-------------------+--------+-------+----+-------------------+--------------+---+------------+-------------------+
+|DATEVAL            |MONTHNUM|YEARNUM|CAL |NEWEFF             |AVAIL         |RES|AVAIL2      |NEXTDATEVAL        |
++-------------------+--------+-------+----+-------------------+--------------+---+------------+-------------------+
+|2026-09-01 00:00:00|09      |2026   |NULL|2011-08-01 00:00:00|350.0000000000|O46|0.0000000000|2011-08-02 00:00:00|
++-------------------+--------+-------+----+-------------------+--------------+---+------------+-------------------+
+only showing top 1 row
+
+[2026-09-20 01:14:10.226] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_RES_AVAIL_STG
+[2026-09-20 01:14:10.226] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_avail_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:28:44.102]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg', 'hive_table': 'tg_css_res_avail_stg'}
+[2026-09-20 01:28:44.102] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg
+[2026-09-20 01:28:44.102] *** target type from workflow : file
+[2026-09-20 01:28:44.102]     [WRITE:file] TG_CSS_RES_AVAIL_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_avail_stg [append]
+[2026-09-20 01:28:44.102] **** Writing into iceberg table ***
+26/09/20 01:28:44 WARN  conf.HiveConf: [Thread-6]: HiveConf of name hive.metastore.runworker.in does not exist
+26/09/20 01:28:44 WARN  client.HiveClientImpl: [Thread-6]: Detected HiveConf hive.execution.engine is 'tez' and will be reset to 'mr' to disable useless hive logic
+Hive Session ID = e848f2be-f0e8-489c-be7c-57434e103a09
+26/09/20 01:28:45 WARN  metadata.Hive: [Thread-6]: Failed to register udf functions in external driver.
+26/09/20 01:28:45 WARN  conf.HiveConf: [Thread-6]: HiveConf of name hive.metastore.runworker.in does not exist
+26/09/20 01:36:28 WARN  conf.HiveConf: [Thread-6]: HiveConf of name hive.metastore.runworker.in does not exist
+[2026-09-20 01:36:29.492] ### [WRITE:iceberg] vflh_stg.tg_css_res_avail_stg
+[2026-09-20 01:36:29.492] **** Inside op_target ***
+[2026-09-20 01:36:29.526]  **** tgt_name : TG_CSS_CAL_AVAIL_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg', 'hive_table': 'tg_css_cal_avail_stg'}
+***** load_mode  append
+[2026-09-20 01:36:29.542] *** Before enforce target lengths ***
++---+------+--------+-------------------+-------+-----+-----+
+|RES|RESCAL|STAFFCAP|STAFCAP_CAPLINEHOUR|INSTCAP|LECAP|BPCAP|
++---+------+--------+-------------------+-------+-----+-----+
++---+------+--------+-------------------+-------+-----+-----+
+
+[2026-09-20 01:36:29.964] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_CAL_AVAIL_STG
+[2026-09-20 01:36:29.964] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_avail_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:36:31.803]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg', 'hive_table': 'tg_css_cal_avail_stg'}
+[2026-09-20 01:36:31.803] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg
+[2026-09-20 01:36:31.803] *** target type from workflow : file
+[2026-09-20 01:36:31.803]     [WRITE:file] TG_CSS_CAL_AVAIL_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_avail_stg [append]
+[2026-09-20 01:36:31.803] **** Writing into iceberg table ***
+[2026-09-20 01:36:32.433] ### [WRITE:iceberg] vflh_stg.tg_css_cal_avail_stg
+[2026-09-20 01:36:32.433] **** Inside op_target ***
+[2026-09-20 01:36:32.454]  **** tgt_name : TG_CSS_RES_PREVIOUS_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_previous_stg', 'hive_table': 'tg_css_res_previous_stg'}
+***** load_mode  append
+[2026-09-20 01:36:32.465] *** Before enforce target lengths ***
++----+------------+--------------+-------------------+
+|RES |RESCAL      |AVAIL         |MAXEFF             |
++----+------------+--------------+-------------------+
+|O50M|O50_MIAW_DEL|300.0000000000|2026-08-31 00:00:00|
++----+------------+--------------+-------------------+
+only showing top 1 row
+
+[2026-09-20 01:36:32.790] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_RES_PREVIOUS_STG
+[2026-09-20 01:36:32.790] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_previous_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_previous_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_previous_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:36:34.918]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_previous_stg', 'hive_table': 'tg_css_res_previous_stg'}
+[2026-09-20 01:36:34.918] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_previous_stg
+[2026-09-20 01:36:34.918] *** target type from workflow : file
+[2026-09-20 01:36:34.918]     [WRITE:file] TG_CSS_RES_PREVIOUS_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_previous_stg [append]
+[2026-09-20 01:36:34.918] **** Writing into iceberg table ***
+[2026-09-20 01:36:36.343] ### [WRITE:iceberg] vflh_stg.tg_css_res_previous_stg
+[2026-09-20 01:36:36.343] **** Inside op_target ***
+[2026-09-20 01:36:36.368]  **** tgt_name : TG_CSS_NKIT_WORKING_DAYS ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg', 'hive_table': 'tg_css_nkit_workingdays_stg'}
+***** load_mode  append
+[2026-09-20 01:36:36.382] *** Before enforce target lengths ***
+[2026-09-20 01:36:36.382] ***** column name: RESCAL datatype: string precision: 50 ****
+[2026-09-20 01:36:36.442] ***** column name: RES datatype: string precision: 50 ****
+[2026-09-20 01:36:36.452] ***** column name: LOC datatype: string precision: 50 ****
++-------------------+------------+------------+---------------+------+----+----+-------------+
+|DATEVAL            |PATTERNDAY  |MONTHNUM    |YEAHNUM        |RESCAL|RES |LOC |NONPATTERNDAY|
++-------------------+------------+------------+---------------+------+----+----+-------------+
+|2026-08-30 00:00:00|0.0000000000|9.0000000000|2026.0000000000|NULL  |NULL|NULL|0.0000000000 |
++-------------------+------------+------------+---------------+------+----+----+-------------+
+only showing top 1 row
+
+[2026-09-20 01:36:36.949] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_NKIT_WORKING_DAYS
+[2026-09-20 01:36:36.949] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_nkit_workingdays_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:36:39.104]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg', 'hive_table': 'tg_css_nkit_workingdays_stg'}
+[2026-09-20 01:36:39.105] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg
+[2026-09-20 01:36:39.105] *** target type from workflow : file
+[2026-09-20 01:36:39.105]     [WRITE:file] TG_CSS_NKIT_WORKING_DAYS -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_nkit_workingdays_stg [append]
+[2026-09-20 01:36:39.105] **** Writing into iceberg table ***
+[2026-09-20 01:36:40.668] ### [WRITE:iceberg] vflh_stg.tg_css_nkit_workingdays_stg
+[2026-09-20 01:36:40.668] **** Inside op_target ***
+[2026-09-20 01:36:40.684]  **** tgt_name : TG_CSS_RES_ITEM_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg', 'hive_table': 'tg_css_res_item_stg'}
+***** load_mode  append
+[2026-09-20 01:36:40.693] *** Before enforce target lengths ***
++-----+------+---------------+---------+
+|RES  |LOC   |CAL            |ITEM     |
++-----+------+---------------+---------+
+|EMMNT|DC_BE1|CPP_EMMNT_EMMNT|102911002|
++-----+------+---------------+---------+
+only showing top 1 row
+
+[2026-09-20 01:36:41.247] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_RES_ITEM_STG
+[2026-09-20 01:36:41.247] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_item_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:36:44.671]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg', 'hive_table': 'tg_css_res_item_stg'}
+[2026-09-20 01:36:44.671] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg
+[2026-09-20 01:36:44.671] *** target type from workflow : file
+[2026-09-20 01:36:44.671]     [WRITE:file] TG_CSS_RES_ITEM_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_item_stg [append]
+[2026-09-20 01:36:44.671] **** Writing into iceberg table ***
+[2026-09-20 01:36:47.336] ### [WRITE:iceberg] vflh_stg.tg_css_res_item_stg
+[2026-09-20 01:36:47.336] **** Inside op_target ***
+[2026-09-20 01:36:47.356]  **** tgt_name : TG_CSS_MFG_LEADTIME ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg', 'hive_table': 'tg_css_mfg_leadtime_stg'}
+***** load_mode  append
+[2026-09-20 01:36:47.371] *** Before enforce target lengths ***
++---------+------+----------------+-------------------+---+
+|ITEM     |LOC   |MFGLEADTIME     |LEADTIME_ENDDATE   |RES|
++---------+------+----------------+-------------------+---+
+|102911002|DC_BE1|10080.0000000000|2026-09-21 00:00:00|504|
++---------+------+----------------+-------------------+---+
+only showing top 1 row
+
+[2026-09-20 01:36:47.836] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_MFG_LEADTIME
+[2026-09-20 01:36:47.836] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_mfg_leadtime_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:37:14.410]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg', 'hive_table': 'tg_css_mfg_leadtime_stg'}
+[2026-09-20 01:37:14.410] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg
+[2026-09-20 01:37:14.410] *** target type from workflow : file
+[2026-09-20 01:37:14.410]     [WRITE:file] TG_CSS_MFG_LEADTIME -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_mfg_leadtime_stg [append]
+[2026-09-20 01:37:14.410] **** Writing into iceberg table ***
+[2026-09-20 01:37:30.668] ### [WRITE:iceberg] vflh_stg.tg_css_mfg_leadtime_stg
+=== Mapping complete ===
+####### looping through sessions
+[2026-09-20 01:37:30.668]
+============================================================
+[SESSION] s_m_CSS_RS_ORACLE_TO_STG  (mapping m_CSS_RS_ORACLE_TO_STG)
+============================================================
+=== Executing mapping: m_CSS_RS_ORACLE_TO_STG ===
+Execution order (15 nodes):
+    SRC_CSS_RS_ORACLE_CAL              [Source Definition]
+    SRC_CSS_RS_ORACLE_CALDATA          [Source Definition]
+    SRC_CSS_RS_ORACLE_PLANORDER        [Source Definition]
+    SRC_CSS_RS_ORACLE_UDTM_SKUPROJ     [Source Definition]
+    SRC_CSS_RS_ORCALE_PLANARRIV        [Source Definition]
+    SQ_SRC_CSS_RS_ORACLE_CAL           [Source Qualifier]
+    SQ_SRC_CSS_RS_ORACLE_CALDATA       [Source Qualifier]
+    SQ_SRC_CSS_RS_ORACLE_PLANORDER     [Source Qualifier]
+    SQ_SRC_CSS_RS_ORACLE_UDTM_SKUPROJ  [Source Qualifier]
+    SQ_SRC_CSS_RS_ORCALE_PLANARRIV     [Source Qualifier]
+    TG_CSS_CAL_STG                     [Target Definition]
+    TG_CSS_CALDATA_STG                 [Target Definition]
+    TG_CSS_PLANORDER_STG               [Target Definition]
+    TG_CSS_RS_UDTM_SKUPROJ_STG         [Target Definition]
+    TG_CSS_PLANARRIV_STG               [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:37:30.671]  workflow src [SQ_SRC_CSS_RS_ORACLE_CAL] : {'subtype': 'Relational Reader', 'connection': 'Manugistics_CSS_Ora', 'type': 'jdbc'}
+[2026-09-20 01:37:30.671]  *** source path *** None
+[2026-09-20 01:37:30.671]  *** source type *** jdbc
+[2026-09-20 01:37:30.671] *** IN JDBC SECTION ***
+[2026-09-20 01:37:30.671]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : SRC_CSS_RS_ORACLE_CAL
+[2026-09-20 01:37:30.671] ############ Table name or SQL Query : (SELECT * FROM CAL) SRC
+[2026-09-20 01:37:30.886] **** SQL OVERRIDE applied at source read for SQ_SRC_CSS_RS_ORACLE_CAL ****
+[2026-09-20 01:37:30.886]  workflow src [SQ_SRC_CSS_RS_ORACLE_CALDATA] : {'subtype': 'Relational Reader', 'connection': 'Manugistics_CSS_Ora', 'type': 'jdbc'}
+[2026-09-20 01:37:30.886]  *** source path *** None
+[2026-09-20 01:37:30.886]  *** source type *** jdbc
+[2026-09-20 01:37:30.886] *** IN JDBC SECTION ***
+[2026-09-20 01:37:30.886]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : SRC_CSS_RS_ORACLE_CALDATA
+[2026-09-20 01:37:30.886] ############ Table name or SQL Query : (select * from caldata c where (TO_DATE('01/01/1970','MM/DD/YYYY')) + (c.eff/(24 * 60)) <= SYSDATE + 720) SRC
+[2026-09-20 01:37:31.075] **** SQL OVERRIDE applied at source read for SQ_SRC_CSS_RS_ORACLE_CALDATA ****
+[2026-09-20 01:37:31.075]  workflow src [SQ_SRC_CSS_RS_ORACLE_PLANORDER] : {'subtype': 'Relational Reader', 'connection': 'Manugistics_CSS_Ora', 'type': 'jdbc'}
+[2026-09-20 01:37:31.075]  *** source path *** None
+[2026-09-20 01:37:31.075]  *** source type *** jdbc
+[2026-09-20 01:37:31.075] *** IN JDBC SECTION ***
+[2026-09-20 01:37:31.075]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : SRC_CSS_RS_ORACLE_PLANORDER
+[2026-09-20 01:37:31.075] ############ Table name or SQL Query : (SELECT * FROM PLANORDER WHERE STARTDATE  <= SYSDATE + 183) SRC
+[2026-09-20 01:37:31.266] **** SQL OVERRIDE applied at source read for SQ_SRC_CSS_RS_ORACLE_PLANORDER ****
+[2026-09-20 01:37:31.266]  workflow src [SQ_SRC_CSS_RS_ORACLE_UDTM_SKUPROJ] : {'subtype': 'Relational Reader', 'connection': 'Manugistics_CSS_Ora', 'type': 'jdbc'}
+[2026-09-20 01:37:31.266]  *** source path *** None
+[2026-09-20 01:37:31.266]  *** source type *** jdbc
+[2026-09-20 01:37:31.266] *** IN JDBC SECTION ***
+[2026-09-20 01:37:31.266]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : SRC_CSS_RS_ORACLE_UDTM_SKUPROJ
+[2026-09-20 01:37:31.266] ############ Table name or SQL Query : (SELECT
+UDTM_SKUPROJSTATIC.ITEM,
+UDTM_SKUPROJSTATIC.LOC,
+UDTM_SKUPROJSTATIC.STARTDATE,
+UDTM_SKUPROJSTATIC.OPTIONSET,
+UDTM_SKUPROJSTATIC.TOTDMD,
+UDTM_SKUPROJSTATIC.PLANORDERS,
+UDTM_SKUPROJSTATIC.FIRMPLANORDER
+FROM
+ UDTM_SKUPROJSTATIC
+ inner join item i on UDTM_SKUPROJSTATIC.item = i.item and i.usys_h1_level5 <> 'P5_ASP'
+WHERE
+UDTM_SKUPROJSTATIC.STARTDATE >= TRUNC(SYSDATE, 'month')
+AND UDTM_SKUPROJSTATIC.STARTDATE <= TRUNC(SYSDATE + 730, 'month')
+AND UDTM_SKUPROJSTATIC.OPTIONSET = 'eitmi') SRC
+[2026-09-20 01:37:31.452] **** SQL OVERRIDE applied at source read for SQ_SRC_CSS_RS_ORACLE_UDTM_SKUPROJ ****
+[2026-09-20 01:37:31.452]  workflow src [SQ_SRC_CSS_RS_ORCALE_PLANARRIV] : {'subtype': 'Relational Reader', 'connection': 'Manugistics_CSS_Ora', 'type': 'jdbc'}
+[2026-09-20 01:37:31.452]  *** source path *** None
+[2026-09-20 01:37:31.452]  *** source type *** jdbc
+[2026-09-20 01:37:31.452] *** IN JDBC SECTION ***
+[2026-09-20 01:37:31.452]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : SRC_CSS_RS_ORCALE_PLANARRIV
+[2026-09-20 01:37:31.452] ############ Table name or SQL Query : (SELECT ITEM, SCHEDARRIVDATE, SCHEDSHIPDATE, QTY
+FROM
+ PLANARRIV
+ WHERE SCHEDARRIVDATE <= SYSDATE + 183) SRC
+[2026-09-20 01:37:31.651] **** SQL OVERRIDE applied at source read for SQ_SRC_CSS_RS_ORCALE_PLANARRIV ****
+[2026-09-20 01:37:31.651] **** Inside op_target ***
+[2026-09-20 01:37:31.667]  **** tgt_name : TG_CSS_CAL_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg', 'hive_table': 'tg_css_cal_stg'}
+***** load_mode  append
+[2026-09-20 01:37:31.677] *** Before enforce target lengths ***
++------------+-----+----+------+------------+---------+
+|CAL         |DESCR|TYPE|MASTER|NUMFCSTPER  |ROLLINGSW|
++------------+-----+----+------+------------+---------+
+|CPP_MFIL_503|HTC  |10  |      |0.0000000000|0        |
++------------+-----+----+------+------------+---------+
+only showing top 1 row
+
+[2026-09-20 01:37:31.988] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_CAL_STG
+[2026-09-20 01:37:31.988] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:37:33.574]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg', 'hive_table': 'tg_css_cal_stg'}
+[2026-09-20 01:37:33.574] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg
+[2026-09-20 01:37:33.574] *** target type from workflow : file
+[2026-09-20 01:37:33.574]     [WRITE:file] TG_CSS_CAL_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_stg [append]
+[2026-09-20 01:37:33.574] **** Writing into iceberg table ***
+[2026-09-20 01:37:34.944] ### [WRITE:iceberg] vflh_stg.tg_css_cal_stg
+[2026-09-20 01:37:34.944] **** Inside op_target ***
+[2026-09-20 01:37:34.963]  **** tgt_name : TG_CSS_CALDATA_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg', 'hive_table': 'tg_css_caldata_stg'}
+***** load_mode  append
+[2026-09-20 01:37:34.983] *** Before enforce target lengths ***
++------+------+--------+------------+------------+------------+-----+------------+------------+------+----------------+------------+
+|CAL   |ALTCAL|EFF     |OPT         |REPEAT      |AVAIL       |DESCR|PERWGT      |ALLOCWGT    |COVDUR|UREP_CAPLINEHOUR|USYS_PATTERN|
++------+------+--------+------------+------------+------------+-----+------------+------------+------+----------------+------------+
+|ALC_WW|      |20455200|6.0000000000|0.0000000000|0.0000000000|     |0.0000000000|0.0000000000|0     |0.00            |NULL        |
++------+------+--------+------------+------------+------------+-----+------------+------------+------+----------------+------------+
+only showing top 1 row
+
+[2026-09-20 01:37:35.294] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_CALDATA_STG
+[2026-09-20 01:37:35.294] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_caldata_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:37:38.247]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg', 'hive_table': 'tg_css_caldata_stg'}
+[2026-09-20 01:37:38.248] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg
+[2026-09-20 01:37:38.248] *** target type from workflow : file
+[2026-09-20 01:37:38.248]     [WRITE:file] TG_CSS_CALDATA_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_caldata_stg [append]
+[2026-09-20 01:37:38.248] **** Writing into iceberg table ***
+[2026-09-20 01:37:40.352] ### [WRITE:iceberg] vflh_stg.tg_css_caldata_stg
+[2026-09-20 01:37:40.352] **** Inside op_target ***
+[2026-09-20 01:37:40.378]  **** tgt_name : TG_CSS_PLANORDER_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg', 'hive_table': 'tg_css_planorder_stg'}
+***** load_mode  append
+[2026-09-20 01:37:40.388] *** Before enforce target lengths ***
++-----------+------+-------------------+--------------+
+|ITEM       |LOC   |SCHEDDATE          |QTY           |
++-----------+------+-------------------+--------------+
+|GS9095SD-22|MF_MXC|2026-05-11 00:00:00|100.0000000000|
++-----------+------+-------------------+--------------+
+only showing top 1 row
+
+[2026-09-20 01:37:40.653] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_PLANORDER_STG
+[2026-09-20 01:37:40.653] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_planorder_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:37:42.479]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg', 'hive_table': 'tg_css_planorder_stg'}
+[2026-09-20 01:37:42.479] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg
+[2026-09-20 01:37:42.479] *** target type from workflow : file
+[2026-09-20 01:37:42.479]     [WRITE:file] TG_CSS_PLANORDER_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_planorder_stg [append]
+[2026-09-20 01:37:42.479] **** Writing into iceberg table ***
+[2026-09-20 01:37:43.824] ### [WRITE:iceberg] vflh_stg.tg_css_planorder_stg
+[2026-09-20 01:37:43.824] **** Inside op_target ***
+[2026-09-20 01:37:43.840]  **** tgt_name : TG_CSS_RS_UDTM_SKUPROJ_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg', 'hive_table': 'tg_css_rs_udtm_skuproj_stg'}
+***** load_mode  append
+[2026-09-20 01:37:43.851] *** Before enforce target lengths ***
++-------------+-----+-------------------+---------+------------+------------+-------------+
+|ITEM         |LOC  |STARTDATE          |OPTIONSET|TOTDMD      |PLANORDERS  |FIRMPLANORDER|
++-------------+-----+-------------------+---------+------------+------------+-------------+
+|KT-0001-422FS|WH_SA|2028-06-04 23:59:00|eitmi    |0.0000000000|0.0000000000|0.0000000000 |
++-------------+-----+-------------------+---------+------------+------------+-------------+
+only showing top 1 row
+
+[2026-09-20 01:37:44.162] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_RS_UDTM_SKUPROJ_STG
+[2026-09-20 01:37:44.162] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_rs_udtm_skuproj_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:43:04.207]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg', 'hive_table': 'tg_css_rs_udtm_skuproj_stg'}
+[2026-09-20 01:43:04.207] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg
+[2026-09-20 01:43:04.207] *** target type from workflow : file
+[2026-09-20 01:43:04.207]     [WRITE:file] TG_CSS_RS_UDTM_SKUPROJ_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_rs_udtm_skuproj_stg [append]
+[2026-09-20 01:43:04.207] **** Writing into iceberg table ***
+26/09/20 01:43:04 WARN  conf.HiveConf: [Thread-6]: HiveConf of name hive.metastore.runworker.in does not exist
+[2026-09-20 01:46:09.088] ### [WRITE:iceberg] vflh_stg.tg_css_rs_udtm_skuproj_stg
+[2026-09-20 01:46:09.088] **** Inside op_target ***
+[2026-09-20 01:46:09.102]  **** tgt_name : TG_CSS_PLANARRIV_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg', 'hive_table': 'tg_css_planarriv_stg'}
+***** load_mode  append
+[2026-09-20 01:46:09.110] *** Before enforce target lengths ***
++--------------+-------------------+-------------------+------------+
+|ITEM          |SCHEDARRIVDATE     |SCHEDSHIPDATE      |QTY         |
++--------------+-------------------+-------------------+------------+
+|D-1171-35-S-24|2026-06-22 00:00:00|2026-06-01 00:00:00|0.0000000000|
++--------------+-------------------+-------------------+------------+
+only showing top 1 row
+
+[2026-09-20 01:46:09.388] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_PLANARRIV_STG
+[2026-09-20 01:46:09.388] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_planarriv_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:11.127]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg', 'hive_table': 'tg_css_planarriv_stg'}
+[2026-09-20 01:46:11.127] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg
+[2026-09-20 01:46:11.127] *** target type from workflow : file
+[2026-09-20 01:46:11.127]     [WRITE:file] TG_CSS_PLANARRIV_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_planarriv_stg [append]
+[2026-09-20 01:46:11.127] **** Writing into iceberg table ***
+[2026-09-20 01:46:12.346] ### [WRITE:iceberg] vflh_stg.tg_css_planarriv_stg
+=== Mapping complete ===
+####### looping through sessions
+[2026-09-20 01:46:12.346]
+============================================================
+[SESSION] s_CSS_RS_STG_TO_WRK  (mapping m_CSS_RS_STG_TO_WRK)
+============================================================
+=== Executing mapping: m_CSS_RS_STG_TO_WRK ===
+Execution order (40 nodes):
+    SRC_CSS_CALDATA_STG                [Source Definition]
+    SRC_CSS_CAL_AVAIL_STG2             [Source Definition]
+    SRC_CSS_CAL_STG                    [Source Definition]
+    SRC_CSS_MFG_LEADTIME_STG           [Source Definition]
+    SRC_CSS_NKIT_WORKING_DAYS_STG      [Source Definition]
+    SRC_CSS_PLANARRIV_STG              [Source Definition]
+    SRC_CSS_PLANORDER_STG              [Source Definition]
+    SRC_CSS_RES_AVAIL_STG2             [Source Definition]
+    SRC_CSS_RES_ITEM_STG               [Source Definition]
+    SRC_CSS_RS_UDTM_SKUPROJSTATIC_STG  [Source Definition]
+    SQ_SRC_CSS_CALDATA_STG             [Source Qualifier]
+    SQ_SRC_CSS_CAL_AVAIL_STG2          [Source Qualifier]
+    SQ_SRC_CSS_CAL_STG                 [Source Qualifier]
+    SQ_SRC_CSS_MFG_LEADTIME_STG        [Source Qualifier]
+    SQ_SRC_CSS_NKIT_WORKING_DAYS_STG   [Source Qualifier]
+    SQ_SRC_CSS_PLANARRIV_STG           [Source Qualifier]
+    SQ_SRC_CSS_PLANORDER_STG           [Source Qualifier]
+    SQ_SRC_CSS_RES_AVAIL_STG2          [Source Qualifier]
+    SQ_SRC_CSS_RES_ITEM_STG            [Source Qualifier]
+    SQ_SRC_CSS_RS_UDTM_SKUPROJSTATIC_STG [Source Qualifier]
+    exp_stg_to_work_caldata            [Expression]
+    EXPTRANS2                          [Expression]
+    exp_stg_to_work_cal                [Expression]
+    agg_Max_Leadtime                   [Aggregator]
+    EXPTRANS                           [Expression]
+    exp_stg_to_work_planarriv          [Expression]
+    exp_stg_to_work_planorder          [Expression]
+    FILTRANS                           [Filter]
+    TG_SRC_CSS_RES_ITEM_WRK            [Target Definition]
+    exp_stg_to_work_rs_sku_projstatic  [Expression]
+    TG_CSS_CALDATA_WRK                 [Target Definition]
+    TG_CSS_CAL_AVAIL_WRK               [Target Definition]
+    TG_CSS_CAL_WRK                     [Target Definition]
+    TG_CSS_MFG_LEADTIME_WRK            [Target Definition]
+    TG_CSS_NKIT_WORKING_DAYS_WRK       [Target Definition]
+    TG_CSS_PLANARRIV_WRK               [Target Definition]
+    TG_CSS_PLANORDER_WRK               [Target Definition]
+    EXPTRANS1                          [Expression]
+    TG_CSS_RS_UDTM_SKUPROJSTATIC_WRK   [Target Definition]
+    TG_CSS_RES_AVAIL_WRK               [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:46:12.349]  workflow src [SQ_SRC_CSS_CALDATA_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg'}
+[2026-09-20 01:46:12.350]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg
+[2026-09-20 01:46:12.350]  *** source type *** file
+[2026-09-20 01:46:12.350]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_caldata_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_caldata_stg
+[2026-09-20 01:46:12.859]  workflow src [SQ_SRC_CSS_CAL_AVAIL_STG2] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg'}
+[2026-09-20 01:46:12.859]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg
+[2026-09-20 01:46:12.859]  *** source type *** file
+[2026-09-20 01:46:12.859]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_avail_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_avail_stg
+[2026-09-20 01:46:13.135]  workflow src [SQ_SRC_CSS_CAL_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg'}
+[2026-09-20 01:46:13.135]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg
+[2026-09-20 01:46:13.135]  *** source type *** file
+[2026-09-20 01:46:13.135]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_stg
+[2026-09-20 01:46:13.488]  workflow src [SQ_SRC_CSS_MFG_LEADTIME_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg'}
+[2026-09-20 01:46:13.488]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg
+[2026-09-20 01:46:13.488]  *** source type *** file
+[2026-09-20 01:46:13.488]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_mfg_leadtime_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_mfg_leadtime_stg
+[2026-09-20 01:46:13.917]  workflow src [SQ_SRC_CSS_NKIT_WORKING_DAYS_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg'}
+[2026-09-20 01:46:13.917]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg
+[2026-09-20 01:46:13.917]  *** source type *** file
+[2026-09-20 01:46:13.917]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_nkit_workingdays_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_nkit_workingdays_stg
+[2026-09-20 01:46:14.206]  workflow src [SQ_SRC_CSS_PLANARRIV_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg'}
+[2026-09-20 01:46:14.206]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg
+[2026-09-20 01:46:14.206]  *** source type *** file
+[2026-09-20 01:46:14.206]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planarriv_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_planarriv_stg
+[2026-09-20 01:46:14.493]  workflow src [SQ_SRC_CSS_PLANORDER_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg'}
+[2026-09-20 01:46:14.493]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg
+[2026-09-20 01:46:14.493]  *** source type *** file
+[2026-09-20 01:46:14.493]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_planorder_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_planorder_stg
+[2026-09-20 01:46:14.840]  workflow src [SQ_SRC_CSS_RES_AVAIL_STG2] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg'}
+[2026-09-20 01:46:14.840]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg
+[2026-09-20 01:46:14.840]  *** source type *** file
+[2026-09-20 01:46:14.840]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_avail_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_avail_stg
+[2026-09-20 01:46:15.323]  workflow src [SQ_SRC_CSS_RES_ITEM_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg'}
+[2026-09-20 01:46:15.324]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg
+[2026-09-20 01:46:15.324]  *** source type *** file
+[2026-09-20 01:46:15.324]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_res_item_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_res_item_stg
+[2026-09-20 01:46:15.726]  workflow src [SQ_SRC_CSS_RS_UDTM_SKUPROJSTATIC_STG] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg'}
+[2026-09-20 01:46:15.726]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg
+[2026-09-20 01:46:15.726]  *** source type *** file
+[2026-09-20 01:46:15.726]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_rs_udtm_skuproj_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_rs_udtm_skuproj_stg
+%%%%%%% Expression : 10
+%%%%%%% Expression : 20
+%%%%%%% Expression : 30
+%%%%%%% Expression : 40
+%%%%%%% Expression : DATE_ADD(TO_DATE('01/01/1970','MM/DD/YYYY'), 'SS', (EFF/(24*60)))
+    [WARN] expr failed on STARTDATE: [WRONG_NUM_ARGS.WITHOUT_SUGGESTION] The `date_add` requires 2 parameters but the actual number is 3. Please, refer to 'https://spark.apache.org/docs/latest/sql-ref-functions.html' for a fix.; line 1 pos 0; NULL
+%%%%%%% Expression : VARIABLE_BPVOLUME
+%%%%%%% Expression : VARIABLE_STAFFEDCAPACITY
+%%%%%%% Expression : VARIABLE_INSTALLCAPACITY
+%%%%%%% Expression : VARIABLE_OTSTAFFCAPACITY
+%%%%%%% Expression : MAX(MFGLEADTIME)
+%%%%%%% Expression : MAX(LEADTIME_ENDDATE)
+%%%%%%% Expression : PATTERNDAY * NONPATTERNDAY
+%%%%%%% Expression : IF((DATEVAL >= NEWEFF AND DATEVAL < NEXTDATEVAL), TRUE, FALSE)
+[2026-09-20 01:46:16.354] **** Inside op_target ***
+[2026-09-20 01:46:16.450]  **** tgt_name : TG_SRC_CSS_RES_ITEM_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_item_wrk', 'hive_table': 'tg_css_res_item_stg'}
+***** load_mode  append
+[2026-09-20 01:46:16.460] *** Before enforce target lengths ***
++---+-----+---+------------+
+|RES|LOC  |CAL|ITEM        |
++---+-----+---+------------+
+|910|WH_AR|   |M-4900-16-18|
++---+-----+---+------------+
+only showing top 1 row
+
+[2026-09-20 01:46:16.881] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_SRC_CSS_RES_ITEM_WRK
+[2026-09-20 01:46:16.881] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_item_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_item_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_css_res_item_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:19.032]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_item_wrk', 'hive_table': 'tg_css_res_item_stg'}
+[2026-09-20 01:46:19.032] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_res_item_wrk
+[2026-09-20 01:46:19.032] *** target type from workflow : file
+[2026-09-20 01:46:19.032]     [WRITE:file] TG_SRC_CSS_RES_ITEM_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_css_res_item_wrk [append]
+[2026-09-20 01:46:19.032] **** Writing into iceberg table ***
+[2026-09-20 01:46:20.429] ### [WRITE:iceberg] vflh_wrk.tg_css_res_item_wrk
+[2026-09-20 01:46:20.429] **** Inside op_target ***
+[2026-09-20 01:46:20.476]  **** tgt_name : TG_CSS_CALDATA_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_caldata_wrk', 'hive_table': 'tg_css_caldata_wrk'}
+***** load_mode  append
+[2026-09-20 01:46:20.499] *** Before enforce target lengths ***
++------------+---------+------+------------+--------+---------------+---------------+---------------+------------+--------------+-----+------------+------------+------+----------------+------------+
+|CAL         |STARTDATE|ALTCAL|OPT         |BPVOLUME|STAFFEDCAPACITY|INSTALLCAPACITY|OTSTAFFCAPACITY|REPEAT      |AVAIL         |DESCR|PERWGT      |ALLOCWGT    |COVDUR|UREP_CAPLINEHOUR|USYS_PATTERN|
++------------+---------+------+------------+--------+---------------+---------------+---------------+------------+--------------+-----+------------+------------+------+----------------+------------+
+|CPP_MFMX_D05|NULL     |      |6.0000000000|10      |20             |30             |40             |0.0000000000|425.0000000000|     |0.0000000000|0.0000000000|0     |NULL            |NULL        |
++------------+---------+------+------------+--------+---------------+---------------+---------------+------------+--------------+-----+------------+------------+------+----------------+------------+
+only showing top 1 row
+
+[2026-09-20 01:46:20.839] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_CALDATA_WRK
+[2026-09-20 01:46:20.839] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_caldata_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_caldata_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_css_caldata_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:23.065]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_caldata_wrk', 'hive_table': 'tg_css_caldata_wrk'}
+[2026-09-20 01:46:23.065] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_caldata_wrk
+[2026-09-20 01:46:23.065] *** target type from workflow : file
+[2026-09-20 01:46:23.065]     [WRITE:file] TG_CSS_CALDATA_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_css_caldata_wrk [append]
+[2026-09-20 01:46:23.065] **** Writing into iceberg table ***
+[2026-09-20 01:46:24.912] ### [WRITE:iceberg] vflh_wrk.tg_css_caldata_wrk
+[2026-09-20 01:46:24.912] **** Inside op_target ***
+[2026-09-20 01:46:24.948]  **** tgt_name : TG_CSS_CAL_AVAIL_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_cal_avail_wrk', 'hive_table': 'tg_css_cal_avail_wrk'}
+***** load_mode  append
+[2026-09-20 01:46:24.961] *** Before enforce target lengths ***
++---+------+--------+-------------------+-------+-----+-----+
+|RES|RESCAL|STAFFCAP|STAFCAP_CAPLINEHOUR|INSTCAP|LECAP|BPCAP|
++---+------+--------+-------------------+-------+-----+-----+
++---+------+--------+-------------------+-------+-----+-----+
+
+[2026-09-20 01:46:25.164] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_CAL_AVAIL_WRK
+[2026-09-20 01:46:25.164] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_cal_avail_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_cal_avail_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_css_cal_avail_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:26.442]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_cal_avail_wrk', 'hive_table': 'tg_css_cal_avail_wrk'}
+[2026-09-20 01:46:26.442] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_css_cal_avail_wrk
+[2026-09-20 01:46:26.442] *** target type from workflow : file
+[2026-09-20 01:46:26.442]     [WRITE:file] TG_CSS_CAL_AVAIL_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_css_cal_avail_wrk [append]
+[2026-09-20 01:46:26.442] **** Writing into iceberg table ***
+[2026-09-20 01:46:26.812] ### [WRITE:iceberg] vflh_wrk.tg_css_cal_avail_wrk
+[2026-09-20 01:46:26.812] **** Inside op_target ***
+[2026-09-20 01:46:26.851]  **** tgt_name : TG_CSS_CAL_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_wrk', 'hive_table': 'tg_css_cal_wrk'}
+***** load_mode  append
+[2026-09-20 01:46:26.862] *** Before enforce target lengths ***
++--------+-------------------------------------------+----+------+------------+---------+
+|CAL     |DESCR                                      |TYPE|MASTER|NUMFCSTPER  |ROLLINGSW|
++--------+-------------------------------------------+----+------+------------+---------+
+|SC_EMEU2|Recommended Shipment Calendar for RSC_EMEU2|6   |      |0.0000000000|0        |
++--------+-------------------------------------------+----+------+------------+---------+
+only showing top 1 row
+
+[2026-09-20 01:46:27.114] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_CAL_WRK
+[2026-09-20 01:46:27.114] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:28.372]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_wrk', 'hive_table': 'tg_css_cal_wrk'}
+[2026-09-20 01:46:28.372] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_css_cal_wrk
+[2026-09-20 01:46:28.372] *** target type from workflow : file
+[2026-09-20 01:46:28.372]     [WRITE:file] TG_CSS_CAL_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_css_cal_wrk [append]
+[2026-09-20 01:46:28.372] **** Writing into iceberg table ***
+[2026-09-20 01:46:28.410] [ERROR] session s_CSS_RS_STG_TO_WRK failed: [TABLE_OR_VIEW_NOT_FOUND] The table or view `vflh_stg`.`tg_css_cal_wrk` cannot be found. Verify the spelling and correctness of the schema and catalog.
+If you did not qualify the name with a schema, verify the current_schema() output, or qualify the name with the correct schema and catalog.
+To tolerate the error on drop use DROP VIEW IF EXISTS or DROP TABLE IF EXISTS.;
+'OverwritePartitionsDynamic 'UnresolvedRelation [vflh_stg, tg_css_cal_wrk], [__required_write_privileges__=INSERT,DELETE], false, true
++- Repartition 4, true
+   +- Project [CAL#936, DESCR#937, TYPE#938, MASTER#939, NUMFCSTPER#940, ROLLINGSW#941]
+      +- Relation [CAL#936,DESCR#937,TYPE#938,MASTER#939,NUMFCSTPER#940,ROLLINGSW#941] parquet
+
+####### looping through sessions
+[2026-09-20 01:46:28.410]
+============================================================
+[SESSION] s_CSS_RS_WRK_TO_CORE  (mapping m_CSS_RS_WRK_TO_CORE)
+============================================================
+=== Executing mapping: m_CSS_RS_WRK_TO_CORE ===
+Execution order (39 nodes):
+    DIM_DATE                           [Source Definition]
+    SRC_CSS_CAL_AVAIL_WRK              [Source Definition]
+    SRC_CSS_MFG_LEADTIME_WRK           [Source Definition]
+    SRC_CSS_NKIT_WORKING_DAYS_WRK      [Source Definition]
+    SRC_CSS_RES_AVAIL_WRK              [Source Definition]
+    SRC_CSS_RS_UDTM_SKUPROJSTATIC_WRK  [Source Definition]
+    SRC_RS_ITEM_WRK                    [Source Definition]
+    SRC_RS_LOC_WRK                     [Source Definition]
+    SRC_RS_RES_WRK                     [Source Definition]
+    SRC_RS_SKU_WRK                     [Source Definition]
+    SQ_DIM_DATE                        [Source Qualifier]
+    SQ_SRC_CSS_CAL_AVAIL_WRK           [Source Qualifier]
+    SQ_SRC_CSS_MFG_LEADTIME_WRK        [Source Qualifier]
+    SQ_SRC_CSS_NKIT_WORKING_DAYS_WRK   [Source Qualifier]
+    SQ_SRC_CSS_RES_AVAIL_WRK           [Source Qualifier]
+    SQ_SRC_CSS_RS_UDTM_SKUPROJSTATIC_WRK [Source Qualifier]
+    SQ_SRC_RS_ITEM_WRK                 [Source Qualifier]
+    SQ_SRC_RS_LOC_WRK                  [Source Qualifier]
+    SQ_SRC_RS_RES_WRK                  [Source Qualifier]
+    SQ_SRC_RS_SKU_WRK                  [Source Qualifier]
+    EXP_JJ_DATE                        [Expression]
+    JNRTRANS                           [Joiner]
+    jnr_rs_sku_loc                     [Joiner]
+    JNRTRANS1                          [Joiner]
+    jnr_sku_loc_item                   [Joiner]
+    jnr_nkit_leadtime                  [Joiner]
+    jnr_mfg_details                    [Joiner]
+    exp_lead_time_nkit                 [Expression]
+    jnr_mfg_skuproj                    [Joiner]
+    EXPTRANS1                          [Expression]
+    EXP_SKUPROJ_WORK                   [Expression]
+    AGGTRANS                           [Aggregator]
+    TG_CSS_TEMP_LEAD_TIME              [Target Definition]
+    jnr_jj_date                        [Joiner]
+    TG_CSS_NKIT_CAPACITY_CORE          [Target Definition]
+    EXP_MFG_DATE                       [Expression]
+    mg_mfg_details_skuproj             [Aggregator]
+    EXPTRANS                           [Expression]
+    TG_RS_MFG_DETAILS_SKUPROJSTATIC_CORE [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:46:28.413]  workflow src [SQ_DIM_DATE] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_ETH_REPORT_TGT_DB', 'type': 'jdbc'}
+[2026-09-20 01:46:28.413]  *** source path *** None
+[2026-09-20 01:46:28.413]  *** source type *** jdbc
+[2026-09-20 01:46:28.413] *** IN JDBC SECTION ***
+[2026-09-20 01:46:28.413]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : DIM_DATE
+[2026-09-20 01:46:28.413] ############ Table name or SQL Query : JNJDBUSER_RO.DIM_DATE
+[2026-09-20 01:46:28.872] [ERROR] session s_CSS_RS_WRK_TO_CORE failed: An error occurred while calling o594.load.
+: java.sql.SQLSyntaxErrorException: ORA-00942: table or view does not exist
+
+        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:630)
+        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:564)
+        at oracle.jdbc.driver.T4C8Oall.processError(T4C8Oall.java:1151)
+        at oracle.jdbc.driver.T4CTTIfun.receive(T4CTTIfun.java:771)
+        at oracle.jdbc.driver.T4CTTIfun.doRPC(T4CTTIfun.java:299)
+        at oracle.jdbc.driver.T4C8Oall.doOALL(T4C8Oall.java:498)
+        at oracle.jdbc.driver.T4CPreparedStatement.doOall8(T4CPreparedStatement.java:152)
+        at oracle.jdbc.driver.T4CPreparedStatement.executeForDescribe(T4CPreparedStatement.java:937)
+        at oracle.jdbc.driver.OracleStatement.prepareDefineBufferAndExecute(OracleStatement.java:1172)
+        at oracle.jdbc.driver.OracleStatement.executeMaybeDescribe(OracleStatement.java:1101)
+        at oracle.jdbc.driver.OracleStatement.executeSQLSelect(OracleStatement.java:1426)
+        at oracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1309)
+        at oracle.jdbc.driver.OraclePreparedStatement.executeInternal(OraclePreparedStatement.java:3746)
+        at oracle.jdbc.driver.OraclePreparedStatement.executeQuery(OraclePreparedStatement.java:3855)
+        at oracle.jdbc.driver.OraclePreparedStatementWrapper.executeQuery(OraclePreparedStatementWrapper.java:1098)
+        at org.apache.spark.sql.execution.datasources.jdbc.JDBCRDD$.getQueryOutputSchema(JDBCRDD.scala:68)
+        at org.apache.spark.sql.execution.datasources.jdbc.JDBCRDD$.resolveTable(JDBCRDD.scala:58)
+        at org.apache.spark.sql.execution.datasources.jdbc.JDBCRelation$.getSchema(JDBCRelation.scala:241)
+        at org.apache.spark.sql.execution.datasources.jdbc.JdbcRelationProvider.createRelation(JdbcRelationProvider.scala:37)
+        at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:347)
+        at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:229)
+        at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:211)
+        at scala.Option.getOrElse(Option.scala:189)
+        at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:211)
+        at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:172)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+        at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+        at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+        at py4j.Gateway.invoke(Gateway.java:282)
+        at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+        at py4j.commands.CallCommand.execute(CallCommand.java:79)
+        at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+        at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+        at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: Error : 942, Position : 27, Sql = SELECT * FROM JNJDBUSER_RO.DIM_DATE WHERE 1=0, OriginalSql = SELECT * FROM JNJDBUSER_RO.DIM_DATE WHERE 1=0, Error Msg = ORA-00942: table or view does not exist
+
+        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:637)
+        ... 36 more
+
+####### looping through sessions
+[2026-09-20 01:46:28.872]
+============================================================
+[SESSION] s_m_CSS_DIM_ORACLE_TO_STG  (mapping m_CSS_DIM_ORACLE_TO_STG)
+============================================================
+=== Executing mapping: m_CSS_DIM_ORACLE_TO_STG ===
+Execution order (16 nodes):
+    ITEM                               [Source Definition]
+    LOC                                [Source Definition]
+    RES                                [Source Definition]
+    SKU                                [Source Definition]
+    UPRM_OPTIONS                       [Source Definition]
+    SQ_ITEM                            [Source Qualifier]
+    SQ_LOC                             [Source Qualifier]
+    SQ_RES                             [Source Qualifier]
+    SQ_SKU                             [Source Qualifier]
+    SQ_UPRM_OPTIONS                    [Source Qualifier]
+    EXP_ITEM_stg                       [Expression]
+    TG_LOC_STG                         [Target Definition]
+    TG_RES_STG                         [Target Definition]
+    TG_SKU_STG                         [Target Definition]
+    TG_UPRM_OPTIONS_STG                [Target Definition]
+    TG_ITEM_STG                        [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:46:28.875]  workflow src [SQ_ITEM] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:46:28.875]  *** source path *** None
+[2026-09-20 01:46:28.875]  *** source type *** jdbc
+[2026-09-20 01:46:28.875] *** IN JDBC SECTION ***
+[2026-09-20 01:46:28.875]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : ITEM
+[2026-09-20 01:46:28.875] ############ Table name or SQL Query : (Select
+ITEM.ITEM,
+ITEM.DESCR,
+ITEM.UOM,
+ITEM.WGT,
+ITEM.VOL,
+ITEM.UNITSPERPALLET,
+ITEM.UNITSPERALTSHIP,
+ITEM.CANCELDEPTHLIMIT,
+ITEM.UNITPRICE,
+ITEM.PLANLEVEL,
+ITEM.ENABLESW,
+ITEM.PERISHABLESW,
+ITEM.PRIITEMPRIORITY,
+ITEM.PRIORITY,
+ITEM.RESTRICTPLANMODE,
+ITEM.DDSKUSW,
+ITEM.DDSRCCOSTSW,
+ITEM.DYNDEPDECIMALS,
+ITEM.DYNDEPOPTION,
+ITEM.DYNDEPPUSHOPT,
+ITEM.DYNDEPQTY,
+ITEM.FF_TRIGGER_CONTROL,
+ITEM.ITEMCLASS,
+ITEM.INVOPTIMIZERTYPE,
+ITEM.DEFAULTUOM,
+ITEM.ALLOCPOLICY,
+ITEM.CALCCUMLEADTIMESW,
+ITEM.SUPSNGROUPNUM,
+ITEM.UREP_DATECREATED,
+ITEM.USYS_H1_LEVEL1,
+ITEM.USYS_H1_LEVEL2,
+ITEM.USYS_H1_LEVEL4,
+ITEM.UREP_R1_BRAVO1,
+ITEM.UREP_R1_REPORT1,
+ITEM.USYS_DELETEFLAG,
+ITEM.USYS_H1_LEVEL3,
+ITEM.USYS_H1_LEVEL5,
+ITEM.UREP_SELECTION,
+ITEM.UREP_R1_BRAVO2,
+ITEM.UREP_R1_BRAVO3,
+ITEM.UREP_R1_REPORT2,
+ITEM.UREP_R1_REPORT3,
+ITEM.USYS_CATALOG1,
+ITEM.USYS_CATALOG_TYPE1,
+ITEM.USYS_CATALOG2,
+ITEM.USYS_CATALOG_TYPE2,
+ITEM.USYS_CATALOG3,
+ITEM.USYS_CATALOG_TYPE3,
+ITEM.USYS_CATALOG4,
+ITEM.USYS_CATALOG_TYPE4,
+ITEM.UREP_R1_REPORT4,
+ITEM.UREP_R1_REPORT5,
+ITEM.USYS_MULTISITE_SW,
+ITEM.USYS_FRANCHISE,
+ITEM.USYS_NONEXPIRE,
+ITEM.USYS_BATCHMANAGED,
+ITEM.USYS_MODCODE
+from item where item <> 'DUMMY_ITEM' and USYS_H1_LEVEL5 <> 'P5_ASP') SRC
+[2026-09-20 01:46:29.083] **** SQL OVERRIDE applied at source read for SQ_ITEM ****
+[2026-09-20 01:46:29.083]  workflow src [SQ_LOC] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:46:29.083]  *** source path *** None
+[2026-09-20 01:46:29.083]  *** source type *** jdbc
+[2026-09-20 01:46:29.083] *** IN JDBC SECTION ***
+[2026-09-20 01:46:29.083]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : LOC
+[2026-09-20 01:46:29.083] ############ Table name or SQL Query : (select * from loc where USYS_H1_LEVEL5 <> 'P5_ASP') SRC
+[2026-09-20 01:46:29.265] **** SQL OVERRIDE applied at source read for SQ_LOC ****
+[2026-09-20 01:46:29.265]  workflow src [SQ_RES] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:46:29.265]  *** source path *** None
+[2026-09-20 01:46:29.265]  *** source type *** jdbc
+[2026-09-20 01:46:29.265] *** IN JDBC SECTION ***
+[2026-09-20 01:46:29.265]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : RES
+[2026-09-20 01:46:29.265] ############ Table name or SQL Query : JNJDBUSER_RO.RES
+[2026-09-20 01:46:29.483]  workflow src [SQ_SKU] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:46:29.483]  *** source path *** None
+[2026-09-20 01:46:29.483]  *** source type *** jdbc
+[2026-09-20 01:46:29.483] *** IN JDBC SECTION ***
+[2026-09-20 01:46:29.483]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : SKU
+[2026-09-20 01:46:29.483] ############ Table name or SQL Query : JNJDBUSER_RO.SKU
+[2026-09-20 01:46:29.741]  workflow src [SQ_UPRM_OPTIONS] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_Manu_src_DB', 'type': 'jdbc'}
+[2026-09-20 01:46:29.741]  *** source path *** None
+[2026-09-20 01:46:29.741]  *** source type *** jdbc
+[2026-09-20 01:46:29.741] *** IN JDBC SECTION ***
+[2026-09-20 01:46:29.741]  **** schema : JNJDBUSER_RO  owner : JNJDBUSER_RO name : UPRM_OPTIONS
+[2026-09-20 01:46:29.741] ############ Table name or SQL Query : (select textval as TargetPLevel,
+MAX(DECODE(TargetName, 'GLOBAL_BO_TARGET', numval)) AS GLOBAL_BO_TARGET,
+MAX(DECODE(TargetName, 'GLOBAL_LIFR_IMPACT_TARGET', numval)) AS GLOBAL_LIFR_IMPACT_TARGET,
+MAX(DECODE(TargetName, 'GLOBAL_LIFR_TARGET', numval)) AS GLOBAL_LIFR_TARGET,
+MAX(DECODE(TargetName, 'GLOBAL_LINES_ORDER', numval)) AS GLOBAL_LINES_ORDER
+from
+(
+    SELECT
+    textval,
+    case when name like 'GLOBAL_BO_TARGET_%' then 'GLOBAL_BO_TARGET'
+        when name like 'GLOBAL_LIFR_IMPACT_TARGET_%' then 'GLOBAL_LIFR_IMPACT_TARGET'
+        when name like 'GLOBAL_LIFR_TARGET_%' then 'GLOBAL_LIFR_TARGET'
+        when name like 'GLOBAL_LINES_ORDER_%' then 'GLOBAL_LINES_ORDER' end as TargetName,
+    numval
+    from uprm_options
+    where param = 'CSS_CONTROL_TOWER'
+    and textval <> 'P5_ASP'
+) x
+GROUP BY x.textval
+ORDER BY x.textval) SRC
+[2026-09-20 01:46:29.937] **** SQL OVERRIDE applied at source read for SQ_UPRM_OPTIONS ****
+[2026-09-20 01:46:29.938] **** Inside op_target ***
+[2026-09-20 01:46:29.960]  **** tgt_name : TG_LOC_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg', 'hive_table': 'tg_loc_stg'}
+***** load_mode  append
+[2026-09-20 01:46:30.006] *** Before enforce target lengths ***
+26/09/20 01:46:30 WARN  util.SparkStringUtils: [Thread-6]: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
++-----+-----+-------------------+-------------------+---------+-------+----+----------+----+---------+------------+------------+--------+------------------+--------+------+---------+----------+---------------+---------------+-----------------------+-------------------------+----------+-------+--------+-------+--------------+--------------+--------------+------------+--------------+--------------+-----------+--------------+------------+-----------------+-----------------+---------------+------------+
+|LOC  |DESCR|OHPOST             |FRZSTART           |SOURCECAL|DESTCAL|TYPE|ALTPLANTID|CUST|TRANSZONE|LAT         |LON         |ENABLESW|FF_TRIGGER_CONTROL|LOC_TYPE|VENDID|COMPANYID|WORKINGCAL|SEQINTEXPORTDUR|SEQINTIMPORTDUR|SEQINTLASTEXPORTEDTOSEQ|SEQINTLASTIMPORTEDFROMSEQ|POSTALCODE|COUNTRY|CURRENCY|WDDAREA|UREP_DIST_TYPE|USYS_H1_LEVEL2|USYS_H1_LEVEL4|USYS_SYS_LOC|USYS_H1_LEVEL1|USYS_H1_LEVEL5|USYS_REGION|USYS_H1_LEVEL3|USYS_REGION1|USYS_SUPPLY_POINT|USYS_JDEATLASXREF|USYS_ROLEFILTER|USYS_LOCTYPE|
++-----+-----+-------------------+-------------------+---------+-------+----+----------+----+---------+------------+------------+--------+------------------+--------+------+---------+----------+---------------+---------------+-----------------------+-------------------------+----------+-------+--------+-------+--------------+--------------+--------------+------------+--------------+--------------+-----------+--------------+------------+-----------------+-----------------+---------------+------------+
+|MF_IL|Haifa|2026-06-29 00:00:00|2026-04-20 00:00:00|         |       |1   |          |    |         |0.0000000000|0.0000000000|1       |NULL              |2       |      |         |          |0              |0              |1970-01-01 00:00:00    |1970-01-01 00:00:00      |0         |0      |        |       |MANUFACTURING |L2_MATURE     |L4_EURASIA    |NULL        |L1_MEDIT      |L5_WW         |US         |L3_EMEA       |US          |X                |NULL             |MAKE           |NULL        |
++-----+-----+-------------------+-------------------+---------+-------+----+----------+----+---------+------------+------------+--------+------------------+--------+------+---------+----------+---------------+---------------+-----------------------+-------------------------+----------+-------+--------+-------+--------------+--------------+--------------+------------+--------------+--------------+-----------+--------------+------------+-----------------+-----------------+---------------+------------+
+only showing top 1 row
+
+[2026-09-20 01:46:30.299] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_LOC_STG
+[2026-09-20 01:46:30.300] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_loc_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:31.663]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg', 'hive_table': 'tg_loc_stg'}
+[2026-09-20 01:46:31.663] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg
+[2026-09-20 01:46:31.663] *** target type from workflow : file
+[2026-09-20 01:46:31.663]     [WRITE:file] TG_LOC_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_loc_stg [append]
+[2026-09-20 01:46:31.663] **** Writing into iceberg table ***
+[2026-09-20 01:46:32.952] ### [WRITE:iceberg] vflh_stg.tg_loc_stg
+[2026-09-20 01:46:32.952] **** Inside op_target ***
+[2026-09-20 01:46:32.975]  **** tgt_name : TG_RES_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg', 'hive_table': 'tg_res_stg'}
+***** load_mode  append
+[2026-09-20 01:46:33.003] *** Before enforce target lengths ***
++------+-----+------------+---+--------+--------+------------+-----------+-------+------+-----------+------------+------------+------------+-------------+----------------+------------+-----------+-----------+------------+------------+--------------------------+------------------+
+|SOURCE|LOC  |TYPE        |RES|DESCR   |ENABLESW|ADJFACTOR   |CHECKMAXCAP|SUBTYPE|QTYUOM|CURRENCYUOM|CAL         |AVGFAMILYCHG|AVGSKUCHG   |AVGSKUCHGCOST|AVGFAMILYCHGCOST|COST        |LEVELLOADSW|LEVELSEQNUM|CRITICALITEM|UNITPENALTY |PRODUCTIONFAMILYCHGOVEROPT|USYS_MFGFRZHORIZON|
++------+-----+------------+---+--------+--------+------------+-----------+-------+------+-----------+------------+------------+------------+-------------+----------------+------------+-----------+-----------+------------+------------+--------------------------+------------------+
+|      |MF_US|4.0000000000|M40|ENVOY DA|1       |1.0000000000|1          |0      |0     |0          |CPP_MFUS_M40|0.0000000000|0.0000000000|0.0000000000 |0.0000000000    |0.0000000000|1          |1          |            |0.0000000000|0.0000000000              |10080             |
++------+-----+------------+---+--------+--------+------------+-----------+-------+------+-----------+------------+------------+------------+-------------+----------------+------------+-----------+-----------+------------+------------+--------------------------+------------------+
+only showing top 1 row
+
+[2026-09-20 01:46:33.287] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_RES_STG
+[2026-09-20 01:46:33.287] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_res_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:34.779]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg', 'hive_table': 'tg_res_stg'}
+[2026-09-20 01:46:34.779] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg
+[2026-09-20 01:46:34.779] *** target type from workflow : file
+[2026-09-20 01:46:34.779]     [WRITE:file] TG_RES_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_res_stg [append]
+[2026-09-20 01:46:34.779] **** Writing into iceberg table ***
+[2026-09-20 01:46:36.040] ### [WRITE:iceberg] vflh_stg.tg_res_stg
+[2026-09-20 01:46:36.040] **** Inside op_target ***
+[2026-09-20 01:46:36.111]  **** tgt_name : TG_SKU_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg', 'hive_table': 'tg_sku_stg'}
+***** load_mode  append
+[2026-09-20 01:46:36.171] *** Before enforce target lengths ***
++--------+-----+------------+-------------+------------+--------+-------------------+---------+------+-----------+----------+--------+-------+------------------+-------------+------------+--------+---------------+----------------+--------------+----------+--------------+---------------+--------------+-----------+------------------+---------------+-----------+---------------+--------+--------+---------------+-------------+----------------+-------------------+-----------------+------------+-------------+-------------+--------------+---------------+------------+--------------+-----------------+----------+------------------+------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------------+
+|ITEM    |LOC  |OH          |SOURCINGGROUP|REPLENTYPE  |NETCHGSW|OHPOST             |PLANLEVEL|QTYUOM|CURRENCYUOM|STORABLESW|ENABLESW|TIMEUOM|FF_TRIGGER_CONTROL|INFCARRYFWDSW|MINOHCOVRULE|LTDGROUP|TARGETOHCOVRULE|INFINITESUPPLYSW|SEQINTENABLESW|MPBATCHNUM|ITEMSTOREGRADE|UREP_MPSNETCODE|UREP_PLANNERID|USYS_REGION|USYS_ORIGSOURCELOC|USYS_FROZENLANE|USYS_MFGLOC|USYS_DELETEFLAG|UREP_ABC|UREP_ASP|USYS_ATP_EXPORT|USYS_COMMITLT|USYS_CONSIGNMENT|UREP_DATECREATED   |USYS_FINASSYMFGLT|USYS_FIRMDRP|USYS_LEADTIME|USYS_LOTSPLIT|USYS_LS_REPLAN|UREP_MFGCLSCODE|UREP_SKUSTAT|UREP_STOCKTYPE|UREP_UNITSPERLINE|USYS_EITMI|USYS_SPOSR_PATTERN|UREP_STDCOST|USYS_CATALOG1|USYS_CATALOG_TYPE1|USYS_CATALOG2|USYS_CATALOG_TYPE2|USYS_CATALOG3|USYS_CATALOG_TYPE3|USYS_CATALOG4|USYS_CATALOG_TYPE4|USYS_ORIGSOURCEITEM|
++--------+-----+------------+-------------+------------+--------+-------------------+---------+------+-----------+----------+--------+-------+------------------+-------------+------------+--------+---------------+----------------+--------------+----------+--------------+---------------+--------------+-----------+------------------+---------------+-----------+---------------+--------+--------+---------------+-------------+----------------+-------------------+-----------------+------------+-------------+-------------+--------------+---------------+------------+--------------+-----------------+----------+------------------+------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------------+
+|DTHPX325|WH_MY|0.0000000000|             |5.0000000000|1       |2026-06-29 00:00:00|0        |0     |0          |1         |1       |35     |NULL              |0            |1           |        |1              |0               |0             |99        |-1            |NULL           |KBAERTS       |NU         |WH_MY             |0              |WH_MY      |0              |X       |0.00    |0              |0            |0               |2018-01-18 00:00:00|0                |0           |NULL         |0            |0             |NULL           |NEW         |MTS           |1.00             |1.00      |NULL              |70.34       |DTHPX325     |US                |DTHPX325     |EU                |NULL         |NULL              |DTHPX325     |NU                |DTHPX325           |
++--------+-----+------------+-------------+------------+--------+-------------------+---------+------+-----------+----------+--------+-------+------------------+-------------+------------+--------+---------------+----------------+--------------+----------+--------------+---------------+--------------+-----------+------------------+---------------+-----------+---------------+--------+--------+---------------+-------------+----------------+-------------------+-----------------+------------+-------------+-------------+--------------+---------------+------------+--------------+-----------------+----------+------------------+------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------------+
+only showing top 1 row
+
+[2026-09-20 01:46:36.974] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_SKU_STG
+[2026-09-20 01:46:36.975] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_sku_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:46:53.240]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg', 'hive_table': 'tg_sku_stg'}
+[2026-09-20 01:46:53.240] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg
+[2026-09-20 01:46:53.240] *** target type from workflow : file
+[2026-09-20 01:46:53.240]     [WRITE:file] TG_SKU_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_sku_stg [append]
+[2026-09-20 01:46:53.240] **** Writing into iceberg table ***
+[2026-09-20 01:47:03.866] ### [WRITE:iceberg] vflh_stg.tg_sku_stg
+[2026-09-20 01:47:03.866] **** Inside op_target ***
+[2026-09-20 01:47:03.884]  **** tgt_name : TG_UPRM_OPTIONS_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg', 'hive_table': 'tg_uprm_options_stg'}
+***** load_mode  append
+[2026-09-20 01:47:03.897] *** Before enforce target lengths ***
++------------+----------------+-------------------------+------------------+------------------+
+|TARGETPLEVEL|GLOBAL_BO_TARGET|GLOBAL_LIFR_IMPACT_TARGET|GLOBAL_LIFR_TARGET|GLOBAL_LINES_ORDER|
++------------+----------------+-------------------------+------------------+------------------+
+|P5_ACCLARENT|12000.0000000000|40.0000000000            |9600.0000000000   |502.0000000000    |
++------------+----------------+-------------------------+------------------+------------------+
+only showing top 1 row
+
+[2026-09-20 01:47:04.144] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_UPRM_OPTIONS_STG
+[2026-09-20 01:47:04.144] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_uprm_options_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:05.653]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg', 'hive_table': 'tg_uprm_options_stg'}
+[2026-09-20 01:47:05.653] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg
+[2026-09-20 01:47:05.653] *** target type from workflow : file
+[2026-09-20 01:47:05.653]     [WRITE:file] TG_UPRM_OPTIONS_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_uprm_options_stg [append]
+[2026-09-20 01:47:05.653] **** Writing into iceberg table ***
+[2026-09-20 01:47:06.905] ### [WRITE:iceberg] vflh_stg.tg_uprm_options_stg
+[2026-09-20 01:47:06.905] **** Inside op_target ***
+[2026-09-20 01:47:06.927]  **** tgt_name : TG_ITEM_STG ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg', 'hive_table': 'tg_item_stg'}
+***** load_mode  append
+[2026-09-20 01:47:06.987] *** Before enforce target lengths ***
++-------------+------------------------------+---+------------+------------+--------------+---------------+----------------+------------+---------+--------+------------+---------------+--------+----------------+-------+-----------+--------------+------------+-------------+------------+------------------+---------+----------------+----------+-----------+-----------------+-------------+-------------------+-----------------------------+--------------+--------------+--------------+---------------+---------------+----------------+--------------+--------------+--------------+--------------+---------------+---------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------+------------------+---------------+---------------+-----------------+--------------+--------------+-----------------+------------+
+|ITEM         |DESCR                         |UOM|WGT         |VOL         |UNITSPERPALLET|UNITSPERALTSHIP|CANCELDEPTHLIMIT|UNITPRICE   |PLANLEVEL|ENABLESW|PERISHABLESW|PRIITEMPRIORITY|PRIORITY|RESTRICTPLANMODE|DDSKUSW|DDSRCCOSTSW|DYNDEPDECIMALS|DYNDEPOPTION|DYNDEPPUSHOPT|DYNDEPQTY   |FF_TRIGGER_CONTROL|ITEMCLASS|INVOPTIMIZERTYPE|DEFAULTUOM|ALLOCPOLICY|CALCCUMLEADTIMESW|SUPSNGROUPNUM|UREP_DATECREATED   |USYS_H1_LEVEL1               |USYS_H1_LEVEL2|USYS_H1_LEVEL4|UREP_R1_BRAVO1|UREP_R1_REPORT1|USYS_DELETEFLAG|USYS_H1_LEVEL3  |USYS_H1_LEVEL5|UREP_SELECTION|UREP_R1_BRAVO2|UREP_R1_BRAVO3|UREP_R1_REPORT2|UREP_R1_REPORT3|USYS_CATALOG1|USYS_CATALOG_TYPE1|USYS_CATALOG2|USYS_CATALOG_TYPE2|USYS_CATALOG3|USYS_CATALOG_TYPE3|USYS_CATALOG4|USYS_CATALOG_TYPE4|UREP_R1_REPORT4|UREP_R1_REPORT5|USYS_MULTISITE_SW|USYS_FRANCHISE|USYS_NONEXPIRE|USYS_BATCHMANAGED|USYS_MODCODE|
++-------------+------------------------------+---+------------+------------+--------------+---------------+----------------+------------+---------+--------+------------+---------------+--------+----------------+-------+-----------+--------------+------------+-------------+------------+------------------+---------+----------------+----------+-----------+-----------------+-------------+-------------------+-----------------------------+--------------+--------------+--------------+---------------+---------------+----------------+--------------+--------------+--------------+--------------+---------------+---------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------+------------------+---------------+---------------+-----------------+--------------+--------------+-----------------+------------+
+|D-1348-23IL-S|ThmCl SF SmTch Bid, TC, JJ, IL|EA |0.0000000000|0.0000000000|1.0000000000  |1.0000000000   |0.0000000000    |0.0000000000|0        |1       |0           |0              |1       |1               |1      |1          |0             |2           |2            |1.0000000000|NULL              |DEFAULT  |1.0000000000    |18        |1          |0                |-1.0000000000|2014-08-25 00:00:00|P1_NAVISTAR_TCOOL_STSF_BI_DIR|P2_STSF       |P4_ABLATION   |X             |MAKE           |0              |P3_IRRIGATED_NAV|P5_EP_BW      |0             |X             |X             |JUAREZ         |X              |D134823IL    |US                |D134823IL    |EU                |NULL         |NULL              |D134823IL    |NU                |NAV            |BI             |0                |BWI           |NULL          |NULL             |0           |
++-------------+------------------------------+---+------------+------------+--------------+---------------+----------------+------------+---------+--------+------------+---------------+--------+----------------+-------+-----------+--------------+------------+-------------+------------+------------------+---------+----------------+----------+-----------+-----------------+-------------+-------------------+-----------------------------+--------------+--------------+--------------+---------------+---------------+----------------+--------------+--------------+--------------+--------------+---------------+---------------+-------------+------------------+-------------+------------------+-------------+------------------+-------------+------------------+---------------+---------------+-----------------+--------------+--------------+-----------------+------------+
+only showing top 1 row
+
+[2026-09-20 01:47:07.362] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_ITEM_STG
+[2026-09-20 01:47:07.362] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_item_stg
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:09.497]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_STG', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg', 'hive_table': 'tg_item_stg'}
+[2026-09-20 01:47:09.497] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg
+[2026-09-20 01:47:09.497] *** target type from workflow : file
+[2026-09-20 01:47:09.497]     [WRITE:file] TG_ITEM_STG -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_item_stg [append]
+[2026-09-20 01:47:09.497] **** Writing into iceberg table ***
+[2026-09-20 01:47:11.118] ### [WRITE:iceberg] vflh_stg.tg_item_stg
+=== Mapping complete ===
+####### looping through sessions
+[2026-09-20 01:47:11.119]
+============================================================
+[SESSION] s_m_CSS_DIM_STG_TO_WRK  (mapping m_CSS_DIM_STG_TO_WRK)
+============================================================
+=== Executing mapping: m_CSS_DIM_STG_TO_WRK ===
+Execution order (19 nodes):
+    SRC_ITEM_WRK                       [Source Definition]
+    SRC_LOC_WRK                        [Source Definition]
+    SRC_RES2_WRK                       [Source Definition]
+    SRC_SKU_WRK                        [Source Definition]
+    SRC_UPRM_OPTIONS_WRK               [Source Definition]
+    SQ_SRC_ITEM_WRK                    [Source Qualifier]
+    SQ_SRC_LOC_WRK                     [Source Qualifier]
+    SQ_SRC_RES2_WRK                    [Source Qualifier]
+    SQ_SRC_SKU_WRK                     [Source Qualifier]
+    SQ_SRC_UPRM_OPTIONS_WRK            [Source Qualifier]
+    EXP_ITEM_WRK                       [Expression]
+    EXP_LOC_WRK                        [Expression]
+    EXP_RES_WRK                        [Expression]
+    EXP_SKU_WRK                        [Expression]
+    TG_UPRM_OPTIONS_WRK                [Target Definition]
+    TG_ITEM_WRK                        [Target Definition]
+    TG_LOC_WRK                         [Target Definition]
+    TG_RES_WRK                         [Target Definition]
+    TG_SKU_WRK                         [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:47:11.129]  workflow src [SQ_SRC_ITEM_WRK] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg'}
+[2026-09-20 01:47:11.129]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg
+[2026-09-20 01:47:11.129]  *** source type *** file
+[2026-09-20 01:47:11.129]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_item_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_item_stg
+[2026-09-20 01:47:11.420]  workflow src [SQ_SRC_LOC_WRK] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg'}
+[2026-09-20 01:47:11.420]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg
+[2026-09-20 01:47:11.420]  *** source type *** file
+[2026-09-20 01:47:11.420]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_loc_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_loc_stg
+[2026-09-20 01:47:11.701]  workflow src [SQ_SRC_RES2_WRK] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg'}
+[2026-09-20 01:47:11.701]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg
+[2026-09-20 01:47:11.701]  *** source type *** file
+[2026-09-20 01:47:11.701]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_res_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_res_stg
+[2026-09-20 01:47:11.957]  workflow src [SQ_SRC_SKU_WRK] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg'}
+[2026-09-20 01:47:11.957]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg
+[2026-09-20 01:47:11.957]  *** source type *** file
+[2026-09-20 01:47:11.957]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_sku_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_sku_stg
+[2026-09-20 01:47:12.294]  workflow src [SQ_SRC_UPRM_OPTIONS_WRK] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_STG', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg'}
+[2026-09-20 01:47:12.294]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg
+[2026-09-20 01:47:12.294]  *** source type *** file
+[2026-09-20 01:47:12.294]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/tg_uprm_options_stg ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/tg_uprm_options_stg
+[2026-09-20 01:47:12.566] **** Inside op_target ***
+[2026-09-20 01:47:12.600]  **** tgt_name : TG_UPRM_OPTIONS_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk', 'hive_table': 'tg_uprm_options_wrk'}
+***** load_mode  append
+[2026-09-20 01:47:12.608] *** Before enforce target lengths ***
++-------------+----------------+-------------------------+------------------+-------------------------+
+|TARGET_PLEVEL|GLOBAL_BO_TARGET|GLOBAL_LIFR_IMPACT_TARGET|GLOBAL_LIFR_TARGET|GLOBAL_LINES_ORDER_TARGET|
++-------------+----------------+-------------------------+------------------+-------------------------+
+|P5_ACCLARENT |12000.0000000000|40.0000000000            |9600.0000000000   |502.0000000000           |
++-------------+----------------+-------------------------+------------------+-------------------------+
+only showing top 1 row
+
+[2026-09-20 01:47:13.013] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_UPRM_OPTIONS_WRK
+[2026-09-20 01:47:13.013] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_uprm_options_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:14.353]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk', 'hive_table': 'tg_uprm_options_wrk'}
+[2026-09-20 01:47:14.353] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk
+[2026-09-20 01:47:14.353] *** target type from workflow : file
+[2026-09-20 01:47:14.353]     [WRITE:file] TG_UPRM_OPTIONS_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_uprm_options_wrk [append]
+[2026-09-20 01:47:14.353] **** Writing into iceberg table ***
+[2026-09-20 01:47:15.575] ### [WRITE:iceberg] vflh_wrk.tg_uprm_options_wrk
+[2026-09-20 01:47:15.575] **** Inside op_target ***
+[2026-09-20 01:47:15.617]  **** tgt_name : TG_ITEM_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk', 'hive_table': 'tg_item_wrk'}
+***** load_mode  append
+[2026-09-20 01:47:15.629] *** Before enforce target lengths ***
++------------+--------------+--------------+--------------+---------------+--------------------+--------------+---------------+
+|ITEM        |USYS_H1_LEVEL1|USYS_H1_LEVEL2|USYS_H1_LEVEL4|UREP_R1_REPORT1|USYS_H1_LEVEL3      |USYS_H1_LEVEL5|UREP_R1_REPORT2|
++------------+--------------+--------------+--------------+---------------+--------------------+--------------+---------------+
+|67126095D-23|P1_ENVOY_DA   |P2_ENVOY_DA   |P4_ACCESS     |MAKE           |P3_GUIDING_CATHETERS|P5_STROKE     |JUAREZ         |
++------------+--------------+--------------+--------------+---------------+--------------------+--------------+---------------+
+only showing top 1 row
+
+[2026-09-20 01:47:15.866] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_ITEM_WRK
+[2026-09-20 01:47:15.866] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_item_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:17.491]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk', 'hive_table': 'tg_item_wrk'}
+[2026-09-20 01:47:17.491] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk
+[2026-09-20 01:47:17.491] *** target type from workflow : file
+[2026-09-20 01:47:17.491]     [WRITE:file] TG_ITEM_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_item_wrk [append]
+[2026-09-20 01:47:17.491] **** Writing into iceberg table ***
+[2026-09-20 01:47:18.856] ### [WRITE:iceberg] vflh_wrk.tg_item_wrk
+[2026-09-20 01:47:18.856] **** Inside op_target ***
+[2026-09-20 01:47:18.900]  **** tgt_name : TG_LOC_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk', 'hive_table': 'tg_loc_wrk'}
+***** load_mode  append
+[2026-09-20 01:47:18.906] *** Before enforce target lengths ***
++-----+------+
+|LOC  |REGION|
++-----+------+
+|WH_VE|LA    |
++-----+------+
+only showing top 1 row
+
+[2026-09-20 01:47:19.129] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_LOC_WRK
+[2026-09-20 01:47:19.129] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_loc_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:20.526]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk', 'hive_table': 'tg_loc_wrk'}
+[2026-09-20 01:47:20.526] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk
+[2026-09-20 01:47:20.526] *** target type from workflow : file
+[2026-09-20 01:47:20.526]     [WRITE:file] TG_LOC_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_loc_wrk [append]
+[2026-09-20 01:47:20.526] **** Writing into iceberg table ***
+[2026-09-20 01:47:21.986] ### [WRITE:iceberg] vflh_wrk.tg_loc_wrk
+[2026-09-20 01:47:21.986] **** Inside op_target ***
+[2026-09-20 01:47:22.034]  **** tgt_name : TG_RES_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk', 'hive_table': 'tg_res_wrk'}
+***** load_mode  append
+[2026-09-20 01:47:22.042] *** Before enforce target lengths ***
++---+-------------+
+|RES|DESCR        |
++---+-------------+
+|O51|DRUG DELIVERY|
++---+-------------+
+only showing top 1 row
+
+[2026-09-20 01:47:22.262] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_RES_WRK
+[2026-09-20 01:47:22.262] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_res_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:23.800]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk', 'hive_table': 'tg_res_wrk'}
+[2026-09-20 01:47:23.801] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk
+[2026-09-20 01:47:23.801] *** target type from workflow : file
+[2026-09-20 01:47:23.801]     [WRITE:file] TG_RES_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_res_wrk [append]
+[2026-09-20 01:47:23.801] **** Writing into iceberg table ***
+[2026-09-20 01:47:24.996] ### [WRITE:iceberg] vflh_wrk.tg_res_wrk
+[2026-09-20 01:47:24.996] **** Inside op_target ***
+[2026-09-20 01:47:25.057]  **** tgt_name : TG_SKU_WRK ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk', 'hive_table': 'tg_sku_wrk'}
+***** load_mode  append
+[2026-09-20 01:47:25.078] *** Before enforce target lengths ***
+[2026-09-20 01:47:25.078] ***** column name: UREP_STOCKTYPE datatype: string precision: 3 ****
++-------+------+------------+-------------------+--------+--------+---------------+------------+-----------------+------------+-------------+-------------+--------------+
+|ITEM   |LOC   |OH          |OHPOST             |UREP_ABC|UREP_ASP|UREP_MFGCLSCODE|UREP_SKUSTAT|UREP_UNITSPERLINE|UREP_STDCOST|USYS_CATALOG1|USYS_CATALOG2|UREP_STOCKTYPE|
++-------+------+------------+-------------------+--------+--------+---------------+------------+-----------------+------------+-------------+-------------+--------------+
+|3341305|WH_CNB|0.0000000000|2026-06-29 00:00:00|D       |676.99  |CPGNL          |NORM        |1.00             |168.94      |3341305      |3341305      |MTS           |
++-------+------+------------+-------------------+--------+--------+---------------+------------+-----------------+------------+-------------+-------------+--------------+
+only showing top 1 row
+
+[2026-09-20 01:47:25.444] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_SKU_WRK
+[2026-09-20 01:47:25.444] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_sku_wrk
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:28.155]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_WRK', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk', 'hive_table': 'tg_sku_wrk'}
+[2026-09-20 01:47:28.155] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk
+[2026-09-20 01:47:28.155] *** target type from workflow : file
+[2026-09-20 01:47:28.155]     [WRITE:file] TG_SKU_WRK -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_sku_wrk [append]
+[2026-09-20 01:47:28.155] **** Writing into iceberg table ***
+[2026-09-20 01:47:28.282] [ERROR] session s_m_CSS_DIM_STG_TO_WRK failed: [INSERT_COLUMN_ARITY_MISMATCH.TOO_MANY_DATA_COLUMNS] Cannot write to `spark_catalog`.`vflh_wrk`.`tg_sku_wrk`, the reason is too many data columns:
+Table columns: `item`, `loc`, `oh`, `ohpost`, `urep_abc`, `urep_asp`, `urep_mfgclscode`, `urep_skustat`, `urep_unitsperline`, `urep_stdcost`, `usys_catalog1`, `usys_catalog2`.
+Data columns: `ITEM`, `LOC`, `OH`, `OHPOST`, `UREP_ABC`, `UREP_ASP`, `UREP_MFGCLSCODE`, `UREP_SKUSTAT`, `UREP_UNITSPERLINE`, `UREP_STDCOST`, `USYS_CATALOG1`, `USYS_CATALOG2`, `UREP_STOCKTYPE`.
+####### looping through sessions
+[2026-09-20 01:47:28.282]
+============================================================
+[SESSION] s_m_CSS_DIM_WRK_TO_CORE  (mapping m_CSS_DIM_WRK_TO_CORE)
+============================================================
+=== Executing mapping: m_CSS_DIM_WRK_TO_CORE ===
+Execution order (19 nodes):
+    SRC_ITEM_CORE                      [Source Definition]
+    SRC_LOC_CORE                       [Source Definition]
+    SRC_RES_CORE                       [Source Definition]
+    SRC_SKU_CORE                       [Source Definition]
+    SRC_UPRM_OPTIONS_CORE              [Source Definition]
+    SQ_SRC_ITEM_CORE                   [Source Qualifier]
+    SQ_SRC_LOC_CORE                    [Source Qualifier]
+    SQ_SRC_RES_CORE                    [Source Qualifier]
+    SQ_SRC_SKU_CORE                    [Source Qualifier]
+    SQ_SRC_UPRM_OPTIONS_CORE           [Source Qualifier]
+    AGG_ITEM_P_LEVELS                  [Aggregator]
+    jnr_sku_loc                        [Joiner]
+    TG_CSS_UPRM_OPTIONS_CORE           [Target Definition]
+    TG_P_LEVELS_CORE                   [Target Definition]
+    jnr_sku_item_core                  [Joiner]
+    TG_SKU_ITEM_CORE                   [Target Definition]
+    jnr_mfg_details                    [Joiner]
+    ag_mfg_details                     [Aggregator]
+    TG_MFG_DETAILS_CORE                [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:47:28.284]  workflow src [SQ_SRC_ITEM_CORE] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_WRK', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk'}
+[2026-09-20 01:47:28.284]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk
+[2026-09-20 01:47:28.284]  *** source type *** file
+[2026-09-20 01:47:28.284]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_item_wrk ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_item_wrk
+[2026-09-20 01:47:28.535]  workflow src [SQ_SRC_LOC_CORE] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_WRK', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk'}
+[2026-09-20 01:47:28.535]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk
+[2026-09-20 01:47:28.535]  *** source type *** file
+[2026-09-20 01:47:28.535]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_loc_wrk ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_loc_wrk
+[2026-09-20 01:47:28.794]  workflow src [SQ_SRC_RES_CORE] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_WRK', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk'}
+[2026-09-20 01:47:28.794]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk
+[2026-09-20 01:47:28.794]  *** source type *** file
+[2026-09-20 01:47:28.794]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_res_wrk
+[2026-09-20 01:47:29.040]  workflow src [SQ_SRC_SKU_CORE] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_WRK', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk'}
+[2026-09-20 01:47:29.040]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk
+[2026-09-20 01:47:29.040]  *** source type *** file
+[2026-09-20 01:47:29.040]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_sku_wrk ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_sku_wrk
+[2026-09-20 01:47:29.309]  workflow src [SQ_SRC_UPRM_OPTIONS_CORE] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_WRK', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk'}
+[2026-09-20 01:47:29.309]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk
+[2026-09-20 01:47:29.309]  *** source type *** file
+[2026-09-20 01:47:29.309]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_uprm_options_wrk ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_wrk/tg_uprm_options_wrk
+[2026-09-20 01:47:29.592] **** Inside op_target ***
+[2026-09-20 01:47:29.619]  **** tgt_name : TG_CSS_UPRM_OPTIONS_CORE ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_CORE', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_uprm_options_core', 'hive_table': 'tg_uprm_options_core'}
+***** load_mode  append
+[2026-09-20 01:47:29.626] *** Before enforce target lengths ***
++-------------+----------------+-------------------------+------------------+-------------------------+
+|TARGET_PLEVEL|GLOBAL_BO_TARGET|GLOBAL_LIFR_IMPACT_TARGET|GLOBAL_LIFR_TARGET|GLOBAL_LINES_ORDER_TARGET|
++-------------+----------------+-------------------------+------------------+-------------------------+
+|P5_MENTOR    |50000.0000000000|40.0000000000            |9590.0000000000   |16887.0000000000         |
++-------------+----------------+-------------------------+------------------+-------------------------+
+only showing top 1 row
+
+[2026-09-20 01:47:29.989] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_CSS_UPRM_OPTIONS_CORE
+[2026-09-20 01:47:29.989] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_uprm_options_core
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_uprm_options_core WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_uprm_options_core
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:31.209]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_CORE', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_uprm_options_core', 'hive_table': 'tg_uprm_options_core'}
+[2026-09-20 01:47:31.209] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_uprm_options_core
+[2026-09-20 01:47:31.209] *** target type from workflow : file
+[2026-09-20 01:47:31.209]     [WRITE:file] TG_CSS_UPRM_OPTIONS_CORE -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_uprm_options_core [append]
+[2026-09-20 01:47:31.209] **** Writing into iceberg table ***
+[2026-09-20 01:47:32.419] ### [WRITE:iceberg] vflh_core.tg_uprm_options_core
+[2026-09-20 01:47:32.419] **** Inside op_target ***
+[2026-09-20 01:47:32.444]  **** tgt_name : TG_P_LEVELS_CORE ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_CORE', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevels_core', 'hive_table': 'tg_plevels_core'}
+***** load_mode  append
+[2026-09-20 01:47:32.454] *** Before enforce target lengths ***
++--------------+--------------+------------------+--------------+------------------+
+|USYS_H1_LEVEL5|USYS_H1_LEVEL4|USYS_H1_LEVEL3    |USYS_H1_LEVEL2|USYS_H1_LEVEL1    |
++--------------+--------------+------------------+--------------+------------------+
+|P5_EP_BW      |P4_DIAGNOSTICS|P3_CONVENTIONAL_DX|P2_DX_4_POLE  |P1_DX_FIXED_4_POLE|
++--------------+--------------+------------------+--------------+------------------+
+only showing top 1 row
+
+[2026-09-20 01:47:32.671] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_P_LEVELS_CORE
+[2026-09-20 01:47:32.671] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevels_core
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevels_core WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_plevels_core
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:34.332]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_CORE', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevels_core', 'hive_table': 'tg_plevels_core'}
+[2026-09-20 01:47:34.332] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevels_core
+[2026-09-20 01:47:34.332] *** target type from workflow : file
+[2026-09-20 01:47:34.332]     [WRITE:file] TG_P_LEVELS_CORE -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_plevels_core [append]
+[2026-09-20 01:47:34.332] **** Writing into iceberg table ***
+[2026-09-20 01:47:35.444] ### [WRITE:iceberg] vflh_core.tg_plevels_core
+[2026-09-20 01:47:35.483] **** Inside op_target ***
+[2026-09-20 01:47:37.928]  **** tgt_name : TG_SKU_ITEM_CORE ****
+***** override  {'table': None, 'connection': '$AppConnection_EDL_CORE', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_sku_item_loc_core', 'hive_table': 'tg_sku_item_loc_core'}
+***** load_mode  append
+[2026-09-20 01:47:37.960] *** Before enforce target lengths ***
+[2026-09-20 01:47:37.961] ***** column name: UREP_STOCKTYPE datatype: string precision: 3 ****
++----+--------------+--------------+--------------+---------------+--------------+--------------+---------------+----+------+-----+----+----+------+--------+--------+---------------+------------+-----------------+------------+-------------+-------------+--------------+
+|ITEM|USYS_H1_LEVEL1|USYS_H1_LEVEL2|USYS_H1_LEVEL4|UREP_R1_REPORT1|USYS_H1_LEVEL3|USYS_H1_LEVEL5|UREP_R1_REPORT2|LOC |REGION|ITEM1|LOC1|OH  |OHPOST|UREP_ABC|UREP_ASP|UREP_MFGCLSCODE|UREP_SKUSTAT|UREP_UNITSPERLINE|UREP_STDCOST|USYS_CATALOG1|USYS_CATALOG2|UREP_STOCKTYPE|
++----+--------------+--------------+--------------+---------------+--------------+--------------+---------------+----+------+-----+----+----+------+--------+--------+---------------+------------+-----------------+------------+-------------+-------------+--------------+
+|NULL|NULL          |NULL          |NULL          |NULL           |NULL          |NULL          |NULL           |*Loc|X     |NULL |NULL|NULL|NULL  |NULL    |NULL    |NULL           |NULL        |NULL             |NULL        |NULL         |NULL         |NULL          |
++----+--------------+--------------+--------------+---------------+--------------+--------------+---------------+----+------+-----+----+----+------+--------+--------+---------------+------------+-----------------+------------+-------------+-------------+--------------+
+only showing top 1 row
+
+[2026-09-20 01:47:39.707] *** After enforce target lengths ***
+**** TGT_NAME **** : TG_SKU_ITEM_CORE
+[2026-09-20 01:47:39.707] *** in FILE TARGETS: file s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_sku_item_loc_core
+*** PRINT THE PATH : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_sku_item_loc_core WORKING PATH : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_sku_item_loc_core
+**** NBR OF PARTITIONS :  4
+[2026-09-20 01:47:46.070]  *** workflow target metadata *** : {'table': None, 'connection': '$AppConnection_EDL_CORE', 'load': {'insert': False, 'update_as_update': False, 'update_as_insert': False, 'update_else_insert': False, 'delete': False, 'truncate': False, 'target_load_type': 'Normal'}, 'reject_file': None, 'load_mode': 'append', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_sku_item_loc_core', 'hive_table': 'tg_sku_item_loc_core'}
+[2026-09-20 01:47:46.070] *** target path from workflow : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_sku_item_loc_core
+[2026-09-20 01:47:46.070] *** target type from workflow : file
+[2026-09-20 01:47:46.070]     [WRITE:file] TG_SKU_ITEM_CORE -> s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_sku_item_loc_core [append]
+[2026-09-20 01:47:46.070] **** Writing into iceberg table ***
+[2026-09-20 01:47:46.155] [ERROR] session s_m_CSS_DIM_WRK_TO_CORE failed: [INSERT_COLUMN_ARITY_MISMATCH.TOO_MANY_DATA_COLUMNS] Cannot write to `spark_catalog`.`vflh_core`.`tg_sku_item_loc_core`, the reason is too many data columns:
+Table columns: `item`, `usys_h1_level1`, `usys_h1_level2`, `usys_h1_level4`, `urep_r1_report1`, `usys_h1_level3`, `usys_h1_level5`, `urep_r1_report2`, `loc`, `region`, `item1`, `loc1`, `oh`, `ohpost`, `urep_abc`, `urep_asp`, `urep_mfgclscode`, `urep_skustat`, `urep_unitsperline`, `urep_stdcost`, `usys_catalog1`, `usys_catalog2`.
+Data columns: `ITEM`, `USYS_H1_LEVEL1`, `USYS_H1_LEVEL2`, `USYS_H1_LEVEL4`, `UREP_R1_REPORT1`, `USYS_H1_LEVEL3`, `USYS_H1_LEVEL5`, `UREP_R1_REPORT2`, `LOC`, `REGION`, `ITEM1`, `LOC1`, `OH`, `OHPOST`, `UREP_ABC`, `UREP_ASP`, `UREP_MFGCLSCODE`, `UREP_SKUSTAT`, `UREP_UNITSPERLINE`, `UREP_STDCOST`, `USYS_CATALOG1`, `USYS_CATALOG2`, `UREP_STOCKTYPE`.
+####### looping through sessions
+[2026-09-20 01:47:46.155]
+============================================================
+[SESSION] s_m_CSS_CORE_TO_ORACLE  (mapping m_CSS_CORE_TO_ORACLE)
+============================================================
+=== Executing mapping: m_CSS_CORE_TO_ORACLE ===
+Execution order (36 nodes):
+    SRC_CSS_UPRM_OPTIONS_CORE          [Source Definition]
+    SRC_MFG_DETAILS_CORE               [Source Definition]
+    SRC_P_LEVELS_CORE                  [Source Definition]
+    SRC_SKU_ITEM_CORE                  [Source Definition]
+    seq_css_item_loc                   [Sequence]
+    seq_css_mfg_details                [Sequence]
+    seq_css_plevel_targets             [Sequence]
+    seq_css_plevels                    [Sequence]
+    SQ_SRC_CSS_UPRM_OPTIONS_CORE       [Source Qualifier]
+    SQ_SRC_MFG_DETAILS_CORE            [Source Qualifier]
+    SQ_SRC_P_LEVELS_CORE               [Source Qualifier]
+    SQ_SRC_SKU_ITEM_CORE               [Source Qualifier]
+    EXP_PLEVEL_TARGETS_CORE            [Expression]
+    exp_dim_date_mfg                   [Expression]
+    exp_dim_date_plevel                [Expression]
+    exp_dime_date_sku_itm_loc          [Expression]
+    lkup_plevel_targets                [Lookup Procedure]
+    LKP_MFG_DEAILS                     [Lookup Procedure]
+    LKP_Plevels                        [Lookup Procedure]
+    lkup_sku_item_loc_new              [Lookup Procedure]
+    rtr_DIM_PLEVEL_TARGETS             [Router]
+    rtr_DIM_MFG_DETAILS                [Router]
+    rtr_DIM_PLEVEL                     [Router]
+    rtr_DIM_SKU_ITEM_LOC               [Router]
+    TG_PLEVEL_TARGETS                  [Target Definition]
+    upd_DIM_PLEVEL_TARGETS             [Update Strategy]
+    TG_MFG_DETAILS_REPORT_INSERT       [Target Definition]
+    upd_DIM_MFG_DETAILS                [Update Strategy]
+    TG_PLEVELS_REPORT_INSERT           [Target Definition]
+    upd_DIM_PLEVELS                    [Update Strategy]
+    TG_CSS_DIM_SKU_ITEM_LOC_INSERT     [Target Definition]
+    upd_DIM_SKU_ITEM_LOC               [Update Strategy]
+    TG_CSS_DIM_PLEVEL_TARGETS_UPDATE   [Target Definition]
+    TG_CSS_DIM_MFG_DETAILS_UPDATE      [Target Definition]
+    TG_CSS_DIM_PLEVELS_UPDATE          [Target Definition]
+    TG_CSS_DIM_SKU_ITEM_LOC_UPDATE     [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:47:46.251]  workflow src [SQ_SRC_CSS_UPRM_OPTIONS_CORE] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_CORE', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevel_targets_core'}
+[2026-09-20 01:47:46.251]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevel_targets_core
+[2026-09-20 01:47:46.251]  *** source type *** file
+[2026-09-20 01:47:46.251]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_plevel_targets_core ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_plevel_targets_core
+[2026-09-20 01:47:46.306] [ERROR] session s_m_CSS_CORE_TO_ORACLE failed: [PATH_NOT_FOUND] Path does not exist: s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_plevel_targets_core.
+####### looping through sessions
+[2026-09-20 01:47:46.306]
+============================================================
+[SESSION] s_m_RS_FACT_CORE_TO_ORACLE  (mapping m_CSS_RS_FACT_CORE_TO_ORACLE)
+============================================================
+=== Executing mapping: m_CSS_RS_FACT_CORE_TO_ORACLE ===
+Execution order (17 nodes):
+    SRC_CSS_NKIT_CAPACITY_CORE         [Source Definition]
+    SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE [Source Definition]
+    seg_fact_skuproj_details           [Sequence]
+    seg_fact_skuproj_details_a         [Sequence]
+    seq_factsku_caploc                 [Sequence]
+    SQ_SRC_CSS_NKIT_CAPACITY_CORE      [Source Qualifier]
+    SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE [Source Qualifier]
+    JNRTRANS                           [Joiner]
+    lkup_item_loc                      [Lookup Procedure]
+    lkup_mfg_details                   [Lookup Procedure]
+    lkup_plevels                       [Lookup Procedure]
+    exp_rs_fact_skuproj_detailed_oracle [Expression]
+    AGGTRANS                           [Aggregator]
+    lkup_rs_dim_date                   [Lookup Procedure]
+    exp_rs_dim_date                    [Expression]
+    TG_FACT_SKU_CAPACITIES_A_ORACLE    [Target Definition]
+    TG_FACT_SKU_CAPACITIES_LOC_A       [Target Definition]
+------------------------------------------------------------
+[2026-09-20 01:47:46.354]  workflow src [SQ_SRC_CSS_NKIT_CAPACITY_CORE] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_EDL_CORE', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_css_nkit_capacity_core'}
+[2026-09-20 01:47:46.354]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_css_nkit_capacity_core
+[2026-09-20 01:47:46.354]  *** source type *** file
+[2026-09-20 01:47:46.354]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_core/tg_css_nkit_capacity_core ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_css_nkit_capacity_core
+[2026-09-20 01:47:46.408] [ERROR] session s_m_RS_FACT_CORE_TO_ORACLE failed: [PATH_NOT_FOUND] Path does not exist: s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_core/tg_css_nkit_capacity_core.
+[2026-09-20 01:47:46.692]
+=== Workflow wf_CSS_RUN_STRATEGY summary ===
+[2026-09-20 01:47:46.692]   succeeded   s_m_CSS_RS_NKIT_TO_STG
+[2026-09-20 01:47:46.692]   succeeded   s_m_CSS_RS_ORACLE_TO_STG
+[2026-09-20 01:47:46.692]   failed      s_CSS_RS_STG_TO_WRK
+[2026-09-20 01:47:46.692]   failed      s_CSS_RS_WRK_TO_CORE
+[2026-09-20 01:47:46.692]   succeeded   s_m_CSS_DIM_ORACLE_TO_STG
+[2026-09-20 01:47:46.692]   failed      s_m_CSS_DIM_STG_TO_WRK
+[2026-09-20 01:47:46.692]   failed      s_m_CSS_DIM_WRK_TO_CORE
+[2026-09-20 01:47:46.692]   failed      s_m_CSS_CORE_TO_ORACLE
+[2026-09-20 01:47:46.692]   failed      s_m_RS_FACT_CORE_TO_ORACLE
+[anatva@edl-spark3-dev-gateway0 eth_spark]$
