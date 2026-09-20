@@ -408,35 +408,43 @@ def parse_session_output_files(session_elem):
 
 def enrich_sources_with_paths(sources, inputs):
     """
-    Merge file source path information into source metadata.
+    Merge file source path information into source metadata, and type every
+    source (file vs jdbc) by its reader subtype.
+
+    The reader binding (path/connection) is attached to the Source Qualifier
+    instance in the workflow, so file paths land on the SQ_* keys. Relational
+    readers have no File Path attribute, so they never appear in `inputs`;
+    we still must type them as 'jdbc' from their subtype.
     """
 
     input_map = {
         x["instance"]: x
         for x in inputs
     }
-    print(f"*** input_map : {input_map}")
-    for src_name, src_meta in sources.items():
-        print(f"*** src_name : {src_name}")
-        print(f"*** src_meta : {src_meta}")
-        subtype = (src_meta.get("subtype") or "").lower()
-        print(f"*** subtype : {subtype} ")
 
+    for src_name, src_meta in sources.items():
+        subtype = (src_meta.get("subtype") or "").lower()
+
+        # 1) merge any file-path metadata collected from HDFS/flat-file readers
         if src_name in input_map:
             inp = input_map[src_name]
             if ("hdfs" in subtype or "flat file" in subtype):
                 src_meta["type"] = "file"
                 src_meta["path"] = inp.get("path")
-            if ("relational" in subtype):
-                print(f"setting JDBC as type ")
-                src_meta["type"] = "jdbc" 
-
             if inp.get("subtype"):
                 src_meta["subtype"] = inp["subtype"]
 
-        else:
-            print(f"*** DEFAULTING TO NULL ***")
-            src_meta.setdefault("type", "null")
+        # 2) type by subtype regardless of whether a file path was present.
+        #    This is what makes relational (Oracle) sources resolve to jdbc.
+        if src_meta.get("type") in (None, "null"):
+            if "relational" in subtype:
+                src_meta["type"] = "jdbc"
+            elif "hdfs" in subtype or "flat file" in subtype:
+                # a flat-file reader with no path yet: still a file source; the
+                # path may sit on the paired SQ_* entry
+                src_meta["type"] = "file"
+            else:
+                src_meta.setdefault("type", "null")
 
     return sources
 
