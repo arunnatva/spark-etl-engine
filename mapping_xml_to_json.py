@@ -95,12 +95,36 @@ def parse_transformation(tf):
 
 
 def parse_instance(inst):
-    return {
+    # Target instances carry session-style overrides as TABLEATTRIBUTE children
+    # directly on the INSTANCE element (not on the target-definition
+    # TRANSFORMATION). This is where instance-level 'Pre SQL' / 'Post SQL' and
+    # 'Target Table Name' live once they are defined at the mapping level.
+    table_attrs = {
+        attr(ta, "NAME"): attr(ta, "VALUE")
+        for ta in inst.findall("TABLEATTRIBUTE")
+    }
+
+    result = {
         "name": attr(inst, "NAME"),
         "type": attr(inst, "TYPE"),
         "transformation_name": attr(inst, "TRANSFORMATION_NAME"),
         "transformation_type": attr(inst, "TRANSFORMATION_TYPE"),
     }
+
+    # Keep the full attribute map for completeness, and surface Pre/Post SQL as
+    # first-class fields only when they carry a non-empty value (so downstream
+    # code can test truthiness without wading through empty strings).
+    if table_attrs:
+        result["table_attributes"] = table_attrs
+
+    pre_sql = (table_attrs.get("Pre SQL") or "").strip()
+    post_sql = (table_attrs.get("Post SQL") or "").strip()
+    if pre_sql:
+        result["pre_sql"] = pre_sql
+    if post_sql:
+        result["post_sql"] = post_sql
+
+    return result
 
 
 def parse_connector(c):
