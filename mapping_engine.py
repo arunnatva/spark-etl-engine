@@ -94,7 +94,7 @@ class ExpressionTranslator:
 
         # system vars
         for k, v in cls.SYSTEM_VARS.items():
-            s = re.sub(rf"\b{re.escape(k)}\b", v, s)
+            s = re.sub(rf"\b{re.escape(k)}\b", v, s, flags=re.IGNORECASE)
 
         # function name translations (Informatica -> Spark SQL)
         translations = [
@@ -124,7 +124,6 @@ class ExpressionTranslator:
             (r"\bTRUNC\s*\(", "TRUNC("),
             # date functions
             (r"\bTO_DATE\s*\(", "TO_DATE("),
-            (r"\bADD_TO_DATE\s*\(", "DATE_ADD("),
             (r"\bLAST_DAY\s*\(", "LAST_DAY("),
             (r"\|\|", " || "),
         ]
@@ -138,8 +137,181 @@ class ExpressionTranslator:
         # Informatica TRUNC(date) with a single arg truncates to day. Spark's
         # trunc() needs two args, so rewrite the single-arg form to DATE_TRUNC.
         s = cls._resolve_single_arg_trunc(s)
-        print(f"%%%%%%% Expression : {s}")
+        # Informatica ADD_TO_DATE(date, 'fmt', n) is 3-arg; Spark has no direct
+        # equivalent. Rewrite to add_months / date_add per the format unit.
+        s = cls._resolve_add_to_date(s)
+        # Informatica TO_CHAR(x) is 1-arg (stringify) while Spark's to_char needs
+        # 2 args; TO_CHAR(date,'fmt') uses Oracle format masks Spark doesn't share.
+        # Rewrite both shapes to valid Spark SQL.
+        s = cls._resolve_to_char(s)
         return s
+
+    # Oracle date-format mask letters -> Spark date_format() pattern letters.
+    # Only the patterns that actually appear in the mappings are mapped; an
+    # unmapped mask logs a warning (see _resolve_to_char) and is passed through
+    # so the failure is visible rather than silently wrong.
+    ORACLE_TO_SPARK_DATE_FMT = {
+        "YYYY": "yyyy", "YY": "yy", "Y": "y",
+        "RRRR": "yyyy", "RR": "yy",
+        "MM": "MM", "MON": "MMM", "MONTH": "MMMM",
+        "DD": "dd", "DDD": "DDD", "DY": "EEE", "DAY": "EEEE",
+        "HH24": "HH", "HH12": "hh", "HH": "hh",
+        "MI": "mm", "SS": "ss", "FF": "SSS",
+        "WW": "w", "IW": "w", "W": "W",
+        "Q": "Q",
+        "AM": "a", "PM": "a",
+    }
+
+    @classmethod
+    def _translate_date_mask(cls, mask):
+        """Translate an Oracle date-format string (its content, no quotes) to a
+        Spark date_format pattern. Splits on the format letters we know, keeping
+        any literal separators (/,-,:, space) as-is. Returns (spark_fmt, unknown)
+        where `unknown` lists Oracle tokens we could not map."""
+        # longest tokens first so 'YYYY' matches before 'YY', 'HH24' before 'HH'
+        tokens = sorted(cls.ORACLE_TO_SPARK_DATE_FMT.keys(), key=len, reverse=True)
+        out = []
+        unknown = []
+        i = 0
+        m = mask
+        while i < len(m):
+            up = m[i:].upper()
+            matched = None
+            for t in tokens:
+                if up.startswith(t):
+                    matched = t
+                    break
+            if matched:
+                out.append(cls.ORACLE_TO_SPARK_DATE_FMT[matched])
+                i += len(matched)
+            else:
+                ch = m[i]
+                if ch.isalpha():
+                    # an unmapped format letter run — capture it as unknown
+                    unknown.append(ch)
+                    out.append(ch)
+                else:
+                    out.append(ch)  # literal separator
+                i += 1
+        return "".join(out), unknown
+
+    @classmethod
+    def _resolve_to_char(cls, s):
+        """Rewrite Informatica/Oracle TO_CHAR calls to valid Spark SQL.
+
+          TO_CHAR(x)            -> CAST(x AS STRING)          (1-arg: stringify)
+          TO_CHAR(date, 'fmt')  -> date_format(date, '<spark fmt>')  (2-arg)
+
+        Nested TO_CHAR calls are handled because we resolve the leftmost each
+        pass until none remain.
+        """
+        while "TO_CHAR(" in s.upper():
+            up = s.upper()
+            start = up.find("TO_CHAR(")
+            open_paren = start + len("TO_CHAR")
+            depth = 0
+            i = open_paren
+            args, cur = [], ""
+            while i < len(s):
+                ch = s[i]
+                if ch == "(":
+                    depth += 1
+                    if depth > 1:
+                        cur += ch
+                elif ch == ")":
+                    depth -= 1
+                    if depth == 0:
+                        args.append(cur)
+                        break
+                    cur += ch
+                elif ch == "," and depth == 1:
+                    args.append(cur)
+                    cur = ""
+                else:
+                    cur += ch
+                i += 1
+            if i >= len(s):
+                # malformed / unbalanced; avoid infinite loop
+                s = s[:start] + "TOCHAR_UNRESOLVED(" + s[open_paren + 1:]
+                break
+
+            if len(args) == 1:
+                # single-arg: Oracle stringifies; Spark uses CAST(... AS STRING)
+                repl = f"CAST({args[0].strip()} AS STRING)"
+            else:
+                value = args[0].strip()
+                mask_raw = args[1].strip()
+                # strip surrounding quotes from the format literal
+                if len(mask_raw) >= 2 and mask_raw[0] in "'\"" and mask_raw[-1] == mask_raw[0]:
+                    mask = mask_raw[1:-1]
+                else:
+                    mask = mask_raw
+                spark_fmt, unknown = cls._translate_date_mask(mask)
+                if unknown:
+                    log(f"    [WARN] TO_CHAR format mask '{mask}' has unmapped "
+                        f"Oracle token(s) {unknown}; produced '{spark_fmt}'. "
+                        f"Add them to ORACLE_TO_SPARK_DATE_FMT if wrong.")
+                repl = f"date_format({value}, '{spark_fmt}')"
+
+            s = s[:start] + repl + s[i + 1:]
+        return s.replace("TOCHAR_UNRESOLVED(", "TO_CHAR(")
+
+
+    @staticmethod
+    def _resolve_add_to_date(s):
+        """ADD_TO_DATE(d, 'unit', n) -> Spark equivalent.
+          'YYYY'/'YY'/'Y' -> add_months(d, n*12)
+          'MM'/'MON'/'MONTH' -> add_months(d, n)
+          'DD'/'DDD'/'DAY'/'D' -> date_add(d, n)
+          'HH'/'MI'/'SS' -> d + make_interval(...) (time units)
+        Falls back to date_add for unknown units."""
+        while "ADD_TO_DATE(" in s.upper():
+            up = s.upper()
+            start = up.find("ADD_TO_DATE(")
+            open_paren = start + len("ADD_TO_DATE")
+            depth = 0
+            i = open_paren
+            args, cur = [], ""
+            while i < len(s):
+                ch = s[i]
+                if ch == "(":
+                    depth += 1
+                    if depth > 1:
+                        cur += ch
+                elif ch == ")":
+                    depth -= 1
+                    if depth == 0:
+                        args.append(cur)
+                        break
+                    cur += ch
+                elif ch == "," and depth == 1:
+                    args.append(cur)
+                    cur = ""
+                else:
+                    cur += ch
+                i += 1
+            if i >= len(s) or len(args) < 3:
+                # malformed; avoid infinite loop
+                s = s[:start] + "ADDTODATE_UNRESOLVED(" + s[open_paren + 1:]
+                break
+            d, unit_raw, n = args[0].strip(), args[1].strip().strip("'\"").upper(), args[2].strip()
+            if unit_raw in ("YYYY", "YY", "Y", "YEAR"):
+                repl = f"add_months({d}, ({n})*12)"
+            elif unit_raw in ("MM", "MON", "MONTH"):
+                repl = f"add_months({d}, {n})"
+            elif unit_raw in ("DD", "DDD", "DAY", "D", "DY"):
+                repl = f"date_add({d}, {n})"
+            else:
+                # time-of-day units: express as an interval second add
+                secs = {"HH": 3600, "HH12": 3600, "HH24": 3600,
+                        "MI": 60, "MIN": 60, "SS": 1, "SEC": 1}.get(unit_raw)
+                if secs:
+                    repl = f"({d} + make_interval(0,0,0,0,0,0,({n})*{secs}))"
+                else:
+                    repl = f"date_add({d}, {n})"
+            s = s[:start] + repl + s[i + 1:]
+        return s.replace("ADDTODATE_UNRESOLVED(", "ADD_TO_DATE(")
+
 
     @staticmethod
     def _resolve_single_arg_trunc(s):
@@ -345,21 +517,48 @@ class MappingEngine:
         return self.model.transforms.get(inst.get("transformation_name"), {})
 
     def _apply_edge_rename(self, df, from_inst, to_inst):
-        """Rename df columns according to the field map on the edge from->to.
+        """Map df columns according to the field map on the edge from->to.
 
-        Informatica renames ports as they cross transformations. When several
-        upstream fields collide on the target we keep the last; when a source
-        field is missing we skip it (router OUTPUT ports duplicate INPUTs).
+        Informatica connectors can (a) rename a port as it crosses a transform,
+        and (b) FAN OUT one source column to several target ports. A plain
+        withColumnRenamed handles (a) but breaks (b): renaming the single source
+        column to the first target loses it before the other targets can be made.
+        Example (real): jnr.STARTDATE -> {STARTDATE, V_STARTDATE}. A rename to
+        V_STARTDATE deletes STARTDATE, so a later expression needing STARTDATE
+        fails with UNRESOLVED_COLUMN.
+
+        Fix: group the field map by SOURCE column, then COPY the source into
+        every distinct target name. The source is kept whenever it is itself one
+        of the targets (the passthrough case), and duplicated into the others.
         """
         if df is None:
             return None
         fmap = self.model.field_maps.get((from_inst, to_inst), [])
         if not fmap:
             return df
-        cols = set(df.columns)
+        F = self._F()
+
+        # group targets by source field, preserving order and dropping dup targets
+        from collections import OrderedDict
+        src_to_targets = OrderedDict()
         for from_f, to_f in fmap:
-            if from_f in cols and from_f != to_f and to_f not in df.columns:
-                df = df.withColumnRenamed(from_f, to_f)
+            src_to_targets.setdefault(from_f, [])
+            if to_f not in src_to_targets[from_f]:
+                src_to_targets[from_f].append(to_f)
+
+        current_cols = set(df.columns)
+        for from_f, targets in src_to_targets.items():
+            if from_f not in current_cols:
+                # source column not present (e.g. already consumed or a router
+                # OUTPUT duplicate) — skip; downstream resolution will warn.
+                continue
+            for to_f in targets:
+                if to_f == from_f:
+                    # passthrough: the column already exists under this name.
+                    continue
+                # COPY (not rename) so the source stays available for the other
+                # fan-out targets and for expressions that reference it directly.
+                df = df.withColumn(to_f, F.col(from_f))
         return df
 
     def _merged_input(self, inst_name):
@@ -471,45 +670,75 @@ class MappingEngine:
             print(f"    [WARN] no source found upstream of {name}")
             return None
 
-        print("#### AFTER READING FROM SOURCE ")
         # Source Qualifier options
         tf = self._transform(inst)
         attrs = tf.get("table_attributes", {}) if tf else {}
         sql_override = (attrs.get("Sql Query") or "").strip()
-        df = self._read_source(source_spec, sql_override)
+        # IMPORTANT: pass the SQ instance name (`name`) so the workflow source
+        # binding (path/type/connection) — which is attached to the SQ instance,
+        # not the source definition — is resolved correctly.
+        df = self._read_source(source_spec, sql_override, sq_name=name)
+
+        # Rename the source DEFINITION columns to the SQ's OUTPUT port names.
+        # Informatica's Source Qualifier renames source fields (e.g. the source
+        # column MONTHLY_CONSTRAINEDREQ is exposed downstream as CONSTRAINEDREQ).
+        # That rename lives on the Source Definition -> Source Qualifier edge, but
+        # the read produced the DEFINITION column names, so we must apply that
+        # edge's field map here. When a SQL override is present, the query's
+        # SELECT list already aliases columns to the SQ port names, so we skip
+        # this to avoid double-renaming.
+        if not sql_override:
+            src_def_inst = None
+            for up in src_inst_names:
+                if self._instance(up).get("transformation_name") == source_spec["name"]:
+                    src_def_inst = up
+                    break
+            if src_def_inst is not None:
+                df = self._apply_edge_rename(df, src_def_inst, name)
+
         src_filter = (attrs.get("Source Filter") or "").strip()
         select_distinct = (attrs.get("Select Distinct") or "NO").upper() == "YES"
-        table_name = name.removeprefix("SQ_")
-        print("#### modified table name ", table_name)
+
+        # NOTE on SQL override: for JDBC sources the override is pushed into the
+        # database inside _read_source (dbtable = "(<sql>) SRC"), so it has
+        # already been applied to `df` here — we must NOT re-run it through
+        # Spark SQL (it's Oracle SQL, not Spark SQL). For file sources a SQL
+        # override is unusual; if present we log it rather than mis-execute it.
         if sql_override:
-            #df.createOrReplaceTempView(table_name)
-            #df = self.spark.sql(sql_override)
-            log(f"**** SQL OVERRIDE IS PROVIDED ****")
+            log(f"**** SQL OVERRIDE applied at source read for {name} ****")
+        # Source Filter and Select Distinct are Informatica-level row operations
+        # that apply regardless of source type, so run them as DataFrame ops.
         if src_filter:
-            #df = df.filter(src_filter)
-            log(f"src filter : {src_filter}")
+            try:
+                df = df.filter(src_filter)
+                log(f"applied src filter: {src_filter}")
+            except Exception as e:
+                log(f"[WARN] src filter failed on {name}: {e}; skipped")
         if select_distinct:
-            #df = df.distinct()
-            log(f"select distinct : {select_distinct}")
+            df = df.distinct()
+            log(f"applied select distinct on {name}")
 
         # Project to the SQ's OUTPUT ports (keeps only mapped columns downstream)
         return df
 
-    def _read_source(self, source_spec, sql_override):
-        """Read a source definition based on its database_type."""
-        #db_type = (source_spec.get("database_type") or "").lower()
-        name = source_spec["name"]
-        print("*** printing name, : ", name)
-        cols = [f["name"] for f in source_spec.get("fields", [])]
-        #log(f" *** cols *** : {cols} ")
-        #conn = self.conns.get(name) or self.conns.get(db_type) or {}
-        #reader_format = conn.get("format")
+    def _read_source(self, source_spec, sql_override, sq_name=None):
+        """Read a source definition based on its type.
 
-        workflow_src = self.workflow_sources.get(name, {})
-        log(f" workflow src : {workflow_src} ")
+        The workflow source binding (path / type / connection) is attached to the
+        Source Qualifier instance, not the Source Definition — so resolve it by
+        the SQ name first, then fall back to the definition name.
+        """
+        db_type = (source_spec.get("database_type") or "").lower()
+        name = source_spec["name"]
+        cols = [f["name"] for f in source_spec.get("fields", [])]
+
+        workflow_src = (self.workflow_sources.get(sq_name)
+                        or self.workflow_sources.get(name)
+                        or {})
+        log(f" workflow src [{sq_name or name}] : {workflow_src} ")
         source_path = workflow_src.get("path")
-        log(f" *** source path *** {source_path} ")
         source_type = workflow_src.get("type")
+        log(f" *** source path *** {source_path} ")
         log(f" *** source type *** {source_type} ")
 
         if source_type == "file" and source_path:
@@ -517,8 +746,8 @@ class MappingEngine:
             log(f" *** SOURCE PATH FROM WORKFLOW : {source_path} ** temp src path ** : {source_working_path}")
             df = self.spark.read.parquet(source_working_path)
 
-            # align column names if header differs
-            if len(df.columns) == len(cols) and conn.get("apply_names", True):
+            # align column names positionally if the file's columns match count
+            if len(df.columns) == len(cols):
                 for old, new in zip(df.columns, cols):
                     if old != new:
                         df = df.withColumnRenamed(old, new)
@@ -526,32 +755,25 @@ class MappingEngine:
 
         if source_type == "jdbc":
             log(f"*** IN JDBC SECTION ***")
-            jc = self.conns.jdbc("src_oracle")
-            schema = jc.get("schema")
-            owner = source_spec.get("owner_name")
+            # Resolve the JDBC connection from THIS source's own connection
+            # variable (e.g. a DIM_DATE lookup/source may bind to the TARGET
+            # report DB, not the source DB). Fall back to the global src_oracle.
+            conn_var = workflow_src.get("connection")
+            jc = self._resolve_jdbc(conn_var, fallback_hint="src_oracle")
+            log(f" **** source {name} using connection var={conn_var} "
+                f"resolved-> url={jc.get('url')} schema={jc.get('schema')} ")
+            # Owner precedence: the resolved connection's schema, else the
+            # mapping's declared owner. (Previously this always used src schema,
+            # which sent target-DB tables to the wrong schema.)
             owner = jc.get("schema") or source_spec.get("owner_name")
-            log(f" **** schema : {schema}  owner : {owner} name : {name} ")
             table = f"{owner}.{name}" if owner else name
             if sql_override:
-                if owner:
-                    pattern = rf"(?<!\.)\b{name}\b"
-                    sql = re.sub(
-                        rf"(?<!\.)\b{name}\b",
-                        f"{owner}.{name}",
-                        sql_override,
-                        flags=re.IGNORECASE,
-                    )
-
-                    dbtable_stmt = f"""({sql_override}) SRC"""
-                else:
-                    dbtable_stmt = f"""({sql_override}) SRC"""
+                # SQL override runs inside Oracle; wrap it as a derived table.
+                dbtable_stmt = f"""({sql_override}) SRC"""
             else:
                 dbtable_stmt = table
 
             log(f"############ Table name or SQL Query : {dbtable_stmt} ")
-            print("###### url : ", jc["url"])
-            print("###### user : ", jc["user"])
-            
             mydf = (self.spark.read.format("jdbc")
                     .option("url", jc["url"])
                     .option("dbtable", dbtable_stmt)
@@ -560,12 +782,11 @@ class MappingEngine:
                     .option("fetchSize", "50000")
                     .option("driver", jc.get("driver", "oracle.jdbc.OracleDriver"))
                     .load())
-            mydf.show(1)
             return mydf
 
-
         # default: empty frame with the declared schema so the DAG still runs
-        log(f"    [WARN] unknown source db_type={db_type!r} for {name}; empty frame")
+        log(f"    [WARN] unresolved source type={source_type!r} db_type={db_type!r} "
+            f"for {name} (sq={sq_name}); returning empty frame")
         from pyspark.sql.types import StructType, StructField, StringType
         schema = StructType([StructField(c, StringType(), True) for c in cols])
         return self.spark.createDataFrame([], schema)
@@ -996,6 +1217,84 @@ class MappingEngine:
                 df = df.withColumn("__row_op", F.lit(1))  # default UPDATE
         return df
 
+    def _jdbc_execute(self, jc, sql, who="jdbc statement"):
+        """Execute a SINGLE SQL statement (DDL/DML like DELETE, UPDATE, TRUNCATE)
+        directly over JDBC using the Spark JVM's DriverManager. Runs once on the
+        driver, not per row. Returns True on success, False on failure (logged).
+
+        This is for statements Spark's DataFrame writer cannot express — here,
+        target Pre SQL / Post SQL that must run in Oracle verbatim.
+        """
+        try:
+            if not (jc and jc.get("url")):
+                log(f"    [WARN] {who}: no JDBC connection; cannot run: {sql}")
+                return False
+            jvm = self.spark._jvm
+            # make sure the Oracle driver class is registered in the JVM
+            try:
+                jvm.java.lang.Class.forName(
+                    jc.get("driver", "oracle.jdbc.OracleDriver"))
+            except Exception:
+                pass
+            conn = jvm.java.sql.DriverManager.getConnection(
+                jc["url"], jc["user"], jc["password"])
+            try:
+                stmt = conn.createStatement()
+                stmt.execute(sql)
+                stmt.close()
+                log(f"    [SQL OK] {who}: {sql[:120]}")
+                return True
+            finally:
+                conn.close()
+        except Exception as e:
+            msg = str(e).splitlines()[0] if str(e) else repr(e)
+            log(f"    [SQL FAIL] {who}: {msg}  ::  {sql[:120]}")
+            return False
+
+    @staticmethod
+    def _split_sql_statements(sql_text):
+        """Split a multi-statement Pre/Post SQL blob into individual statements.
+
+        Informatica lets a Pre/Post SQL hold several ';'-separated statements.
+        Oracle JDBC executes ONE statement per call and rejects a trailing ';'
+        (ORA-00911), so we split on ';', strip whitespace/newlines, and drop the
+        empty fragments a trailing or blank ';' leaves behind.
+        """
+        if not sql_text:
+            return []
+        out = []
+        for piece in str(sql_text).split(";"):
+            s = piece.strip()
+            if s:
+                out.append(s)
+        return out
+
+    def _run_target_sql(self, jc, sql_text, phase, inst_name):
+        """Run a target's Pre SQL or Post SQL (phase = 'pre' | 'post').
+
+        Splits multi-statement text and runs each statement in order. Pre/Post
+        SQL is Oracle SQL — it is passed to the database verbatim and is NEVER
+        put through the Spark expression translator.
+
+        Returns True if every statement succeeded (or there was nothing to run),
+        False if any statement failed.
+        """
+        statements = self._split_sql_statements(sql_text)
+        if not statements:
+            return True
+        log(f"    [{phase.upper()} SQL] {inst_name}: running "
+            f"{len(statements)} statement(s)")
+        all_ok = True
+        for i, stmt in enumerate(statements, 1):
+            ok = self._jdbc_execute(jc, stmt, who=f"{inst_name} {phase}-sql #{i}")
+            if not ok:
+                all_ok = False
+                # stop at the first failure — a failed pre-SQL must not let the
+                # load proceed, and a failed post-SQL statement shouldn't run the
+                # rest blindly either.
+                break
+        return all_ok
+
     def _op_target(self, name, inst):
         """Write to the target: JDBC table or file.
 
@@ -1113,14 +1412,80 @@ class MappingEngine:
             tag = f" [{load_mode}]" if load_mode else ""
             log(f"    [WRITE:file] {name} -> {working_path}{tag}")
             # ---- ICEBERG targets----------------------------------------------
+            # The Iceberg DATABASE must NOT be derived from the S3 path folder:
+            # in this environment the physical folder (e.g. .../vflh_stg/) does
+            # not always match the logical Iceberg database (e.g. vflh_wrk).
+            # The reliable signal is the target's connection variable
+            # ($AppConnection_EDL_WRK -> vflh_wrk). Resolution order:
+            #   1. explicit 'iceberg_database' on the target's workflow metadata
+            #   2. connections.json 'iceberg_databases' map keyed by conn var
+            #   3. derive from the connection variable suffix (_STG/_WRK/_CORE)
+            #   4. fall back to the path folder (legacy behavior)
             parts = path.rstrip("/").split("/")
-            iceberg_database = parts[-2]
-            iceberg_table = parts[-1]
+            # Table NAME: prefer the path leaf (matches the physical S3 folder the
+            # file was written to). The workflow 'hive_table' attribute is a
+            # secondary fallback because it is sometimes stale — e.g. a target
+            # copied from a _stg mapping keeps hive_table='..._stg' while its real
+            # path (and layer) is '..._wrk'. Using the path leaf keeps the Iceberg
+            # table name aligned with the file that was just written.
+            iceberg_table = parts[-1] or workflow_tgt.get("hive_table")
+            iceberg_database = self._resolve_iceberg_database(
+                workflow_tgt, path_folder=parts[-2] if len(parts) >= 2 else None)
             iceberg_qualified_table = f"{iceberg_database}.{iceberg_table}"
-            log("**** Writing into iceberg table ***")
-            writer.writeTo(iceberg_qualified_table).overwritePartitions()
-            log(f"### [WRITE:iceberg] {iceberg_qualified_table} ") 
-            #
+            log(f"*** iceberg target resolved: db={iceberg_database} "
+                f"table={iceberg_table} (conn={workflow_tgt.get('connection')}, "
+                f"path_folder={parts[-2] if len(parts) >= 2 else None}) ***")
+
+            iceberg_writer = writer
+            table_exists = False
+            try:
+                table_exists = self.spark.catalog.tableExists(iceberg_qualified_table)
+            except Exception as e:
+                log(f"    [WARN] tableExists check failed for "
+                    f"{iceberg_qualified_table}: {e}; assuming not present")
+
+            if table_exists:
+                # Align the DataFrame to the existing table's column order/set so
+                # a mapping that produces extra/renamed columns does not fail with
+                # INSERT_COLUMN_ARITY_MISMATCH. Match case-insensitively; select
+                # exactly the table's columns, in the table's order.
+                tbl_cols = [f.name for f in
+                            self.spark.table(iceberg_qualified_table).schema.fields]
+                lower = {c.lower(): c for c in iceberg_writer.columns}
+                proj = []
+                missing = []
+                for tc in tbl_cols:
+                    if tc in iceberg_writer.columns:
+                        proj.append(tc)
+                    elif tc.lower() in lower:
+                        proj.append(self._F().col(lower[tc.lower()]).alias(tc))
+                    else:
+                        missing.append(tc)
+                if missing:
+                    log(f"    [WARN] {iceberg_qualified_table}: table columns not "
+                        f"produced by mapping: {missing}; writing NULLs")
+                    for tc in missing:
+                        proj.append(self._F().lit(None).alias(tc))
+                    # reselect in table order
+                    proj = []
+                    for tc in tbl_cols:
+                        if tc in iceberg_writer.columns:
+                            proj.append(self._F().col(tc))
+                        elif tc.lower() in lower:
+                            proj.append(self._F().col(lower[tc.lower()]).alias(tc))
+                        else:
+                            proj.append(self._F().lit(None).alias(tc))
+                iceberg_writer = iceberg_writer.select(*proj)
+                log(f"**** Writing into EXISTING iceberg table {iceberg_qualified_table} "
+                    f"(aligned {len(tbl_cols)} cols) ***")
+                iceberg_writer.writeTo(iceberg_qualified_table).overwritePartitions()
+            else:
+                # First run: create the table from the DataFrame schema.
+                log(f"**** Iceberg table {iceberg_qualified_table} not found; "
+                    f"creating it from DataFrame schema ***")
+                iceberg_writer.writeTo(iceberg_qualified_table).using("iceberg").create()
+
+            log(f"### [WRITE:iceberg] {iceberg_qualified_table} ")
             return df
 
         # ---- JDBC / relational targets -----------------------------------
@@ -1137,6 +1502,17 @@ class MappingEngine:
             df.show(1, truncate=False)
             return df
 
+        # ---- Target Pre SQL --------------------------------------------------
+        # Runs in Oracle BEFORE the write. This is where a fact load does its
+        # "replace today's data" (e.g. DELETE FROM fact WHERE dim_date_id = ...).
+        # It is load-critical: if it fails we must NOT insert, or we double-load.
+        pre_sql = inst.get("pre_sql")
+        if pre_sql:
+            if not self._run_target_sql(jc, pre_sql, "pre", name):
+                raise Exception(
+                    f"Target {name}: Pre SQL failed; aborting write to {table} "
+                    f"to avoid an inconsistent load.")
+
         # Dispatch on the workflow-declared load mode when present.
         if load_mode:
             self._write_with_load_mode(df, table, jc, tgt_spec, load_mode,
@@ -1150,6 +1526,16 @@ class MappingEngine:
              .option("driver", jc.get("driver", "oracle.jdbc.OracleDriver"))
              .mode(conn.get("mode", "append")).save())
             print(f"    [WRITE:jdbc] {name} -> {table} (append)")
+
+        # ---- Target Post SQL -------------------------------------------------
+        # Runs in Oracle AFTER a successful write (e.g. stats, flips, audit rows).
+        # The write already succeeded, so a post-SQL failure is logged but does
+        # not undo the load.
+        post_sql = inst.get("post_sql")
+        if post_sql:
+            if not self._run_target_sql(jc, post_sql, "post", name):
+                log(f"    [WARN] {name}: Post SQL failed after a successful "
+                    f"write to {table}; load stands, review the Post SQL.")
         return df
 
     def _write_with_load_mode(self, df, table, jc, tgt_spec, load_mode,
@@ -1376,6 +1762,103 @@ class MappingEngine:
 
 
 
+    def _resolve_jdbc(self, conn_var, fallback_hint="src_oracle"):
+        """Resolve a JDBC config dict for a connection variable.
+
+        Resolution chain (first hit with a usable 'url' wins):
+          1. connections.json keyed directly by the variable (with/without '$')
+          2. vars.json (runtime_vars) maps the variable -> a connection NAME,
+             then connections.json keyed by that name holds the JDBC block.
+             e.g. "$DBConnection_ETH_REPORT_TGT_DB": "CSS_ETH10_REPORT_TGT_PROD"
+             and connections.json has "CSS_ETH10_REPORT_TGT_PROD": {url,user,...}
+          3. connections.json 'jdbc_connections' map keyed by the variable
+          4. the fallback hint (e.g. 'src_oracle' / 'tgt_oracle')
+        This lets a source or lookup bind to whichever physical DB the workflow
+        declared (e.g. DIM_DATE -> target report DB), instead of a hardcoded one.
+        """
+        if conn_var:
+            bare = conn_var.lstrip("$")
+
+            # 1. direct hit in connections.json
+            direct = self.conns.get(conn_var) or self.conns.get(bare)
+            if direct and direct.get("url"):
+                return direct
+
+            # 2. vars.json variable -> connection name -> connections.json block
+            conn_name = (self.runtime_vars.get(conn_var)
+                         or self.runtime_vars.get(bare))
+            if conn_name:
+                named = self.conns.get(conn_name)
+                if named and named.get("url"):
+                    return named
+                log(f"    [WARN] vars.json maps {conn_var} -> '{conn_name}', but "
+                    f"connections.json has no JDBC block named '{conn_name}'")
+
+            # 3. explicit jdbc_connections map in connections.json
+            jdbc_map = self.conns.get("jdbc_connections") or {}
+            mapped_key = jdbc_map.get(conn_var) or jdbc_map.get(bare)
+            if mapped_key:
+                m = self.conns.get(mapped_key) or {}
+                if m.get("url"):
+                    return m
+
+        jc = self.conns.jdbc(fallback_hint)
+        if conn_var and not (jc and jc.get("url")):
+            log(f"    [WARN] connection var {conn_var} unresolved and fallback "
+                f"'{fallback_hint}' is empty")
+        return jc
+
+    def _resolve_iceberg_database(self, workflow_tgt, path_folder=None):
+        """Resolve the Iceberg database for a target, robust to the S3 path
+        folder disagreeing with the logical database.
+
+        Order:
+          1. explicit workflow_tgt['iceberg_database']
+          2. connections.json 'iceberg_databases' map keyed by the connection var
+          3. derive from the connection variable suffix: a var ending in _STG /
+             _WRK / _CORE maps to <prefix>_stg / _wrk / _core using a configurable
+             'iceberg_db_prefix' (default 'vflh')
+          4. fall back to the provided path folder (legacy behavior)
+        """
+        # 1. explicit override on the target
+        explicit = workflow_tgt.get("iceberg_database")
+        if explicit:
+            return explicit
+
+        conn_var = workflow_tgt.get("connection")
+
+        # 2. vars.json (runtime_vars): connection variable -> database name,
+        #    e.g. "$AppConnection_EDL_WRK": "vflh_wrk"
+        if conn_var:
+            v = (self.runtime_vars.get(conn_var)
+                 or self.runtime_vars.get(conn_var.lstrip("$")))
+            if v:
+                return v
+
+        # 3. explicit map in connections.json
+        db_map = self.conns.get("iceberg_databases") or {}
+        if conn_var and conn_var in db_map:
+            return db_map[conn_var]
+
+        # 4. derive from the connection variable's layer suffix
+        if conn_var:
+            prefix = self.conns.get("iceberg_db_prefix") or "vflh"
+            up = conn_var.upper()
+            for suffix, layer in (("_STG", "stg"), ("_WRK", "wrk"),
+                                  ("_CORE", "core")):
+                if up.endswith(suffix):
+                    return f"{prefix}_{layer}"
+
+        # 4. legacy fallback: the S3 path folder
+        if path_folder:
+            log(f"    [WARN] falling back to path folder '{path_folder}' for "
+                f"Iceberg database (connection '{conn_var}' gave no signal)")
+            return path_folder
+        raise Exception(
+            f"Cannot resolve Iceberg database for target (connection={conn_var}, "
+            f"path_folder={path_folder}). Add 'iceberg_database' to the target or "
+            f"an 'iceberg_databases' map to connections.json.")
+
     def _get_working_path(self, workflow_path):
         """
         Input:
@@ -1448,10 +1931,17 @@ class MappingEngine:
 
 def build_spark(app_name):
     from pyspark.sql import SparkSession
-    return (SparkSession.builder
-            .appName(app_name)
-            .enableHiveSupport()
-            .getOrCreate())
+    spark = (SparkSession.builder
+             .appName(app_name)
+             # Informatica/Oracle date patterns (e.g. 'MM/DD/YYYY') use the
+             # pre-Spark-3.0 SimpleDateFormat semantics. Spark 3.0+'s strict
+             # DateTimeFormatter rejects several of them. LEGACY restores the
+             # older, Oracle-compatible parsing so TO_DATE/TO_CHAR conversions
+             # translated from Informatica work as they did on the source system.
+             .config("spark.sql.legacy.timeParserPolicy", "LEGACY")
+             .enableHiveSupport()
+             .getOrCreate())
+    return spark
 
 
 def _inspect(args):
