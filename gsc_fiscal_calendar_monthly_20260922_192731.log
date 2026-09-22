@@ -1,0 +1,347 @@
+nohup: ignoring input
++ [[ 3 -lt 2 ]]
++ WORKFLOW_INPUT=/home/anatva/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR_MONTHLY.json
++ MAPPINGS_DIR=/home/anatva/eth_spark/mappings/lh/gsc_fiscal_calendar_monthly
++ CONFIG_HOME=/home/anatva/eth_spark/configs/lh
++ CONNECTIONS=/home/anatva/eth_spark/configs/lh/connections.json
++ VARS=/home/anatva/eth_spark/configs/lh/vars.json
++ SPARK_SUBMIT=spark-submit
++++ dirname /home/anatva/eth_spark/scripts/run_workflow.sh
+++ cd /home/anatva/eth_spark/scripts
+++ pwd
++ HERE=/home/anatva/eth_spark/scripts
++ export BASEDIR=/home/anatva/eth_spark/scripts/..
++ BASEDIR=/home/anatva/eth_spark/scripts/..
++ echo /home/anatva/eth_spark/scripts/..
+/home/anatva/eth_spark/scripts/..
++ export ETH_STG_PATH=s3a://edl-cdp-dev/
++ ETH_STG_PATH=s3a://edl-cdp-dev/
++ case "$WORKFLOW_INPUT" in
++ WORKFLOW_JSON=/home/anatva/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR_MONTHLY.json
++ EXTRA=()
++ [[ -f /home/anatva/eth_spark/configs/lh/connections.json ]]
++ EXTRA+=(--connections "$CONNECTIONS")
++ [[ -f /home/anatva/eth_spark/configs/lh/vars.json ]]
++ EXTRA+=(--vars "$VARS")
++ echo 'mappings dir : /home/anatva/eth_spark/mappings/lh/gsc_fiscal_calendar_monthly'
+mappings dir : /home/anatva/eth_spark/mappings/lh/gsc_fiscal_calendar_monthly
++ echo 'workflow input : /home/anatva/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR_MONTHLY.json'
+workflow input : /home/anatva/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR_MONTHLY.json
++ echo 'connections, /home/anatva/eth_spark/configs/lh/connections.json'
+connections, /home/anatva/eth_spark/configs/lh/connections.json
++ echo 'variables, /home/anatva/eth_spark/configs/lh/vars.json'
+variables, /home/anatva/eth_spark/configs/lh/vars.json
++ echo '[run_workflow] executing workflow /home/anatva/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR_MONTHLY.json'
+[run_workflow] executing workflow /home/anatva/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR_MONTHLY.json
++ spark-submit --jars /opt/cloudera/parcels/CDH/jars/ojdbc8-21.3.0.0.jar --queue eth --conf spark.dynamicAllocation.enabled=true --conf spark.dynamicAllocation.initialExecutors=4 --conf spark.dynamicAllocation.minExecutors=4 --conf spark.dynamicAllocation.maxExecutors=8 --executor-memory 6g --conf spark.executor.memoryOverhead=2g --conf spark.sql.queryExecutionListeners= --conf spark.driver.extraJavaOptions=--add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED --conf spark.executor.extraJavaOptions=--add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED /home/anatva/eth_spark/scripts/../src/run_workflow.py --workflow /home/anatva/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR_MONTHLY.json --mappings-dir /home/anatva/eth_spark/mappings/lh/gsc_fiscal_calendar_monthly --connections /home/anatva/eth_spark/configs/lh/connections.json --vars /home/anatva/eth_spark/configs/lh/vars.json
+[2026-09-22 19:27:34.343] === Workflow: wf_m_GSC_FISCAL_CALENDAR_MONTHLY ===
+[2026-09-22 19:27:34.343] Sessions (1) in execution order:
+[2026-09-22 19:27:34.343]   1. s_m_GSC_FISCAL_CALENDAR_MONTHLY      -> m_GSC_FISCAL_CALENDAR_MONTHLY  (no deps)
+26/09/22 19:27:34 INFO  spark.SparkContext: [Thread-6]: Running Spark version 3.5.4.7.3.2.0-957
+26/09/22 19:27:34 INFO  spark.SparkContext: [Thread-6]: OS info Linux, 5.14.0-570.98.1.el9_6.x86_64, amd64
+26/09/22 19:27:34 INFO  spark.SparkContext: [Thread-6]: Java version 17.0.18
+26/09/22 19:27:34 INFO  logging.DriverLogger: [Thread-6]: Added a local log appender at: /var/lib/spark3/gateway/tmp/anatva/spark-4050499d-dbf5-4438-b72e-df7b77250f10/__driver_logs__/driver.log
+26/09/22 19:27:34 INFO  resource.ResourceUtils: [Thread-6]: ==============================================================
+26/09/22 19:27:34 INFO  resource.ResourceUtils: [Thread-6]: No custom resources configured for spark.driver.
+26/09/22 19:27:34 INFO  resource.ResourceUtils: [Thread-6]: ==============================================================
+26/09/22 19:27:34 INFO  spark.SparkContext: [Thread-6]: Submitted application: wf_m_GSC_FISCAL_CALENDAR_MONTHLY
+26/09/22 19:27:34 INFO  resource.ResourceProfile: [Thread-6]: Default ResourceProfile created, executor resources: Map(memoryOverhead -> name: memoryOverhead, amount: 2048, script: , vendor: , cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 6144, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/09/22 19:27:34 INFO  resource.ResourceProfile: [Thread-6]: Limiting resource is cpus at 1 tasks per executor
+26/09/22 19:27:34 INFO  resource.ResourceProfileManager: [Thread-6]: Added ResourceProfile id: 0
+26/09/22 19:27:34 INFO  spark.SecurityManager: [Thread-6]: Changing view acls to: anatva
+26/09/22 19:27:34 INFO  spark.SecurityManager: [Thread-6]: Changing modify acls to: anatva
+26/09/22 19:27:34 INFO  spark.SecurityManager: [Thread-6]: Changing view acls groups to: 
+26/09/22 19:27:34 INFO  spark.SecurityManager: [Thread-6]: Changing modify acls groups to: 
+26/09/22 19:27:34 INFO  spark.SecurityManager: [Thread-6]: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: anatva; groups with view permissions: EMPTY; users with modify permissions: anatva; groups with modify permissions: EMPTY
+26/09/22 19:27:35 INFO  Configuration.deprecation: [Thread-6]: mapred.reduce.tasks is deprecated. Instead, use mapreduce.job.reduces
+26/09/22 19:27:35 INFO  util.Utils: [Thread-6]: Successfully started service 'sparkDriver' on port 38467.
+26/09/22 19:27:35 INFO  spark.SparkEnv: [Thread-6]: Registering MapOutputTracker
+26/09/22 19:27:35 INFO  spark.SparkEnv: [Thread-6]: Registering BlockManagerMaster
+26/09/22 19:27:35 INFO  storage.BlockManagerMasterEndpoint: [Thread-6]: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/09/22 19:27:35 INFO  storage.BlockManagerMasterEndpoint: [Thread-6]: BlockManagerMasterEndpoint up
+26/09/22 19:27:35 INFO  spark.SparkEnv: [Thread-6]: Registering BlockManagerMasterHeartbeat
+26/09/22 19:27:35 INFO  storage.DiskBlockManager: [Thread-6]: Created local directory at /var/lib/spark3/gateway/tmp/anatva/blockmgr-7c0fba39-d54a-439a-a1d4-132f4cb7bbbd
+26/09/22 19:27:35 INFO  memory.MemoryStore: [Thread-6]: MemoryStore started with capacity 2.2 GiB
+26/09/22 19:27:35 INFO  spark.SparkEnv: [Thread-6]: Registering OutputCommitCoordinator
+26/09/22 19:27:35 INFO  ui.JettyUtils: [Thread-6]: Start Jetty 0.0.0.0:4040 for SparkUI
+26/09/22 19:27:35 WARN  util.Utils: [Thread-6]: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+26/09/22 19:27:35 INFO  util.Utils: [Thread-6]: Successfully started service 'SparkUI' on port 4041.
+26/09/22 19:27:36 INFO  spark.SparkContext: [Thread-6]: Added JAR hdfs:///tmp/spark-3.5-spline-agent-bundle_2.12-2.3.0-SNAPSHOT.jar at hdfs:///tmp/spark-3.5-spline-agent-bundle_2.12-2.3.0-SNAPSHOT.jar with timestamp 1790105254847
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Looking for atlas-application.properties in classpath
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Loading atlas-application.properties from file:/etc/spark3/conf.cloudera.spark3_on_yarn/atlas-application.properties
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Using graphdb backend 'janus'
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Using storage backend 'hbase2'
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Using index backend 'solr'
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Atlas is running in MODE: PROD.
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Setting solr.wait-searcher property 'false'
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Setting index.search.map-name property 'false'
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Setting atlas.graph.index.search.max-result-set-size = 500000
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Setting atlas.graph.index.search.solr.wait-searcher = false
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Setting atlas.graph.storage.hbase.compression-algorithm = SNAPPY
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Property (set to default) atlas.graph.cache.db-cache = true
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Property (set to default) atlas.graph.cache.db-cache-clean-wait = 20
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Property (set to default) atlas.graph.cache.db-cache-size = 0.5
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Property (set to default) atlas.graph.cache.tx-cache-size = 15000
+26/09/22 19:27:36 INFO  atlas.ApplicationProperties: [Thread-6]: Property (set to default) atlas.graph.cache.tx-dirty-size = 120
+26/09/22 19:27:36 INFO  security.HadoopDelegationTokenManager: [Thread-6]: Attempting to load user's ticket cache.
+26/09/22 19:27:36 INFO  security.HadoopFSDelegationTokenProvider: [Thread-6]: getting token for: DFS[DFSClient[clientName=DFSClient_NONMAPREDUCE_-1616121871_31, ugi=anatva@EDL-CDP.CSY7-4AVG.CLOUDERA.SITE (auth:KERBEROS)]] with renewer yarn/edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site@EDL-CDP.CSY7-4AVG.CLOUDERA.SITE
+26/09/22 19:27:36 INFO  hdfs.DFSClient: [Thread-6]: Created token for anatva: HDFS_DELEGATION_TOKEN owner=anatva@EDL-CDP.CSY7-4AVG.CLOUDERA.SITE, renewer=yarn, realUser=, issueDate=1790105256214, maxDate=1790710056214, sequenceNumber=238472, masterKeyId=224 on 10.81.226.88:8020
+26/09/22 19:27:36 INFO  security.HadoopFSDelegationTokenProvider: [Thread-6]: getting token for: DFS[DFSClient[clientName=DFSClient_NONMAPREDUCE_-1616121871_31, ugi=anatva@EDL-CDP.CSY7-4AVG.CLOUDERA.SITE (auth:KERBEROS)]] with renewer anatva@EDL-CDP.CSY7-4AVG.CLOUDERA.SITE
+26/09/22 19:27:36 INFO  hdfs.DFSClient: [Thread-6]: Created token for anatva: HDFS_DELEGATION_TOKEN owner=anatva@EDL-CDP.CSY7-4AVG.CLOUDERA.SITE, renewer=anatva, realUser=, issueDate=1790105256228, maxDate=1790710056228, sequenceNumber=238473, masterKeyId=224 on 10.81.226.88:8020
+26/09/22 19:27:36 INFO  security.HadoopFSDelegationTokenProvider: [Thread-6]: Renewal interval is 86400047 for token HDFS_DELEGATION_TOKEN
+26/09/22 19:27:36 INFO  hdfs.DFSClient: [Thread-6]: Cancelling token for anatva: HDFS_DELEGATION_TOKEN owner=anatva@EDL-CDP.CSY7-4AVG.CLOUDERA.SITE, renewer=anatva, realUser=, issueDate=1790105256228, maxDate=1790710056228, sequenceNumber=238473, masterKeyId=224 on 10.81.226.88:8020
+26/09/22 19:27:36 INFO  conf.HiveConf: [Thread-6]: Found configuration file file:/etc/hive/conf.cloudera.hive_on_tez/hive-site.xml
+26/09/22 19:27:36 WARN  conf.HiveConf: [Thread-6]: HiveConf of name hive.metastore.runworker.in does not exist
+26/09/22 19:27:37 INFO  Configuration.deprecation: [Thread-6]: mapred.reduce.tasks is deprecated. Instead, use mapreduce.job.reduces
+26/09/22 19:27:37 INFO  deploy.SparkHadoopUtil: [Thread-6]: Updating delegation tokens for current user.
+26/09/22 19:27:37 WARN  util.Utils: [Thread-6]: spark.executor.instances less than spark.dynamicAllocation.minExecutors is invalid, ignoring its setting, please update your configs.
+26/09/22 19:27:37 INFO  util.Utils: [Thread-6]: Using initial executors = 4, max of spark.dynamicAllocation.initialExecutors, spark.dynamicAllocation.minExecutors and spark.executor.instances
+26/09/22 19:27:37 INFO  client.DefaultNoHARMFailoverProxyProvider: [Thread-6]: Connecting to ResourceManager at edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site/10.81.226.88:8032
+26/09/22 19:27:37 INFO  conf.Configuration: [Thread-6]: resource-types.xml not found
+26/09/22 19:27:37 INFO  resource.ResourceUtils: [Thread-6]: Unable to find 'resource-types.xml'.
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Verifying our application has not requested more than the maximum memory capability of the cluster (110218 MB per container)
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Will allocate AM container, with 896 MB memory including 384 MB overhead
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Setting up container launch context for our AM
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Setting up the launch environment for our AM container
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Preparing resources for our AM container
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Uploading resource file:/opt/cloudera/parcels/CDH-7.3.2-1.cdh7.3.2.p0.77083870/jars/ojdbc8-21.3.0.0.jar -> hdfs://edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site:8020/user/anatva/.sparkStaging/application_1783100649959_8597/ojdbc8-21.3.0.0.jar
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Uploading resource file:/var/lib/spark3/gateway/tmp/anatva/spark-4050499d-dbf5-4438-b72e-df7b77250f10/__spark_conf__17948519144603592472.zip -> hdfs://edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site:8020/user/anatva/.sparkStaging/application_1783100649959_8597/__spark_conf__.zip
+26/09/22 19:27:37 INFO  spark.SecurityManager: [Thread-6]: Changing view acls to: anatva
+26/09/22 19:27:37 INFO  spark.SecurityManager: [Thread-6]: Changing modify acls to: anatva
+26/09/22 19:27:37 INFO  spark.SecurityManager: [Thread-6]: Changing view acls groups to: 
+26/09/22 19:27:37 INFO  spark.SecurityManager: [Thread-6]: Changing modify acls groups to: 
+26/09/22 19:27:37 INFO  spark.SecurityManager: [Thread-6]: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: anatva; groups with view permissions: EMPTY; users with modify permissions: anatva; groups with modify permissions: EMPTY
+26/09/22 19:27:37 INFO  yarn.Client: [Thread-6]: Submitting application application_1783100649959_8597 to ResourceManager
+26/09/22 19:27:38 INFO  client.RangerRESTClient: [Thread-6]: ===>> RangerRESTClient.init() : Since mKeyStoreType is NULL, setting System default. [mKeyStoreType=pkcs12]
+26/09/22 19:27:38 INFO  delegation.S3ADelegationTokens: [Thread-6]: Starting: Creating New Delegation Token
+26/09/22 19:27:39 INFO  delegation.S3ADelegationTokens: [Thread-6]: Created S3A Delegation Token: Kind: S3ADelegationToken/Raz, Service: s3a://edl-cdp-dev, Ident: (S3ATokenIdentifier{S3ADelegationToken/Raz; uri=s3a://edl-cdp-dev; timestamp=1790105259102; renewer=yarn; encryption=(no encryption); 05be0b0b-81e9-4275-b26a-151b13e18d44; Created from 10.81.226.88:6082})
+26/09/22 19:27:39 INFO  delegation.S3ADelegationTokens: [Thread-6]: Creating New Delegation Token: duration 0:00.289s
+26/09/22 19:27:39 INFO  impl.YarnClientImpl: [Thread-6]: Added delegation token for log aggregation path s3a://edl-cdp-dev/data/oplogs/yarn-app-logs; Kind: S3ADelegationToken/Raz, Service: s3a://edl-cdp-dev, Ident: (S3ATokenIdentifier{S3ADelegationToken/Raz; uri=s3a://edl-cdp-dev; timestamp=1790105259102; renewer=yarn; encryption=(no encryption); 05be0b0b-81e9-4275-b26a-151b13e18d44; Created from 10.81.226.88:6082})
+26/09/22 19:27:39 INFO  impl.YarnClientImpl: [Thread-6]: Submitted application application_1783100649959_8597
+26/09/22 19:27:40 INFO  yarn.Client: [Thread-6]: Application report for application_1783100649959_8597 (state: ACCEPTED)
+26/09/22 19:27:40 INFO  yarn.Client: [Thread-6]: 
+	 client token: Token { kind: YARN_CLIENT_TOKEN, service:  }
+	 diagnostics: AM container is launched, waiting for AM container to Register with RM
+	 ApplicationMaster host: N/A
+	 ApplicationMaster RPC port: -1
+	 queue: root.eth
+	 start time: 1790105259163
+	 final status: UNDEFINED
+	 tracking URL: https://edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site:8090/proxy/application_1783100649959_8597/
+	 user: anatva
+26/09/22 19:27:44 INFO  cluster.YarnClientSchedulerBackend: [dispatcher-event-loop-11]: Add WebUI Filter. org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter, Map(PROXY_HOSTS -> edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site, PROXY_URI_BASES -> https://edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site:8090/proxy/application_1783100649959_8597), /proxy/application_1783100649959_8597
+26/09/22 19:27:44 INFO  cluster.YarnSchedulerBackend$YarnSchedulerEndpoint: [dispatcher-event-loop-14]: ApplicationMaster registered as NettyRpcEndpointRef(spark-client://YarnAM)
+26/09/22 19:27:45 INFO  yarn.Client: [Thread-6]: Application report for application_1783100649959_8597 (state: RUNNING)
+26/09/22 19:27:45 INFO  yarn.Client: [Thread-6]: 
+	 client token: Token { kind: YARN_CLIENT_TOKEN, service:  }
+	 diagnostics: N/A
+	 ApplicationMaster host: 10.81.226.254
+	 ApplicationMaster RPC port: -1
+	 queue: root.eth
+	 start time: 1790105259163
+	 final status: UNDEFINED
+	 tracking URL: https://edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site:8090/proxy/application_1783100649959_8597/
+	 user: anatva
+26/09/22 19:27:45 INFO  cluster.YarnClientSchedulerBackend: [Thread-6]: Application application_1783100649959_8597 has started running.
+26/09/22 19:27:45 INFO  util.Utils: [Thread-6]: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 40405.
+26/09/22 19:27:45 INFO  netty.NettyBlockTransferService: [Thread-6]: Server created on edl-spark3-dev-gateway0.edl-cdp.csy7-4avg.cloudera.site:40405
+26/09/22 19:27:45 INFO  storage.BlockManager: [Thread-6]: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+26/09/22 19:27:45 INFO  storage.BlockManager: [Thread-6]: external shuffle service port = 7447
+26/09/22 19:27:45 INFO  storage.BlockManagerMaster: [Thread-6]: Registering BlockManager BlockManagerId(driver, edl-spark3-dev-gateway0.edl-cdp.csy7-4avg.cloudera.site, 40405, None)
+26/09/22 19:27:45 INFO  storage.BlockManagerMasterEndpoint: [dispatcher-BlockManagerMaster]: Registering block manager edl-spark3-dev-gateway0.edl-cdp.csy7-4avg.cloudera.site:40405 with 2.2 GiB RAM, BlockManagerId(driver, edl-spark3-dev-gateway0.edl-cdp.csy7-4avg.cloudera.site, 40405, None)
+26/09/22 19:27:45 INFO  storage.BlockManagerMaster: [Thread-6]: Registered BlockManager BlockManagerId(driver, edl-spark3-dev-gateway0.edl-cdp.csy7-4avg.cloudera.site, 40405, None)
+26/09/22 19:27:45 INFO  storage.BlockManager: [Thread-6]: Initialized BlockManager: BlockManagerId(driver, edl-spark3-dev-gateway0.edl-cdp.csy7-4avg.cloudera.site, 40405, None)
+26/09/22 19:27:45 INFO  history.SingleEventLogFileWriter: [Thread-6]: Logging events to hdfs:/user/spark/spark3ApplicationHistory/application_1783100649959_8597.inprogress
+26/09/22 19:27:45 WARN  util.Utils: [Thread-6]: spark.executor.instances less than spark.dynamicAllocation.minExecutors is invalid, ignoring its setting, please update your configs.
+26/09/22 19:27:45 INFO  util.Utils: [Thread-6]: Using initial executors = 4, max of spark.dynamicAllocation.initialExecutors, spark.dynamicAllocation.minExecutors and spark.executor.instances
+26/09/22 19:27:45 INFO  kafka.KafkaNotification: [Thread-6]: ==> KafkaNotification()
+26/09/22 19:27:45 INFO  utils.KafkaUtils: [Thread-6]: UserGroupInformation.isLoginTicketBased is true, but no JAAS configuration found for client ticketBased-KafkaClient. Will use JAAS configuration of client KafkaClient
+26/09/22 19:27:45 INFO  kafka.KafkaNotification: [Thread-6]: <== KafkaNotification()
+26/09/22 19:27:45 INFO  kafka.NotificationProvider: [Thread-6]: Notification spooling is not enabled
+26/09/22 19:27:45 INFO  hook.AtlasHook: [Thread-6]: atlas.hook.entity.ignore.pattern=[]
+26/09/22 19:27:45 INFO  hook.AtlasHook: [Thread-6]: Created Atlas Hook
+26/09/22 19:27:45 INFO  spark.SparkContext: [Thread-6]: Registered listener com.hortonworks.spark.atlas.SparkAtlasEventTracker
+26/09/22 19:27:45 INFO  logging.DriverLogger$DfsAsyncWriter: [Thread-6]: Started driver log file sync to: hdfs://edl-spark3-dev-master0.edl-cdp.csy7-4avg.cloudera.site:8020/user/spark/driver3Logs/application_1783100649959_8597_driver.log
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /jobs: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /jobs/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /jobs/job: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /jobs/job/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /stages: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /stages/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /stages/stage: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /stages/stage/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /stages/pool: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /stages/pool/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /storage: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /storage/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /storage/rdd: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /storage/rdd/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /environment: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /environment/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /executors: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /executors/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /executors/threadDump: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /executors/threadDump/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /executors/heapHistogram: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /executors/heapHistogram/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /static: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /api: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /jobs/job/kill: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /stages/stage/kill: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:45 INFO  ui.ServerInfo: [Thread-6]: Adding filter to /metrics/json: org.apache.hadoop.yarn.server.webproxy.amfilter.AmIpFilter
+26/09/22 19:27:51 INFO  cluster.YarnSchedulerBackend$YarnDriverEndpoint: [dispatcher-CoarseGrainedScheduler]: Registered executor NettyRpcEndpointRef(spark-client://Executor) (10.81.226.163:51026) with ID 4,  ResourceProfileId 0
+26/09/22 19:27:51 INFO  cluster.YarnSchedulerBackend$YarnDriverEndpoint: [dispatcher-CoarseGrainedScheduler]: Registered executor NettyRpcEndpointRef(spark-client://Executor) (10.81.226.163:51032) with ID 3,  ResourceProfileId 0
+26/09/22 19:27:51 INFO  dynalloc.ExecutorMonitor: [spark-listener-group-executorManagement]: New executor 4 has registered (new total is 1)
+26/09/22 19:27:51 INFO  dynalloc.ExecutorMonitor: [spark-listener-group-executorManagement]: New executor 3 has registered (new total is 2)
+26/09/22 19:27:52 INFO  cluster.YarnSchedulerBackend$YarnDriverEndpoint: [dispatcher-CoarseGrainedScheduler]: Registered executor NettyRpcEndpointRef(spark-client://Executor) (10.81.226.163:51048) with ID 2,  ResourceProfileId 0
+26/09/22 19:27:52 INFO  dynalloc.ExecutorMonitor: [spark-listener-group-executorManagement]: New executor 2 has registered (new total is 3)
+26/09/22 19:27:52 INFO  storage.BlockManagerMasterEndpoint: [dispatcher-BlockManagerMaster]: Registering block manager edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site:40537 with 3.4 GiB RAM, BlockManagerId(4, edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site, 40537, None)
+26/09/22 19:27:52 INFO  cluster.YarnSchedulerBackend$YarnDriverEndpoint: [dispatcher-CoarseGrainedScheduler]: Registered executor NettyRpcEndpointRef(spark-client://Executor) (10.81.226.163:51052) with ID 1,  ResourceProfileId 0
+26/09/22 19:27:52 INFO  dynalloc.ExecutorMonitor: [spark-listener-group-executorManagement]: New executor 1 has registered (new total is 4)
+26/09/22 19:27:52 INFO  storage.BlockManagerMasterEndpoint: [dispatcher-BlockManagerMaster]: Registering block manager edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site:33751 with 3.4 GiB RAM, BlockManagerId(3, edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site, 33751, None)
+26/09/22 19:27:52 INFO  cluster.YarnClientSchedulerBackend: [Thread-6]: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.8
+26/09/22 19:27:52 INFO  storage.BlockManagerMasterEndpoint: [dispatcher-BlockManagerMaster]: Registering block manager edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site:32769 with 3.4 GiB RAM, BlockManagerId(2, edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site, 32769, None)
+26/09/22 19:27:52 INFO  storage.BlockManagerMasterEndpoint: [dispatcher-BlockManagerMaster]: Registering block manager edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site:39735 with 3.4 GiB RAM, BlockManagerId(1, edl-spark3-dev-compute9.edl-cdp.csy7-4avg.cloudera.site, 39735, None)
+####### looping through sessions 
+[2026-09-22 19:27:52.290] 
+============================================================
+[SESSION] s_m_GSC_FISCAL_CALENDAR_MONTHLY  (mapping m_GSC_FISCAL_CALENDAR_MONTHLY)
+============================================================
+=== Executing mapping: m_GSC_FISCAL_CALENDAR_MONTHLY ===
+Execution order (10 nodes):
+    GSC_FISCAL_CALENDAR1               [Source Definition]
+    STG_DEMAND_FORECAST_RPT_DL         [Source Definition]
+    SQ_GSC_FISCAL_CALENDAR             [Source Qualifier]
+    SQ_STG_DEMAND_FORECAST_RPT_DL      [Source Qualifier]
+    EXPTRANS                           [Expression]
+    EXP_CURRMONTH                      [Expression]
+    SRT_DISTINCT                       [Sorter]
+    JNR_DUMMY                          [Joiner]
+    EXP_CALENDAR                       [Expression]
+    GSC_FISCAL_CALENDAR_MONTHLY        [Target Definition]
+------------------------------------------------------------
+[2026-09-22 19:27:52.291]  workflow src [SQ_GSC_FISCAL_CALENDAR] : {'subtype': 'Relational Reader', 'connection': '$DBConnection_STG_CDL', 'type': 'jdbc'} 
+[2026-09-22 19:27:52.291]  *** source path *** None 
+[2026-09-22 19:27:52.291]  *** source type *** jdbc 
+[2026-09-22 19:27:52.291] *** IN JDBC SECTION ***
+[2026-09-22 19:27:52.291]  **** source GSC_FISCAL_CALENDAR using connection var=$DBConnection_STG_CDL resolved-> url=jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ITSUSRALSP04160.jnj.com)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=MRAQ0252.jnj.com))) schema=stg_cdl 
+[2026-09-22 19:27:52.291] ############ Table name or SQL Query : (select 
+FISCALMOSTART,
+substr(FISCALMO,5,4)||'/'||substr(FISCALMO,1,3) as FISCALMO,
+FISCALYR,
+FiscalYr||' '||FISCAL_QUARTER as FISCAL_QUARTER,
+CALENDARMOSTART,
+max(FISCALWEEKOFMONTH) as WEEKS_MONTH,
+PROCESSID,
+max(Load_date) as load_date
+from 
+GSC_FISCAL_CALENDAR 
+where FISCALYR>'1998'
+Group by 
+FISCALMOSTART,
+substr(FISCALMO,5,4)||'/'||substr(FISCALMO,1,3),
+FiscalYr||' '||FISCAL_QUARTER,
+CALENDARMOSTART,
+FISCALYR,
+PROCESSID) SRC 
+[2026-09-22 19:27:54.080] **** SQL OVERRIDE applied at source read for SQ_GSC_FISCAL_CALENDAR ****
+[2026-09-22 19:27:54.080]  workflow src [SQ_STG_DEMAND_FORECAST_RPT_DL] : {'subtype': 'HDFS Flat File Reader', 'connection': '$AppConnection_HDP_LH', 'type': 'file', 'path': 's3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/stg_gsc_demand_forecast_rpt_hdp'} 
+[2026-09-22 19:27:54.080]  *** source path *** s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/stg_gsc_demand_forecast_rpt_hdp 
+[2026-09-22 19:27:54.080]  *** source type *** file 
+[2026-09-22 19:27:54.080]  *** SOURCE PATH FROM WORKFLOW : s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/stg_gsc_demand_forecast_rpt_hdp ** temp src path ** : s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg/stg_gsc_demand_forecast_rpt_hdp
+    [WARN] expr failed on MONTH_DIFFERENCE: [WRONG_NUM_ARGS.WITHOUT_SUGGESTION] The `date_diff` requires 2 parameters but the actual number is 3. Please, refer to 'https://spark.apache.org/docs/latest/sql-ref-functions.html' for a fix.; line 1 pos 0; NULL
+[2026-09-22 19:27:58.947] **** Inside op_target ***
+[2026-09-22 19:34:16.961]  **** tgt_name : GSC_FISCAL_CALENDAR_MONTHLY **** 
+***** override  {'table': None, 'connection': '$DBConnection_STG_CDL', 'load': {'insert': True, 'update_as_update': True, 'update_as_insert': False, 'update_else_insert': False, 'delete': True, 'truncate': True, 'target_load_type': 'Normal'}, 'reject_file': 'gsc_fiscal_calendar_monthly1.bad', 'load_mode': 'truncate_insert', 'type': 'jdbc'}
+***** load_mode  truncate_insert
+[2026-09-22 19:34:17.026] *** Before enforce target lengths ***
+[2026-09-22 19:34:17.026] ***** column name: FISCALMO datatype: varchar2 precision: 29 ****
+[2026-09-22 19:34:17.035] ***** column name: FISCAL_QUARTER datatype: varchar2 precision: 38 ****
+[2026-09-22 19:34:17.043] ***** column name: FISCALYR datatype: varchar2 precision: 5 ****
+[2026-09-22 19:34:17.050] ***** column name: PROCESSID datatype: varchar2 precision: 50 ****
+26/09/22 19:34:17 WARN  util.SparkStringUtils: [Thread-6]: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
++-------------------+--------+--------------+-------------------+--------+------------+---------+---------+-------------------+----------+
+|FISCALMOSTART      |FISCALMO|FISCAL_QUARTER|CALENDARMOSTART    |FISCALYR|WEEKS_MONTH |LOAD_DATE|PROCESSID|CURR_MONTH         |MONTH_DIFF|
++-------------------+--------+--------------+-------------------+--------+------------+---------+---------+-------------------+----------+
+|2015-08-24 00:00:00|2015/Sep|2015 Q3       |2015-09-01 00:00:00|2015    |5.0000000000|NULL     |AW-UPD   |2026-05-01 00:00:00|NULL      |
++-------------------+--------+--------------+-------------------+--------+------------+---------+---------+-------------------+----------+
+only showing top 1 row
+
+[2026-09-22 19:40:19.682] *** After enforce target lengths ***
+**** TGT_NAME **** : GSC_FISCAL_CALENDAR_MONTHLY
+[2026-09-22 19:40:19.682] *** in FILE TARGETS: jdbc None 
+****** target Oracle table name stg_cdl.GSC_FISCAL_CALENDAR_MONTHLY 
+***** in Write_with_load_mode function ***
+***** load mode is truncate_insert ****
+**** JDBC URL ****  jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ITSUSRALSP04160.jnj.com)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=MRAQ0252.jnj.com)))
+**** JDBC USER ****  SA_STG_CDL
+**** TARGET TABLE NAME ***** stg_cdl.GSC_FISCAL_CALENDAR_MONTHLY
+[2026-09-22 19:40:19.816] [ERROR] session s_m_GSC_FISCAL_CALENDAR_MONTHLY failed: An error occurred while calling o313.save.
+: java.sql.SQLSyntaxErrorException: ORA-01031: insufficient privileges
+
+	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:630)
+	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:564)
+	at oracle.jdbc.driver.T4C8Oall.processError(T4C8Oall.java:1151)
+	at oracle.jdbc.driver.T4CTTIfun.receive(T4CTTIfun.java:771)
+	at oracle.jdbc.driver.T4CTTIfun.doRPC(T4CTTIfun.java:299)
+	at oracle.jdbc.driver.T4C8Oall.doOALL(T4C8Oall.java:498)
+	at oracle.jdbc.driver.T4CStatement.doOall8(T4CStatement.java:112)
+	at oracle.jdbc.driver.T4CStatement.executeForRows(T4CStatement.java:1011)
+	at oracle.jdbc.driver.OracleStatement.executeSQLStatement(OracleStatement.java:1531)
+	at oracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1311)
+	at oracle.jdbc.driver.OracleStatement.executeUpdateInternal(OracleStatement.java:2089)
+	at oracle.jdbc.driver.OracleStatement.executeLargeUpdate(OracleStatement.java:2054)
+	at oracle.jdbc.driver.OracleStatement.executeUpdate(OracleStatement.java:2042)
+	at oracle.jdbc.driver.OracleStatementWrapper.executeUpdate(OracleStatementWrapper.java:310)
+	at org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils$.truncateTable(JdbcUtils.scala:97)
+	at org.apache.spark.sql.execution.datasources.jdbc.JdbcRelationProvider.createRelation(JdbcRelationProvider.scala:58)
+	at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:48)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:75)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:73)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.executeCollect(commands.scala:84)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.$anonfun$applyOrElse$1(QueryExecution.scala:108)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:125)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:201)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:108)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:66)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:108)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:98)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$1(TreeNode.scala:461)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(origin.scala:76)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:461)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.org$apache$spark$sql$catalyst$plans$logical$AnalysisHelper$$super$transformDownWithPruning(LogicalPlan.scala:32)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning(AnalysisHelper.scala:267)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning$(AnalysisHelper.scala:263)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:32)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:32)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDown(TreeNode.scala:437)
+	at org.apache.spark.sql.execution.QueryExecution.eagerlyExecuteCommands(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted$lzycompute(QueryExecution.scala:85)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted(QueryExecution.scala:83)
+	at org.apache.spark.sql.execution.QueryExecution.assertCommandExecuted(QueryExecution.scala:143)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:877)
+	at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:391)
+	at org.apache.spark.sql.DataFrameWriter.saveInternal(DataFrameWriter.scala:364)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:251)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: Error : 1031, Position : 23, Sql = TRUNCATE TABLE stg_cdl.GSC_FISCAL_CALENDAR_MONTHLY, OriginalSql = TRUNCATE TABLE stg_cdl.GSC_FISCAL_CALENDAR_MONTHLY, Error Msg = ORA-01031: insufficient privileges
+
+	at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:637)
+	... 56 more
+
+[2026-09-22 19:40:19.908] 
+=== Workflow wf_m_GSC_FISCAL_CALENDAR_MONTHLY summary ===
+[2026-09-22 19:40:19.908]   failed      s_m_GSC_FISCAL_CALENDAR_MONTHLY
