@@ -144,7 +144,77 @@ class ExpressionTranslator:
         # 2 args; TO_CHAR(date,'fmt') uses Oracle format masks Spark doesn't share.
         # Rewrite both shapes to valid Spark SQL.
         s = cls._resolve_to_char(s)
+        # Informatica DATE_DIFF(d1, d2, 'fmt') is 3-arg and returns d1-d2 in the
+        # unit given by 'fmt'; Spark's date_diff is 2-arg (days only). Rewrite to
+        # the right Spark function per unit.
+        s = cls._resolve_date_diff(s)
         return s
+
+    @classmethod
+    def _resolve_date_diff(cls, s):
+        """DATE_DIFF(d1, d2, 'unit') -> Spark equivalent, preserving Informatica's
+        d1-d2 sign and fractional result:
+          'D'/'DD'/'DDD'/'DAY'      -> datediff(d1, d2)              (whole days)
+          'MM'/'MON'/'MONTH'        -> months_between(d1, d2)        (fractional)
+          'YYYY'/'YY'/'YEAR'        -> months_between(d1, d2)/12
+          'HH'/'MI'/'SS' (time)     -> (unix_timestamp(d1)-unix_timestamp(d2))/N
+        Unknown unit falls back to datediff with a warning.
+        """
+        while "DATE_DIFF(" in s.upper():
+            up = s.upper()
+            start = up.find("DATE_DIFF(")
+            open_paren = start + len("DATE_DIFF")
+            depth = 0
+            i = open_paren
+            args, cur = [], ""
+            while i < len(s):
+                ch = s[i]
+                if ch == "(":
+                    depth += 1
+                    if depth > 1:
+                        cur += ch
+                elif ch == ")":
+                    depth -= 1
+                    if depth == 0:
+                        args.append(cur)
+                        break
+                    cur += ch
+                elif ch == "," and depth == 1:
+                    args.append(cur)
+                    cur = ""
+                else:
+                    cur += ch
+                i += 1
+            if i >= len(s) or len(args) < 2:
+                s = s[:start] + "DATEDIFF_UNRESOLVED(" + s[open_paren + 1:]
+                break
+
+            d1 = args[0].strip()
+            d2 = args[1].strip()
+            unit = ""
+            if len(args) >= 3:
+                unit = args[2].strip().strip("'\"").upper()
+
+            if unit in ("", "D", "DD", "DDD", "DAY", "DY"):
+                repl = f"datediff({d1}, {d2})"
+            elif unit in ("MM", "MON", "MONTH"):
+                repl = f"months_between({d1}, {d2})"
+            elif unit in ("YYYY", "YY", "Y", "YEAR"):
+                repl = f"(months_between({d1}, {d2})/12)"
+            else:
+                secs = {"HH": 3600, "HH12": 3600, "HH24": 3600,
+                        "MI": 60, "MIN": 60, "SS": 1, "SEC": 1}.get(unit)
+                if secs:
+                    repl = (f"((unix_timestamp({d1})-unix_timestamp({d2}))"
+                            f"/{secs})")
+                else:
+                    log(f"    [WARN] DATE_DIFF unit '{unit}' not mapped; using "
+                        f"datediff (days).")
+                    repl = f"datediff({d1}, {d2})"
+
+            s = s[:start] + repl + s[i + 1:]
+        return s.replace("DATEDIFF_UNRESOLVED(", "DATE_DIFF(")
+
 
     # Oracle date-format mask letters -> Spark date_format() pattern letters.
     # Only the patterns that actually appear in the mappings are mapped; an
