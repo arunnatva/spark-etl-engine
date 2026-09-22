@@ -1,0 +1,4552 @@
+{
+  "sources": [
+    {
+      "name": "SRC_CSS_NKIT_CAPACITY_CORE",
+      "database_type": "Flat File",
+      "database_name": "Flat_File",
+      "owner_name": "",
+      "fields": [
+        {
+          "name": "MONTHNUM",
+          "datatype": "double",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "YEARNUM",
+          "datatype": "double",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "RESCAL",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "RES",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "WORKINGDAYS",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "STAFCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "INSTCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "BPCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "LECAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "CAPACITYDAY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "ITEM",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "LOC",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        }
+      ]
+    },
+    {
+      "name": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+      "database_type": "Flat File",
+      "database_name": "Flat_File",
+      "owner_name": "",
+      "fields": [
+        {
+          "name": "MONTH",
+          "datatype": "double",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "MONTHLY_CONSTRAINEDREQ",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "4"
+        },
+        {
+          "name": "MONTHLY_UNCONSTRAINEDREQ",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "4"
+        },
+        {
+          "name": "YEAR",
+          "datatype": "double",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "LOC",
+          "datatype": "string",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "ITEM",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "UREP_MFGCLSCODE",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "USYS_H1_LEVEL1",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "30",
+          "scale": "0"
+        },
+        {
+          "name": "USYS_H1_LEVEL2",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "30",
+          "scale": "0"
+        },
+        {
+          "name": "USYS_H1_LEVEL4",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "30",
+          "scale": "0"
+        },
+        {
+          "name": "UREP_R1_REPORT1",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "30",
+          "scale": "0"
+        },
+        {
+          "name": "USYS_H1_LEVEL31",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "30",
+          "scale": "0"
+        },
+        {
+          "name": "USYS_H1_LEVEL5",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "30",
+          "scale": "0"
+        },
+        {
+          "name": "UREP_R1_REPORT2",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "30",
+          "scale": "0"
+        },
+        {
+          "name": "RES",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "101",
+          "scale": "0"
+        },
+        {
+          "name": "DESCR",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "WORKINGDAYS",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "WORKINGWEEKS",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "10",
+          "scale": "0"
+        },
+        {
+          "name": "STAFFEDCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "4"
+        },
+        {
+          "name": "BPVOLUME",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "4"
+        },
+        {
+          "name": "INSTALLEDCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "4"
+        },
+        {
+          "name": "OTSTAFFEDCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "4"
+        },
+        {
+          "name": "USYS_H1_LEVEL3",
+          "datatype": "nstring",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "20",
+          "scale": "0"
+        }
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "name": "TG_FACT_SKU_CAPACITIES",
+      "database_type": "Oracle",
+      "owner_name": "",
+      "fields": [
+        {
+          "name": "ID",
+          "datatype": "number",
+          "keytype": "PRIMARY KEY",
+          "nullable": "NOTNULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "STAFFEDCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "INSTALLEDCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "OTSTAFFEDCAPACITY",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "BPVOLUME",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "DIM_MFG_DETAILS_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "DIM_PLEVELS_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "DIM_SKU_ITEM_LOC_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "LOC",
+          "datatype": "nvarchar2",
+          "keytype": "NOT A KEY",
+          "nullable": "NOTNULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "MONTH",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "YEAR",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "WORKINGDAYS",
+          "datatype": "number(p,s)",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "0"
+        },
+        {
+          "name": "WORKINGWEEKS",
+          "datatype": "number(p,s)",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "18",
+          "scale": "0"
+        },
+        {
+          "name": "DIM_DATE_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_SOURCE_SYSTEM",
+          "datatype": "varchar2",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_TIMESTAMP",
+          "datatype": "date",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "19",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_BATCH_ID",
+          "datatype": "number(p,s)",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "38",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_ETL_USER",
+          "datatype": "varchar2",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "25",
+          "scale": "0"
+        }
+      ]
+    },
+    {
+      "name": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+      "database_type": "Oracle",
+      "owner_name": "",
+      "fields": [
+        {
+          "name": "CONSTRAINEDREQUIREMENTS",
+          "datatype": "number(p,s)",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "4"
+        },
+        {
+          "name": "ID",
+          "datatype": "number(p,s)",
+          "keytype": "PRIMARY KEY",
+          "nullable": "NOTNULL",
+          "precision": "19",
+          "scale": "0"
+        },
+        {
+          "name": "UNCONSTRAINEDREQUIREMENTS",
+          "datatype": "number(p,s)",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "4"
+        },
+        {
+          "name": "DIM_MFG_DETAILS_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "DIM_PLEVELS_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "DIM_SKU_ITEM_LOC_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "MONTH",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "YEAR",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "DIM_DATE_ID",
+          "datatype": "number",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "15",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_SOURCE_SYSTEM",
+          "datatype": "varchar2",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "50",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_TIMESTAMP",
+          "datatype": "date",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "19",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_BATCH_ID",
+          "datatype": "number(p,s)",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "38",
+          "scale": "0"
+        },
+        {
+          "name": "AUDIT_ETL_USER",
+          "datatype": "varchar2",
+          "keytype": "NOT A KEY",
+          "nullable": "NULL",
+          "precision": "25",
+          "scale": "0"
+        }
+      ]
+    }
+  ],
+  "mapping": {
+    "name": "m_CSS_RS_FACT_CORE_TO_ORACLE",
+    "description": "",
+    "instances": [
+      {
+        "name": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "type": "TARGET",
+        "transformation_name": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "transformation_type": "Target Definition"
+      },
+      {
+        "name": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "type": "TARGET",
+        "transformation_name": "TG_FACT_SKU_CAPACITIES",
+        "transformation_type": "Target Definition"
+      },
+      {
+        "name": "lkup_rs_dim_date",
+        "type": "TRANSFORMATION",
+        "transformation_name": "lkup_rs_dim_date",
+        "transformation_type": "Lookup Procedure"
+      },
+      {
+        "name": "JNRTRANS",
+        "type": "TRANSFORMATION",
+        "transformation_name": "JNRTRANS",
+        "transformation_type": "Joiner"
+      },
+      {
+        "name": "seq_factsku_caploc",
+        "type": "TRANSFORMATION",
+        "transformation_name": "seq_factsku_caploc",
+        "transformation_type": "Sequence"
+      },
+      {
+        "name": "AGGTRANS",
+        "type": "TRANSFORMATION",
+        "transformation_name": "AGGTRANS",
+        "transformation_type": "Aggregator"
+      },
+      {
+        "name": "exp_rs_dim_date",
+        "type": "TRANSFORMATION",
+        "transformation_name": "exp_rs_dim_date",
+        "transformation_type": "Expression"
+      },
+      {
+        "name": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "type": "TRANSFORMATION",
+        "transformation_name": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "transformation_type": "Source Qualifier"
+      },
+      {
+        "name": "seg_fact_skuproj_details_a",
+        "type": "TRANSFORMATION",
+        "transformation_name": "seg_fact_skuproj_details_a",
+        "transformation_type": "Sequence"
+      },
+      {
+        "name": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "type": "SOURCE",
+        "transformation_name": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "transformation_type": "Source Definition"
+      },
+      {
+        "name": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "type": "TRANSFORMATION",
+        "transformation_name": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "transformation_type": "Source Qualifier"
+      },
+      {
+        "name": "lkup_mfg_details",
+        "type": "TRANSFORMATION",
+        "transformation_name": "lkup_mfg_details",
+        "transformation_type": "Lookup Procedure"
+      },
+      {
+        "name": "lkup_item_loc",
+        "type": "TRANSFORMATION",
+        "transformation_name": "lkup_item_loc",
+        "transformation_type": "Lookup Procedure"
+      },
+      {
+        "name": "lkup_plevels",
+        "type": "TRANSFORMATION",
+        "transformation_name": "lkup_plevels",
+        "transformation_type": "Lookup Procedure"
+      },
+      {
+        "name": "exp_rs_fact_skuproj_detailed_oracle",
+        "type": "TRANSFORMATION",
+        "transformation_name": "exp_rs_fact_skuproj_detailed_oracle",
+        "transformation_type": "Expression"
+      },
+      {
+        "name": "seg_fact_skuproj_details",
+        "type": "TRANSFORMATION",
+        "transformation_name": "seg_fact_skuproj_details",
+        "transformation_type": "Sequence"
+      },
+      {
+        "name": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "type": "SOURCE",
+        "transformation_name": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "transformation_type": "Source Definition"
+      }
+    ],
+    "transformations": [
+      {
+        "name": "lkup_rs_dim_date",
+        "type": "Lookup Procedure",
+        "description": "",
+        "fields": [
+          {
+            "name": "DATE_ID",
+            "datatype": "decimal",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "DATE_TIME",
+            "datatype": "date/time",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "STANDARD_DATE",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "DAY",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "2",
+            "scale": "0"
+          },
+          {
+            "name": "DAY_SUFFIX",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "4",
+            "scale": "0"
+          },
+          {
+            "name": "DAY_NAME",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "9",
+            "scale": "0"
+          },
+          {
+            "name": "DAY_OF_WEEK",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "1",
+            "scale": "0"
+          },
+          {
+            "name": "MONTH",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "2",
+            "scale": "0"
+          },
+          {
+            "name": "MONTH_NAME",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "9",
+            "scale": "0"
+          },
+          {
+            "name": "MONTH_OF_QUARTER",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "2",
+            "scale": "0"
+          },
+          {
+            "name": "MMYYYY",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "6",
+            "scale": "0"
+          },
+          {
+            "name": "MONTH_YEAR",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "QUARTER",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "1",
+            "scale": "0"
+          },
+          {
+            "name": "QUARTER_NAME",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "9",
+            "scale": "0"
+          },
+          {
+            "name": "YEAR",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "4",
+            "scale": "0"
+          },
+          {
+            "name": "YEAR_NAME",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "7",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_MONTH",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "2",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_MONTH_NAME",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "9",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_MONTH_OF_QUARTER",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "2",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_QUARTER",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "1",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_QUARTER_NAME",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "9",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_YEAR",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "4",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_YEAR_NAME",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "7",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_MMYYYY",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "6",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_FIRST_DAY_OF_MONTH",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_LAST_DAY_OF_MONTH",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_MONTH_YEAR",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "8",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_QUARTER_ID",
+            "datatype": "decimal",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_WEEK_ID",
+            "datatype": "decimal",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_MONTH_ID",
+            "datatype": "decimal",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "JJ_YEAR_ID",
+            "datatype": "decimal",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "RUN_IND",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "2",
+            "scale": "0"
+          },
+          {
+            "name": "MPS_SNAPSHOT",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "1",
+            "scale": "0"
+          },
+          {
+            "name": "RUNSTRATEGY_SNAPSHOT",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "1",
+            "scale": "0"
+          },
+          {
+            "name": "SNAPSHOT_WEEKNO",
+            "datatype": "double",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "LKUP_MPS_DATE",
+            "datatype": "date/time",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          }
+        ],
+        "table_attributes": {
+          "Lookup Sql Override": "",
+          "Lookup table name": "DIM_DATE",
+          "Lookup Source Filter": "",
+          "Lookup caching enabled": "YES",
+          "Lookup policy on multiple match": "Use Any Value",
+          "Lookup condition": "DATE_TIME = LKUP_MPS_DATE",
+          "Connection Information": "Qlik_Dev",
+          "Source Type": "Database",
+          "Recache if Stale": "NO",
+          "Tracing Level": "Normal",
+          "Lookup cache directory name": "$PMCacheDir",
+          "Lookup cache initialize": "NO",
+          "Lookup cache persistent": "NO",
+          "Lookup Data Cache Size": "Auto",
+          "Lookup Index Cache Size": "Auto",
+          "Dynamic Lookup Cache": "NO",
+          "Synchronize Dynamic Cache": "NO",
+          "Output Old Value On Update": "NO",
+          "Update Dynamic Cache Condition": "TRUE",
+          "Cache File Name Prefix": "",
+          "Re-cache from lookup source": "NO",
+          "Insert Else Update": "NO",
+          "Update Else Insert": "NO",
+          "Datetime Format": "",
+          "Thousand Separator": "None",
+          "Decimal Separator": ".",
+          "Case Sensitive String Comparison": "NO",
+          "Null ordering": "Null Is Highest Value",
+          "Sorted Input": "NO",
+          "Lookup source is static": "NO",
+          "Pre-build lookup cache": "Auto",
+          "Subsecond Precision": "6"
+        }
+      },
+      {
+        "name": "JNRTRANS",
+        "type": "Joiner",
+        "description": "",
+        "fields": [
+          {
+            "name": "CONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "UNCONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "MONTH",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "YEAR",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "WORKINGDAYS",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGWEEKS",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "STAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "INSTALLEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "OTSTAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "BPVOLUME",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "LOC",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "ITEM",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "CLSCODE",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL1",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL2",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL4",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "GROUP_FLD",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL3",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL5",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "DESCR",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "REGION",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "RES",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "101",
+            "scale": "0"
+          },
+          {
+            "name": "SUPPLIER",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "RES1",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "WORKINGDAYS1",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "STAFCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "INSTCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "BPCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "LECAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "CAPACITYDAY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "MONTHNUM",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "YEARNUM",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "ITEM1",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "LOC1",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT/MASTER",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Case Sensitive String Comparison": "YES",
+          "Cache Directory": "$PMCacheDir",
+          "Join Condition": "RES1 = RES AND MONTHNUM = MONTH AND YEARNUM = YEAR AND LOC1 = LOC",
+          "Join Type": "Master Outer Join",
+          "Null ordering in master": "Null Is Highest Value",
+          "Null ordering in detail": "Null Is Highest Value",
+          "Tracing Level": "Normal",
+          "Joiner Data Cache Size": "Auto",
+          "Joiner Index Cache Size": "Auto",
+          "Sorted Input": "NO",
+          "Master Sort Order": "Auto",
+          "Transformation Scope": "All Input"
+        }
+      },
+      {
+        "name": "seq_factsku_caploc",
+        "type": "Sequence",
+        "description": "",
+        "fields": [
+          {
+            "name": "NEXTVAL",
+            "datatype": "bigint",
+            "port_type": "OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "ERROR('transformation error')",
+            "precision": "19",
+            "scale": "0"
+          },
+          {
+            "name": "CURRVAL",
+            "datatype": "bigint",
+            "port_type": "OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "ERROR('transformation error')",
+            "precision": "19",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Start Value": "0",
+          "Increment By": "1",
+          "End Value": "9223372036854775807",
+          "Current Value": "5487312655",
+          "Cycle": "NO",
+          "Number of Cached Values": "0",
+          "Reset": "NO",
+          "Is Current Value Shared": "NO",
+          "Tracing Level": "Normal"
+        }
+      },
+      {
+        "name": "AGGTRANS",
+        "type": "Aggregator",
+        "description": "",
+        "fields": [
+          {
+            "name": "STAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "INSTALLEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "OTSTAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "BPVOLUME",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "LOC",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "LOC",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "MONTH",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "MONTH",
+            "expression_type": "GROUPBY",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "YEAR",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "YEAR",
+            "expression_type": "GROUPBY",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "DIM_MFG_DETAILS_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_MFG_DETAILS_ID",
+            "expression_type": "GROUPBY",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "DIM_PLELEVS_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_PLELEVS_ID",
+            "expression_type": "GROUPBY",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "STAFFEDCAPACITY_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "MAX(STAFFEDCAPACITY)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "INSTALLEDCAPACITY_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "MAX(INSTALLEDCAPACITY)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "OTSTAFFEDCAPACITY_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "MAX(OTSTAFFEDCAPACITY)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "BPVOLUME_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "MAX(BPVOLUME)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGDAYS",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGWEEKS",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGWEEKS_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "MAX(WORKINGWEEKS)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGDAYS_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "MAX(WORKINGDAYS)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "DIM_SKU_ITEM_LOC_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_SKU_ITEM_LOC_ID",
+            "expression_type": "GROUPBY",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "CONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "CONSTRAINEDREQ_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "SUM(CONSTRAINEDREQ)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "UNCONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "UNCONSTRAINEDREQ_OUT",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "SUM(UNCONSTRAINEDREQ)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "AUDIT_SOURCE_SYSTEM",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_SOURCE_SYSTEM",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_TIMESTAMP",
+            "datatype": "date/time",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_TIMESTAMP",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "AUDIT_BATCH_ID",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_BATCH_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "38",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_ETL_USER",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_ETL_USER",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "25",
+            "scale": "0"
+          },
+          {
+            "name": "LKUP_MPS_DATE",
+            "datatype": "date/time",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "LKUP_MPS_DATE",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          }
+        ],
+        "table_attributes": {
+          "Cache Directory": "$PMCacheDir",
+          "Tracing Level": "Normal",
+          "Sorted Input": "NO",
+          "Aggregator Data Cache Size": "Auto",
+          "Aggregator Index Cache Size": "Auto",
+          "Transformation Scope": "All Input"
+        }
+      },
+      {
+        "name": "exp_rs_dim_date",
+        "type": "Expression",
+        "description": "",
+        "fields": [
+          {
+            "name": "LOC",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "LOC",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "MONTH",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "MONTH",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "YEAR",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "YEAR",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "DIM_MFG_DETAILS_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_MFG_DETAILS_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "DIM_PLELEVS_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_PLELEVS_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "STAFFEDCAPACITY_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "STAFFEDCAPACITY_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "INSTALLEDCAPACITY_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "INSTALLEDCAPACITY_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "OTSTAFFEDCAPACITY_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "OTSTAFFEDCAPACITY_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "BPVOLUME_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "BPVOLUME_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGWEEKS_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "WORKINGWEEKS_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGDAYS_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "WORKINGDAYS_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "DIM_SKU_ITEM_LOC_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_SKU_ITEM_LOC_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "CONSTRAINEDREQ_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "CONSTRAINEDREQ_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "UNCONSTRAINEDREQ_OUT",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "UNCONSTRAINEDREQ_OUT",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "AUDIT_SOURCE_SYSTEM",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_SOURCE_SYSTEM",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_TIMESTAMP",
+            "datatype": "date/time",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_TIMESTAMP",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "AUDIT_BATCH_ID",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_BATCH_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "38",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_ETL_USER",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "AUDIT_ETL_USER",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "25",
+            "scale": "0"
+          },
+          {
+            "name": "DATE_ID",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DATE_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Tracing Level": "Normal"
+        }
+      },
+      {
+        "name": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "type": "Source Qualifier",
+        "description": "",
+        "fields": [
+          {
+            "name": "MONTHNUM",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "YEARNUM",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "RESCAL",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "RES",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "WORKINGDAYS",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "STAFCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "INSTCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "BPCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "LECAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "CAPACITYDAY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "ITEM",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "LOC",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Sql Query": "",
+          "User Defined Join": "",
+          "Source Filter": "",
+          "Number Of Sorted Ports": "0",
+          "Tracing Level": "Normal",
+          "Is Partitionable": "NO",
+          "Pre SQL": "",
+          "Post SQL": "",
+          "Output is deterministic": "NO",
+          "Output is repeatable": "Never"
+        }
+      },
+      {
+        "name": "seg_fact_skuproj_details_a",
+        "type": "Sequence",
+        "description": "",
+        "fields": [
+          {
+            "name": "NEXTVAL",
+            "datatype": "bigint",
+            "port_type": "OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "ERROR('transformation error')",
+            "precision": "19",
+            "scale": "0"
+          },
+          {
+            "name": "CURRVAL",
+            "datatype": "bigint",
+            "port_type": "OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "ERROR('transformation error')",
+            "precision": "19",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Start Value": "0",
+          "Increment By": "1",
+          "End Value": "9223372036854775807",
+          "Current Value": "5533148214",
+          "Cycle": "NO",
+          "Number of Cached Values": "0",
+          "Reset": "NO",
+          "Is Current Value Shared": "NO",
+          "Tracing Level": "Normal"
+        }
+      },
+      {
+        "name": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "type": "Source Qualifier",
+        "description": "",
+        "fields": [
+          {
+            "name": "CONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "UNCONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "MONTH",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "YEAR",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "WORKINGDAYS",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGWEEKS",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "STAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "INSTALLEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "OTSTAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "BPVOLUME",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "LOC",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "ITEM",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "CLSCODE",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL1",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL2",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL4",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "GROUP_FLD",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL3",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL5",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "DESCR",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "REGION",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "RES",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "101",
+            "scale": "0"
+          },
+          {
+            "name": "SUPPLIER",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Sql Query": "",
+          "User Defined Join": "",
+          "Source Filter": "",
+          "Number Of Sorted Ports": "0",
+          "Tracing Level": "Normal",
+          "Is Partitionable": "NO",
+          "Pre SQL": "",
+          "Post SQL": "",
+          "Output is deterministic": "NO",
+          "Output is repeatable": "Never"
+        }
+      },
+      {
+        "name": "lkup_mfg_details",
+        "type": "Lookup Procedure",
+        "description": "",
+        "fields": [
+          {
+            "name": "ID",
+            "datatype": "double",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "MFG_GROUP",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "MFG_CLASSCODE",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "MFG_DESCR",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "CLSCODE",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "GROUP_FLD",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_SOURCE_SYSTEM",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_TIMESTAMP",
+            "datatype": "date/time",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "AUDIT_BATCH_ID",
+            "datatype": "decimal",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_ETL_USER",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "25",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Lookup Sql Override": "",
+          "Lookup table name": "DIM_MFG_DETAILS",
+          "Lookup Source Filter": "",
+          "Lookup caching enabled": "YES",
+          "Lookup policy on multiple match": "Use Last Value",
+          "Lookup condition": "MFG_GROUP = GROUP_FLD AND MFG_CLASSCODE = CLSCODE",
+          "Connection Information": "Qlik_Dev",
+          "Source Type": "Database",
+          "Recache if Stale": "NO",
+          "Tracing Level": "Normal",
+          "Lookup cache directory name": "$PMCacheDir",
+          "Lookup cache initialize": "NO",
+          "Lookup cache persistent": "NO",
+          "Lookup Data Cache Size": "Auto",
+          "Lookup Index Cache Size": "Auto",
+          "Dynamic Lookup Cache": "NO",
+          "Synchronize Dynamic Cache": "NO",
+          "Output Old Value On Update": "NO",
+          "Update Dynamic Cache Condition": "TRUE",
+          "Cache File Name Prefix": "",
+          "Re-cache from lookup source": "NO",
+          "Insert Else Update": "NO",
+          "Update Else Insert": "NO",
+          "Datetime Format": "",
+          "Thousand Separator": "None",
+          "Decimal Separator": ".",
+          "Case Sensitive String Comparison": "NO",
+          "Null ordering": "Null Is Highest Value",
+          "Sorted Input": "NO",
+          "Lookup source is static": "NO",
+          "Pre-build lookup cache": "Auto",
+          "Subsecond Precision": "6"
+        }
+      },
+      {
+        "name": "lkup_item_loc",
+        "type": "Lookup Procedure",
+        "description": "",
+        "fields": [
+          {
+            "name": "ID",
+            "datatype": "double",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "ITEM",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "LOC",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "SUPPLIER",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "REGION",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "US_CATALOG",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "EU_CATALOG",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "SKU_STATUS",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "STD_COST",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "ASP",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "OH",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "OH_POST",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "ABC",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "UNITS_PER_LINE",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "LOC1",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "ITEM1",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_SOURCE_SYSTEM",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_TIMESTAMP",
+            "datatype": "date/time",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "AUDIT_BATCH_ID",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_ETL_USER",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "25",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Lookup Sql Override": "",
+          "Lookup table name": "DIM_SKU_ITEM_LOC",
+          "Lookup Source Filter": "",
+          "Lookup caching enabled": "YES",
+          "Lookup policy on multiple match": "Use Last Value",
+          "Lookup condition": "ITEM = ITEM1 AND LOC = LOC1",
+          "Connection Information": "Qlik_Dev",
+          "Source Type": "Database",
+          "Recache if Stale": "NO",
+          "Tracing Level": "Normal",
+          "Lookup cache directory name": "$PMCacheDir",
+          "Lookup cache initialize": "NO",
+          "Lookup cache persistent": "NO",
+          "Lookup Data Cache Size": "Auto",
+          "Lookup Index Cache Size": "Auto",
+          "Dynamic Lookup Cache": "NO",
+          "Synchronize Dynamic Cache": "NO",
+          "Output Old Value On Update": "NO",
+          "Update Dynamic Cache Condition": "TRUE",
+          "Cache File Name Prefix": "",
+          "Re-cache from lookup source": "NO",
+          "Insert Else Update": "NO",
+          "Update Else Insert": "NO",
+          "Datetime Format": "",
+          "Thousand Separator": "None",
+          "Decimal Separator": ".",
+          "Case Sensitive String Comparison": "NO",
+          "Null ordering": "Null Is Highest Value",
+          "Sorted Input": "NO",
+          "Lookup source is static": "NO",
+          "Pre-build lookup cache": "Auto",
+          "Subsecond Precision": "6"
+        }
+      },
+      {
+        "name": "lkup_plevels",
+        "type": "Lookup Procedure",
+        "description": "",
+        "fields": [
+          {
+            "name": "ID",
+            "datatype": "double",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "P5",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "P4",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "P3",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "P2",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "P1",
+            "datatype": "nstring",
+            "port_type": "LOOKUP/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL1",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL2",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL3",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL4",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "PLEVEL5",
+            "datatype": "string",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_SOURCE_SYSTEM",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_TIMESTAMP",
+            "datatype": "date/time",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "AUDIT_BATCH_ID",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "30",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_ETL_USER",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "25",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Lookup Sql Override": "",
+          "Lookup table name": "DIM_PLEVELS",
+          "Lookup Source Filter": "",
+          "Lookup caching enabled": "YES",
+          "Lookup policy on multiple match": "Use Last Value",
+          "Lookup condition": "P1 = PLEVEL1 AND P2 = PLEVEL2 AND P3 = PLEVEL3 AND P4 = PLEVEL4 AND P5 = PLEVEL5",
+          "Connection Information": "Qlik_Dev",
+          "Source Type": "Database",
+          "Recache if Stale": "NO",
+          "Tracing Level": "Normal",
+          "Lookup cache directory name": "$PMCacheDir",
+          "Lookup cache initialize": "NO",
+          "Lookup cache persistent": "NO",
+          "Lookup Data Cache Size": "Auto",
+          "Lookup Index Cache Size": "Auto",
+          "Dynamic Lookup Cache": "NO",
+          "Synchronize Dynamic Cache": "NO",
+          "Output Old Value On Update": "NO",
+          "Update Dynamic Cache Condition": "TRUE",
+          "Cache File Name Prefix": "",
+          "Re-cache from lookup source": "NO",
+          "Insert Else Update": "NO",
+          "Update Else Insert": "NO",
+          "Datetime Format": "",
+          "Thousand Separator": "None",
+          "Decimal Separator": ".",
+          "Case Sensitive String Comparison": "NO",
+          "Null ordering": "Null Is Highest Value",
+          "Sorted Input": "NO",
+          "Lookup source is static": "NO",
+          "Pre-build lookup cache": "Auto",
+          "Subsecond Precision": "6"
+        }
+      },
+      {
+        "name": "exp_rs_fact_skuproj_detailed_oracle",
+        "type": "Expression",
+        "description": "",
+        "fields": [
+          {
+            "name": "ID",
+            "datatype": "bigint",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "19",
+            "scale": "0"
+          },
+          {
+            "name": "IDA",
+            "datatype": "bigint",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "IDA",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "19",
+            "scale": "0"
+          },
+          {
+            "name": "DIM_MFG_DETAILS_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_MFG_DETAILS_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "DIM_PLELEVS_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_PLELEVS_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "DIM_SKU_ITEM_LOC_ID",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "DIM_SKU_ITEM_LOC_ID",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "CREATEDDATE",
+            "datatype": "date/time",
+            "port_type": "OUTPUT",
+            "expression": "SYSDATE",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "UPDATEDDATE",
+            "datatype": "date/time",
+            "port_type": "OUTPUT",
+            "expression": "NULL",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "CONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "CONSTRAINEDREQ",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "UNCONSTRAINEDREQ",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "UNCONSTRAINEDREQ",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "4"
+          },
+          {
+            "name": "MONTH",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "MONTH",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "YEAR",
+            "datatype": "double",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "YEAR",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "15",
+            "scale": "0"
+          },
+          {
+            "name": "WORKINGDAYS",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "WORKINGDAYS",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "WORKINGWEEKS",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "WORKINGDAYS/5",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "STAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "STAFFEDCAPACITY",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "INSTALLEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "INSTALLEDCAPACITY",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "OTSTAFFEDCAPACITY",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "OTSTAFFEDCAPACITY",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "BPVOLUME",
+            "datatype": "decimal",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "BPVOLUME",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "18",
+            "scale": "4"
+          },
+          {
+            "name": "REGION",
+            "datatype": "string",
+            "port_type": "INPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "",
+            "precision": "10",
+            "scale": "0"
+          },
+          {
+            "name": "LOC",
+            "datatype": "nstring",
+            "port_type": "INPUT/OUTPUT",
+            "expression": "LOC",
+            "expression_type": "GENERAL",
+            "default_value": "",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_SOURCE_SYSTEM",
+            "datatype": "string",
+            "port_type": "OUTPUT",
+            "expression": "'MANUGISTICS'",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "50",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_TIMESTAMP",
+            "datatype": "date/time",
+            "port_type": "OUTPUT",
+            "expression": "SESSSTARTTIME",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "29",
+            "scale": "9"
+          },
+          {
+            "name": "AUDIT_BATCH_ID",
+            "datatype": "decimal",
+            "port_type": "OUTPUT",
+            "expression": "$PMWorkflowRunId",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "38",
+            "scale": "0"
+          },
+          {
+            "name": "AUDIT_ETL_USER",
+            "datatype": "string",
+            "port_type": "OUTPUT",
+            "expression": "$PMRepositoryUserName",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "25",
+            "scale": "0"
+          },
+          {
+            "name": "LKUP_MPS_DATE",
+            "datatype": "date/time",
+            "port_type": "OUTPUT",
+            "expression": "trunc(SYSDATE)",
+            "expression_type": "GENERAL",
+            "default_value": "ERROR('transformation error')",
+            "precision": "29",
+            "scale": "9"
+          }
+        ],
+        "table_attributes": {
+          "Tracing Level": "Normal"
+        }
+      },
+      {
+        "name": "seg_fact_skuproj_details",
+        "type": "Sequence",
+        "description": "",
+        "fields": [
+          {
+            "name": "NEXTVAL",
+            "datatype": "bigint",
+            "port_type": "OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "ERROR('transformation error')",
+            "precision": "19",
+            "scale": "0"
+          },
+          {
+            "name": "CURRVAL",
+            "datatype": "bigint",
+            "port_type": "OUTPUT",
+            "expression": null,
+            "expression_type": null,
+            "default_value": "ERROR('transformation error')",
+            "precision": "19",
+            "scale": "0"
+          }
+        ],
+        "table_attributes": {
+          "Start Value": "0",
+          "Increment By": "1",
+          "End Value": "9223372036854775807",
+          "Current Value": "5533148214",
+          "Cycle": "NO",
+          "Number of Cached Values": "0",
+          "Reset": "NO",
+          "Is Current Value Shared": "NO",
+          "Tracing Level": "Normal"
+        }
+      }
+    ],
+    "connectors": [
+      {
+        "from_instance": "seg_fact_skuproj_details_a",
+        "from_instance_type": "Sequence",
+        "from_field": "NEXTVAL",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DATE_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_DATE_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_SOURCE_SYSTEM",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_SOURCE_SYSTEM"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_TIMESTAMP",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_TIMESTAMP"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_BATCH_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_BATCH_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_ETL_USER",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_ETL_USER"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "MONTH",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "MONTH"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "YEAR",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "YEAR"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "UNCONSTRAINEDREQ_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "UNCONSTRAINEDREQUIREMENTS"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "CONSTRAINEDREQ_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "CONSTRAINEDREQUIREMENTS"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_MFG_DETAILS_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_MFG_DETAILS_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_PLELEVS_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_PLEVELS_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_SKU_ITEM_LOC_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_A_ORACLE",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_SKU_ITEM_LOC_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_TIMESTAMP",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_TIMESTAMP"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "INSTALLEDCAPACITY_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "INSTALLEDCAPACITY"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "OTSTAFFEDCAPACITY_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "OTSTAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "BPVOLUME_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "BPVOLUME"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_MFG_DETAILS_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_MFG_DETAILS_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_PLELEVS_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_PLEVELS_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_SKU_ITEM_LOC_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_SKU_ITEM_LOC_ID"
+      },
+      {
+        "from_instance": "seq_factsku_caploc",
+        "from_instance_type": "Sequence",
+        "from_field": "NEXTVAL",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "DATE_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "DIM_DATE_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_SOURCE_SYSTEM",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_SOURCE_SYSTEM"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_BATCH_ID",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_BATCH_ID"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_ETL_USER",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "AUDIT_ETL_USER"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "LOC",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "LOC"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "MONTH",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "MONTH"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "YEAR",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "YEAR"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "WORKINGDAYS_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "WORKINGDAYS"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "WORKINGWEEKS_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "WORKINGWEEKS"
+      },
+      {
+        "from_instance": "exp_rs_dim_date",
+        "from_instance_type": "Expression",
+        "from_field": "STAFFEDCAPACITY_OUT",
+        "to_instance": "TG_FACT_SKU_CAPACITIES_LOC_A",
+        "to_instance_type": "Target Definition",
+        "to_field": "STAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "lkup_rs_dim_date",
+        "from_instance_type": "Lookup Procedure",
+        "from_field": "DATE_ID",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "DATE_ID"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "LKUP_MPS_DATE",
+        "to_instance": "lkup_rs_dim_date",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "LKUP_MPS_DATE"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "CLSCODE",
+        "to_instance": "lkup_mfg_details",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "CLSCODE"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "GROUP_FLD",
+        "to_instance": "lkup_mfg_details",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "GROUP_FLD"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "LOC",
+        "to_instance": "lkup_item_loc",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "LOC1"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "ITEM",
+        "to_instance": "lkup_item_loc",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "ITEM1"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "PLEVEL1",
+        "to_instance": "lkup_plevels",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "PLEVEL1"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "PLEVEL2",
+        "to_instance": "lkup_plevels",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "PLEVEL2"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "PLEVEL3",
+        "to_instance": "lkup_plevels",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "PLEVEL3"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "PLEVEL4",
+        "to_instance": "lkup_plevels",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "PLEVEL4"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "PLEVEL5",
+        "to_instance": "lkup_plevels",
+        "to_instance_type": "Lookup Procedure",
+        "to_field": "PLEVEL5"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "UNCONSTRAINEDREQ",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "UNCONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "MONTH",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "MONTH"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "YEAR",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "YEAR"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "WORKINGDAYS1",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "WORKINGDAYS"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "STAFCAPACITY",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "STAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "CONSTRAINEDREQ",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "CONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "INSTCAPACITY",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "INSTALLEDCAPACITY"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "BPCAPACITY",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "BPVOLUME"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "LECAPACITY",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "OTSTAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "REGION",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "REGION"
+      },
+      {
+        "from_instance": "JNRTRANS",
+        "from_instance_type": "Joiner",
+        "from_field": "LOC",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "LOC"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "YEARNUM",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "YEARNUM"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "CONSTRAINEDREQ",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "CONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "UNCONSTRAINEDREQ",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "UNCONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "MONTH",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "MONTH"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "YEAR",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "YEAR"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "WORKINGDAYS",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "WORKINGDAYS"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "WORKINGWEEKS",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "WORKINGWEEKS"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "STAFFEDCAPACITY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "STAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "INSTALLEDCAPACITY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "INSTALLEDCAPACITY"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "OTSTAFFEDCAPACITY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "OTSTAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "BPVOLUME",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "BPVOLUME"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "LOC",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "LOC"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "ITEM",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "ITEM"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "CLSCODE",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "CLSCODE"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "PLEVEL1",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "PLEVEL1"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "PLEVEL2",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "PLEVEL2"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "PLEVEL4",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "PLEVEL4"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "GROUP_FLD",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "GROUP_FLD"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "PLEVEL3",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "PLEVEL3"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "PLEVEL5",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "PLEVEL5"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "DESCR",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "DESCR"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "REGION",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "REGION"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "RES",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "RES"
+      },
+      {
+        "from_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "SUPPLIER",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "SUPPLIER"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "RES",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "RES1"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "ITEM",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "ITEM1"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "LOC",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "LOC1"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "BPCAPACITY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "BPCAPACITY"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "WORKINGDAYS",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "WORKINGDAYS1"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "STAFCAPACITY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "STAFCAPACITY"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "INSTCAPACITY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "INSTCAPACITY"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "LECAPACITY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "LECAPACITY"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "CAPACITYDAY",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "CAPACITYDAY"
+      },
+      {
+        "from_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Qualifier",
+        "from_field": "MONTHNUM",
+        "to_instance": "JNRTRANS",
+        "to_instance_type": "Joiner",
+        "to_field": "MONTHNUM"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "BPVOLUME",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "BPVOLUME"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "LOC",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "LOC"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_SOURCE_SYSTEM",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "AUDIT_SOURCE_SYSTEM"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_TIMESTAMP",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "AUDIT_TIMESTAMP"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_BATCH_ID",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "AUDIT_BATCH_ID"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "AUDIT_ETL_USER",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "AUDIT_ETL_USER"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "LKUP_MPS_DATE",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "LKUP_MPS_DATE"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "MONTH",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "MONTH"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "YEAR",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "YEAR"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_MFG_DETAILS_ID",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "DIM_MFG_DETAILS_ID"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_PLELEVS_ID",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "DIM_PLELEVS_ID"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "WORKINGDAYS",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "WORKINGDAYS"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "WORKINGWEEKS",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "WORKINGWEEKS"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "DIM_SKU_ITEM_LOC_ID",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "DIM_SKU_ITEM_LOC_ID"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "CONSTRAINEDREQ",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "CONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "UNCONSTRAINEDREQ",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "UNCONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "STAFFEDCAPACITY",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "STAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "INSTALLEDCAPACITY",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "INSTALLEDCAPACITY"
+      },
+      {
+        "from_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "from_instance_type": "Expression",
+        "from_field": "OTSTAFFEDCAPACITY",
+        "to_instance": "AGGTRANS",
+        "to_instance_type": "Aggregator",
+        "to_field": "OTSTAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "LOC",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "LOC"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "MONTH",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "MONTH"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "YEAR",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "YEAR"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "DIM_MFG_DETAILS_ID",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "DIM_MFG_DETAILS_ID"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "DIM_PLELEVS_ID",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "DIM_PLELEVS_ID"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "STAFFEDCAPACITY_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "STAFFEDCAPACITY_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "INSTALLEDCAPACITY_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "INSTALLEDCAPACITY_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "OTSTAFFEDCAPACITY_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "OTSTAFFEDCAPACITY_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "BPVOLUME_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "BPVOLUME_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "WORKINGWEEKS_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "WORKINGWEEKS_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "WORKINGDAYS_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "WORKINGDAYS_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "DIM_SKU_ITEM_LOC_ID",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "DIM_SKU_ITEM_LOC_ID"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "CONSTRAINEDREQ_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "CONSTRAINEDREQ_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "UNCONSTRAINEDREQ_OUT",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "UNCONSTRAINEDREQ_OUT"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "AUDIT_SOURCE_SYSTEM",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "AUDIT_SOURCE_SYSTEM"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "AUDIT_TIMESTAMP",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "AUDIT_TIMESTAMP"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "AUDIT_BATCH_ID",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "AUDIT_BATCH_ID"
+      },
+      {
+        "from_instance": "AGGTRANS",
+        "from_instance_type": "Aggregator",
+        "from_field": "AUDIT_ETL_USER",
+        "to_instance": "exp_rs_dim_date",
+        "to_instance_type": "Expression",
+        "to_field": "AUDIT_ETL_USER"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "MONTHNUM",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "MONTHNUM"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "YEARNUM",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "YEARNUM"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "RESCAL",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "RESCAL"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "RES",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "RES"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "WORKINGDAYS",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "WORKINGDAYS"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "STAFCAPACITY",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "STAFCAPACITY"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "INSTCAPACITY",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "INSTCAPACITY"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "BPCAPACITY",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "BPCAPACITY"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "LECAPACITY",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "LECAPACITY"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "CAPACITYDAY",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "CAPACITYDAY"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "ITEM",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "ITEM"
+      },
+      {
+        "from_instance": "SRC_CSS_NKIT_CAPACITY_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "LOC",
+        "to_instance": "SQ_SRC_CSS_NKIT_CAPACITY_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "LOC"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "USYS_H1_LEVEL3",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "REGION"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "RES",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "RES"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "UREP_R1_REPORT2",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "SUPPLIER"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "MONTHLY_CONSTRAINEDREQ",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "CONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "MONTHLY_UNCONSTRAINEDREQ",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "UNCONSTRAINEDREQ"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "MONTH",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "MONTH"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "YEAR",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "YEAR"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "WORKINGWEEKS",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "WORKINGWEEKS"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "UREP_R1_REPORT1",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "GROUP_FLD"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "USYS_H1_LEVEL4",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "PLEVEL4"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "USYS_H1_LEVEL31",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "PLEVEL3"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "USYS_H1_LEVEL5",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "PLEVEL5"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "DESCR",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "DESCR"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "WORKINGDAYS",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "WORKINGDAYS"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "STAFFEDCAPACITY",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "STAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "INSTALLEDCAPACITY",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "INSTALLEDCAPACITY"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "OTSTAFFEDCAPACITY",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "OTSTAFFEDCAPACITY"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "BPVOLUME",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "BPVOLUME"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "LOC",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "LOC"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "ITEM",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "ITEM"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "UREP_MFGCLSCODE",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "CLSCODE"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "USYS_H1_LEVEL1",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "PLEVEL1"
+      },
+      {
+        "from_instance": "SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "from_instance_type": "Source Definition",
+        "from_field": "USYS_H1_LEVEL2",
+        "to_instance": "SQ_SRC_RS_MFG_DETAILS_SKUPROJSTATIC_CORE",
+        "to_instance_type": "Source Qualifier",
+        "to_field": "PLEVEL2"
+      },
+      {
+        "from_instance": "lkup_mfg_details",
+        "from_instance_type": "Lookup Procedure",
+        "from_field": "ID",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "DIM_MFG_DETAILS_ID"
+      },
+      {
+        "from_instance": "lkup_item_loc",
+        "from_instance_type": "Lookup Procedure",
+        "from_field": "ID",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "DIM_SKU_ITEM_LOC_ID"
+      },
+      {
+        "from_instance": "lkup_plevels",
+        "from_instance_type": "Lookup Procedure",
+        "from_field": "ID",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "DIM_PLELEVS_ID"
+      },
+      {
+        "from_instance": "seg_fact_skuproj_details",
+        "from_instance_type": "Sequence",
+        "from_field": "NEXTVAL",
+        "to_instance": "exp_rs_fact_skuproj_detailed_oracle",
+        "to_instance_type": "Expression",
+        "to_field": "ID"
+      }
+    ]
+  }
+}
