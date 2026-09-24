@@ -280,12 +280,19 @@ def normalize_file_path(path):
     """
     Convert Informatica file paths to runtime S3 paths.
 
-    Example:
-        /prod/edl/consumer/vfeth/str/vflh_wrk/tg_res_wrk/tg_res_wrk.txt
+    Two shapes occur in the exports:
 
-    becomes:
+      A) a folder sits between the layer and the file:
+         /prod/edl/consumer/vfeth/str/vflh_wrk/tg_res_wrk/tg_res_wrk.txt
+         -> s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk
+         (strip the filename; the folder tg_res_wrk becomes the S3 folder)
 
-        s3a://edl-cdp-dev/consumer/vfeth/str/vflh_wrk/tg_res_wrk
+      B) the file sits DIRECTLY under the layer folder (vflh_stg/wrk/core),
+         with no intermediate folder:
+         /prod/edl/consumer/vfeth/str/vflh_stg/file.txt
+         -> s3a://edl-cdp-dev/consumer/vfeth/str/vflh_stg/file
+         (turn the filename into the folder by trimming '.txt', so the S3 path
+          keeps a folder after the layer instead of ending at .../vflh_stg)
     """
 
     if not path:
@@ -303,9 +310,23 @@ def normalize_file_path(path):
 
     path = path.rstrip("/")
 
-    # Remove filename if it looks like a .txt file
+    # Layer folders that must always be followed by a folder in the S3 path.
+    LAYER_FOLDERS = ("vflh_stg", "vflh_wrk", "vflh_core")
+
     if path.endswith(".txt"):
-        path = path[:path.rfind("/")]
+        parts = path.split("/")
+        # is the .txt file sitting directly under a layer folder?
+        # (layer is the second-to-last segment, file is the last)
+        directly_under_layer = (
+            len(parts) >= 2 and parts[-2] in LAYER_FOLDERS
+        )
+        if directly_under_layer:
+            # Case B: trim '.txt' so the filename becomes the folder name.
+            parts[-1] = parts[-1][:-len(".txt")]
+            path = "/".join(parts)
+        else:
+            # Case A: an intermediate folder already exists; drop the filename.
+            path = path[:path.rfind("/")]
 
     return path
 

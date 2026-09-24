@@ -21,7 +21,8 @@ import os
 import re
 
 
-PLACEHOLDER = "__FILL_ME__"
+#PLACEHOLDER = "__FILL_ME__"
+PLACEHOLDER = "s3a://edl-cdp-dev/consumer/vfeth/str/eth_working_dir/vflh_stg"
 
 
 def scaffold_connections(doc):
@@ -44,8 +45,9 @@ def scaffold_connections(doc):
         db = (spec.get("database_type") or "").lower()
         if "flat file" in db or "file" in db:
             base = {
-                "format": "csv",
-                "path": f"{PLACEHOLDER}/{spec['name']}.csv",
+                "format": "parquet",
+                #"path": f"{PLACEHOLDER}/{spec['name']}.parquet",
+                "path": f"{PLACEHOLDER}/{spec['name']}",
                 "header": "true",
             }
             if is_target:
@@ -129,12 +131,12 @@ def generate_layered(workflow_path, mappings_dir, out_dir):
     """From a workflow JSON + mappings dir, emit a layered config tree:
         <out_dir>/connections.json                     (shared base)
         <out_dir>/vars.json                            (shared base)
-        <out_dir>/configs/<mapping>.connections.json   (per-mapping overrides)
-        <out_dir>/configs/<mapping>.vars.json          (per-mapping, if any vars)
+        <out_dir>/mapping_cfgs/<mapping>.connections.json   (per-mapping overrides)
+        <out_dir>/mapping_cfgs/<mapping>.vars.json          (per-mapping, if any vars)
     """
     import glob
     wf = json.load(open(workflow_path))
-    os.makedirs(os.path.join(out_dir, "configs"), exist_ok=True)
+    os.makedirs(os.path.join(out_dir, "mapping_cfgs"), exist_ok=True)
 
     # index mapping JSONs by their mapping.name
     mapping_files = {}
@@ -178,7 +180,7 @@ def generate_layered(workflow_path, mappings_dir, out_dir):
         _, mdoc = entry
         _, per_conn = _split_shared_and_per_mapping(mdoc)
         json.dump(per_conn,
-                  open(os.path.join(out_dir, "configs", f"{mp}.connections.json"), "w"),
+                  open(os.path.join(out_dir, "mapping_cfgs", f"{mp}.connections.json"), "w"),
                   indent=2)
         mvars, _ = scaffold_vars(mdoc)
         if mvars:
@@ -197,7 +199,7 @@ def generate_layered(workflow_path, mappings_dir, out_dir):
     print(f"  connections.json   (shared: oracle, target_default, "
           f"{len(wf.get('connection_variables') or {})} connection vars)")
     print(f"  vars.json          ({len(shared_vars)} variables)")
-    print(f"  configs/           ({per_written} per-mapping connection files)")
+    print(f"  mapping_cfgs/           ({per_written} per-mapping connection files)")
     print(f"\nNext: replace every \"{PLACEHOLDER}\" with real values, and set "
           f"source/target paths in the per-mapping files.")
 
