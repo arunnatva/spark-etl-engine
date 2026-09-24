@@ -21,26 +21,34 @@
 #   SPARK_SUBMIT  spark-submit binary            (default: spark-submit)
 #
 set -euo pipefail
+set -x
 
 if [[ $# -lt 2 ]]; then
-  echo "Usage: $0 <workflow.xml|workflow.json> <mappings_dir> [options]" >&2
+  echo "Usage: $0 <workflow.xml|workflow.json> <mappings_dir> <config_dir> " >&2
   exit 1
 fi
 
-WORKFLOW_INPUT="$1"; shift
-MAPPINGS_DIR="$1";   shift
+WORKFLOW_INPUT="$1"
+MAPPINGS_DIR="$2"
+CONFIG_HOME="$3"
 
-CONNECTIONS="${CONNECTIONS:-./connections.json}"
-VARS="${VARS:-./vars.json}"
+CONNECTIONS="$CONFIG_HOME""/connections.json"
+VARS="$CONFIG_HOME""/vars.json"
+
 SPARK_SUBMIT="${SPARK_SUBMIT:-spark-submit}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+export BASEDIR="$HERE"/..
+echo "$BASEDIR"
+export ETH_STG_PATH="s3a://edl-cdp-dev/"
+
 
 # 1) Ensure we have a workflow JSON (convert XML if an XML was passed)
 case "$WORKFLOW_INPUT" in
   *.xml|*.XML)
     WORKFLOW_JSON="${WORKFLOW_INPUT%.*}.json"
     echo "[run_workflow] converting workflow XML -> $WORKFLOW_JSON"
-    python3 "$HERE/workflow_xml_to_json.py" --input "$WORKFLOW_INPUT" --output "$WORKFLOW_JSON"
+    python3 "$BASEDIR/src/workflow_xml_to_json.py" --input "$WORKFLOW_INPUT" --output "$WORKFLOW_JSON"
     ;;
   *.json|*.JSON)
     WORKFLOW_JSON="$WORKFLOW_INPUT"
@@ -56,9 +64,27 @@ EXTRA=()
 [[ -f "$CONNECTIONS" ]] && EXTRA+=(--connections "$CONNECTIONS")
 [[ -f "$VARS" ]]        && EXTRA+=(--vars "$VARS")
 
+echo "mappings dir : $MAPPINGS_DIR"
+echo "workflow input : $WORKFLOW_INPUT"
+echo "connections, $CONNECTIONS"
+echo "variables, $VARS"
 echo "[run_workflow] executing workflow $WORKFLOW_JSON"
-"$SPARK_SUBMIT" "$HERE/run_workflow.py" \
+
+
+"$SPARK_SUBMIT" \
+--jars /opt/cloudera/parcels/CDH/jars/ojdbc8-21.3.0.0.jar \
+--queue eth \
+--conf spark.dynamicAllocation.enabled=true \
+--conf spark.dynamicAllocation.initialExecutors=4 \
+--conf spark.dynamicAllocation.minExecutors=4 \
+--conf spark.dynamicAllocation.maxExecutors=8 \
+--executor-memory 6g \
+--conf spark.executor.memoryOverhead=2g \
+--conf spark.sql.queryExecutionListeners="" \
+--conf spark.driver.extraJavaOptions="--add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED" \
+--conf spark.executor.extraJavaOptions="--add-opens=java.base/sun.net.www.protocol.jar=ALL-UNNAMED" \
+"$BASEDIR/src/run_workflow.py" \
   --workflow "$WORKFLOW_JSON" \
   --mappings-dir "$MAPPINGS_DIR" \
-  "${EXTRA[@]}" \
-  "$@"
+  --connections "$CONNECTIONS" \
+  --vars "$VARS"

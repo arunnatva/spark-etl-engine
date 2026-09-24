@@ -12,6 +12,9 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${1:-}"; shift || true
+HERE="/home/anatva/eth_spark/"
+echo $HERE
+echo $MODE
 
 case "$MODE" in
   workflow)
@@ -20,7 +23,7 @@ case "$MODE" in
       echo "Usage: $0 workflow <workflow.json> <mappings_dir> [out_dir]" >&2
       exit 1
     fi
-    python3 "$HERE/gen_configs.py" \
+    python3 "$HERE/src/gen_configs.py" \
       --workflow "$WORKFLOW" \
       --mappings-dir "$MAPPINGS_DIR" \
       --out-dir "$OUT_DIR"
@@ -32,7 +35,7 @@ case "$MODE" in
       echo "Usage: $0 mapping <mapping.json> [out_connections] [out_vars]" >&2
       exit 1
     fi
-    python3 "$HERE/gen_configs.py" \
+    python3 "$HERE/src/gen_configs.py" \
       --mapping "$MAPPING" \
       --out-connections "$OUT_CONN" \
       --out-vars "$OUT_VARS"

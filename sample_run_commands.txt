@@ -1,0 +1,36 @@
+#
+##==================================================================
+## COMMANDS TO RUN RUN_WORKFLOW.SH THAT INITIATES THE SPARK-SUBMIT
+##==================================================================
+
+#nohup /home/saethied/eth_spark/scripts/run_workflow.sh /home/saethied/eth_spark/workflows/lh/wf_JOB_GSC_CDL_DATA_LOAD.json /home/saethied/eth_spark/mappings/lh/gsc_cdl_data_load /home/saethied/eth_spark/configs/lh > /tmp/ethlogs/gsc_cdl_data_load_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+#nohup /home/saethied/eth_spark/scripts/run_workflow.sh /home/saethied/eth_spark/workflows/manu/wf_css_run_strategy.json /home/saethied/eth_spark/mappings/manu/css_run_strategy /home/saethied/eth_spark/configs/manu > /tmp/ethlogs/css_run_strategy_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+#nohup /home/saethied/eth_spark/scripts/run_workflow.sh /home/saethied/eth_spark/workflows/manu/wf_m_mpsitem.json /home/saethied/eth_spark/mappings/manu/mpsitem /home/saethied/eth_spark/configs/manu > /tmp/ethlogs/mpsitem_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+#nohup /home/saethied/eth_spark/scripts/run_workflow.sh /home/saethied/eth_spark/workflows/lh/wf_m_GSC_FISCAL_CALENDAR.json /home/saethied/eth_spark/mappings/lh/gsc_fiscal_calendar /home/saethied/eth_spark/configs/lh > /tmp/ethlogs/gsc_fiscal_calendar_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+#nohup /home/saethied/eth_spark/scripts/run_workflow.sh /home/saethied/eth_spark/workflows/manu/wf_m_mpsitem.json /home/saethied/eth_spark/mappings/manu/mpsitem /home/saethied/eth_spark/configs/manu > /tmp/ethlogs/mpsitem_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+#nohup /home/saethied/eth_spark/scripts/run_workflow.sh /home/saethied/eth_spark/workflows/manu/wf_css_manugistics_ing_daily_1stset.json /home/saethied/eth_spark/mappings/manu/daily_1stset /home/saethied/eth_spark/configs/manu > /tmp/ethlogs/daily_1stset_$(date +%Y%m%d_%H%M%S).log 2>&1 &
+
+
+##===================================================================
+## COMMANDS TO RUN SCRIPT TO CONVERT WORKFLOW XML TO WORKFLOW JSON
+##===================================================================
+
+## $ scripts/workflow_xml_to_json.sh xmls/manu/daily_2ndset/wf_css_manugistics_ing_daily_2ndset.xml workflows/manu/wf_css_manugistics_ing_daily_2ndset.json
+## $ scripts/workflow_xml_to_json.sh xmls/manu/skuprojstatic_adj_wed/wf_css_manugistics_ing_wkly_snapshot_skuprojstatic_adj_wed.XML workflows/manu/wf_css_manugistics_ing_wkly_snapshot_skuprojstatic_adj_wed.json
+
+
+##===================================================================
+## COMMANDS TO RUN SCRIPT TO CONVERT WORKFLOW XML TO WORKFLOW JSON
+##===================================================================
+
+## $ scripts/mapping_xml_to_json.sh xmls/lh/gsc_fiscal_calendar_monthly mappings/lh/gsc_fiscal_calendar_monthly
+## $ scripts/mapping_xml_to_json.sh xmls/lh/gsc_fiscal_calendar_monthly mappings/lh/gsc_fiscal_calendar_monthly
+## $ scripts/mapping_xml_to_json.sh xmls/lh/gsc_fiscal_calendar mappings/lh/gsc_fiscal_calendar
+## $ scripts/mapping_xml_to_json.sh xmls/manu/ mappings/manu/gsc_fiscal_calendar
+ 
+
